@@ -81,32 +81,40 @@ function obstacleLoop() {
 document.addEventListener("click", jump, { passive: true });
 document.addEventListener("touchstart", jump, { passive: true });
 
+let velocityY = 0;
+let gravity = 0.8;
+let isOnGround = true;
+let groundY = 110;
+
 function jump() {
-    if (jumping || gameOver) return;
+    if (gameOver) return;
+    if (!isOnGround) return;
 
-    jumping = true;
-
-    let h = 0;
-
-    let up = setInterval(() => {
-        h += 10; // 🔼 выше прыжок
-        player.style.bottom = (110 + h) + "px";
-
-        if (h > 180) {
-            clearInterval(up);
-
-            let down = setInterval(() => {
-                h -= 10;
-                player.style.bottom = (110 + h) + "px";
-
-                if (h <= 0) {
-                    clearInterval(down);
-                    jumping = false;
-                }
-            }, 20);
-        }
-    }, 20);
+    velocityY = -15; // 🔼 сила прыжка (чем больше по модулю — тем выше)
+    isOnGround = false;
 }
+
+function gameLoop() {
+    if (!gameOver) {
+
+        velocityY += gravity; // 🔽 гравитация
+        let bottom = parseFloat(player.style.bottom || groundY);
+
+        bottom -= velocityY;
+
+        if (bottom <= groundY) {
+            bottom = groundY;
+            isOnGround = true;
+            velocityY = 0;
+        }
+
+        player.style.bottom = bottom + "px";
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
 
 // 🍓 спавн ягод
 function spawnBerry() {
