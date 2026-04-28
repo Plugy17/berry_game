@@ -1,84 +1,65 @@
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial;
     background: black;
+    font-family: Arial;
 }
 
-/* 🏠 ЛОББИ */
-#lobby {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    background: radial-gradient(#1a1a2e, #000);
+/* 🔥 НЕОНОВАЯ НАДПИСЬ */
+.logo {
+    font-size: 50px;
+    color: #fff;
+    text-align: center;
+    margin-top: 40vh;
+
+    text-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff,
+        0 0 40px #ff00ff,
+        0 0 80px #ff00ff;
 }
 
-/* кнопка */
-button {
-    font-size: 22px;
-    padding: 18px 30px;
-    border-radius: 16px;
-    border: none;
-}
-
-/* 🎮 ИГРА */
-#game {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    background: linear-gradient(#0b0f1a, #000);
-}
-
-/* скрытие */
-.hidden {
-    display: none;
-}
-
-/* 🟫 полоса */
-#track {
+/* МЕНЮ */
+#menu {
     position: absolute;
-    bottom: 100px;
     width: 100%;
-    height: 10px;
-    background: #333;
+    height: 100%;
+    background: black;
+    text-align: center;
 }
 
-/* 🦄 игрок */
-#player {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    bottom: 110px;
-    left: 50px;
-    background: pink;
-    border-radius: 15px;
+#menu button {
+    padding: 15px 40px;
+    font-size: 20px;
+    border-radius: 20px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
 }
 
-/* 🍓 */
-.berry {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    background: red;
-    border-radius: 50%;
-}
-
-/* 👾 */
-.obstacle {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: blue;
-}
-
-/* UI */
+/* КНОПКИ */
 #ui {
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
+}
+
+#homeBtn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    font-size: 25px;
+    border-radius: 50%;
+    padding: 10px;
     color: white;
-    font-size: 24px;
+}
+
+/* GAME OVER */
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    color: white;
+    text-align: center;
 }
