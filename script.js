@@ -1,118 +1,81 @@
-// ==================== BERRY RUNNER ====================
-let scene, camera, renderer, player;
-let gameStarted = false;
+// === ПРОСТОЙ ТЕСТ BERRY RUNNER ===
+
+console.log("=== script.js ЗАГРУЗИЛСЯ ===");
 
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-console.log("Скрипт загружен");
+let scene, camera, renderer, player;
+let gameStarted = false;
 
-// Основная инициализация Three.js
-function initThree() {
-    console.log("initThree запущен");
+// Основная функция
+function init() {
+    console.log("init() запущена");
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x2b0a3d);
+    scene.background = new THREE.Color(0x1a0033);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     
-    renderer = new THREE.WebGLRenderer({ 
-        antialias: true,
-        alpha: false 
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    
+    renderer.setPixelRatio(2);
     document.body.appendChild(renderer.domElement);
-    console.log("Canvas добавлен в body");
+
+    console.log("Canvas успешно добавлен!");
 
     // Свет
-    const dirLight = new THREE.DirectionalLight(0xffccff, 1.4);
-    dirLight.position.set(5, 10, 10);
-    scene.add(dirLight);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const light = new THREE.DirectionalLight(0xff88ff, 1);
+    light.position.set(0, 10, 10);
+    scene.add(light);
 
-    // Дорога
-    const road = new THREE.Mesh(
-        new THREE.PlaneGeometry(12, 300),
-        new THREE.MeshStandardMaterial({ color: 0x3a0a5f })
-    );
-    road.rotation.x = -Math.PI / 2;
-    road.position.set(0, -0.1, -60);
-    scene.add(road);
-
-    // Временный игрок — яркий кубик (чтобы сразу видеть результат)
-    const geometry = new THREE.BoxGeometry(1.2, 1.8, 1.2);
-    const material = new THREE.MeshStandardMaterial({ color: 0xff00ff });
-    player = new THREE.Mesh(geometry, material);
-    player.position.set(0, 0.9, 0);
+    // Игрок — большой ярко-розовый куб
+    const geo = new THREE.BoxGeometry(1.5, 2, 1.5);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xff00ff });
+    player = new THREE.Mesh(geo, mat);
+    player.position.set(0, 1, 0);
     scene.add(player);
 
-    camera.position.set(0, 5, 10);
+    camera.position.set(0, 6, 12);
     camera.lookAt(0, 1, 0);
 
     animate();
-    console.log("initThree завершён успешно");
 }
 
 function animate() {
     requestAnimationFrame(animate);
 
     if (gameStarted && player) {
-        // Движение игрока вперёд (для ощущения бега)
-        player.position.z -= 0.15;
-        
-        // Лёгкое покачивание
-        player.rotation.y = Math.sin(Date.now() * 0.003) * 0.1;
+        player.position.z -= 0.12;
+        player.rotation.y += 0.02;
     }
 
-    if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-    }
+    renderer.render(scene, camera);
 }
 
-// ====================== ЗАПУСК ИГРЫ ======================
+// Запуск игры после нажатия PLAY
 function startGame() {
-    console.log("Кнопка PLAY нажата");
+    console.log("startGame() вызвана — скрываем меню");
 
     const menu = document.getElementById("menu");
-    if (menu) {
-        menu.style.opacity = "0";
-        setTimeout(() => {
-            menu.style.display = "none";
-            console.log("Меню скрыто");
-            
-            gameStarted = true;
-            console.log("gameStarted = true");
-        }, 400);
-    }
+    menu.style.opacity = "0";
+
+    setTimeout(() => {
+        menu.style.display = "none";
+        gameStarted = true;
+        console.log("Меню скрыто, игра запущена!");
+    }, 300);
 }
 
-// Управление
-document.addEventListener("touchend", (e) => {
-    if (!gameStarted || !player) return;
+// Привязываем событие к кнопке (на всякий случай)
+window.startGame = startGame;
 
-    const touch = e.changedTouches[0];
-    // Простой прыжок по тапу
-    if (player.position.y < 1) {
-        let vel = 4;
-        const jumpInterval = setInterval(() => {
-            vel -= 0.35;
-            player.position.y += vel * 0.07;
-            if (player.position.y <= 0) {
-                player.position.y = 0;
-                clearInterval(jumpInterval);
-            }
-        }, 16);
-    }
+// Автозапуск Three.js при загрузке страницы
+window.addEventListener('load', () => {
+    console.log("window load событие сработало");
+    init();
 });
 
-// Инициализация при загрузке страницы
-window.onload = () => {
-    console.log("window.onload сработал");
-    initThree();
-};
-
-// Для отладки
-console.log("Скрипт полностью загружен");
+console.log("=== script.js полностью выполнен ===");
