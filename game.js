@@ -1,3 +1,4 @@
+let gameOver = false;
 let player;
 let score = 0;
 let jumping = false;
