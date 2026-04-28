@@ -158,10 +158,7 @@ location.reload();
 }
 
 // ---------------- RESIZE ----------------
-window.addEventListener("resize",()=>{
-camera.aspect=window.innerWidth/window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth,window.innerHeight);
-});
-
+window.startGame = startGame;
+window.restart = restart;
+window.backMenu = backMenu;
 init();
