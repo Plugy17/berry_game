@@ -1,77 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Berry Game</title>
+<title>BERRY 2D GAME</title>
 
 <style>
 body {
     margin: 0;
-    background: #0f0f0f;
-    overflow: hidden;
+    background: #0b0f1a;
     font-family: Arial;
+    color: white;
 }
 
-#player {
-    width: 50px;
-    height: 50px;
-    background: gold;
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* UI */
+.panel {
     position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
     border-radius: 10px;
 }
 
-#berry {
-    width: 25px;
-    height: 25px;
-    background: lime;
-    border-radius: 50%;
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* berry */
+.berry {
+    width: 30px;
+    height: 30px;
     position: absolute;
+    background: red;
+    border-radius: 50%;
+    animation: fall 5s linear infinite;
+}
+
+@keyframes fall {
+    from { top: -50px; }
+    to { top: 100vh; }
+}
+
+/* player */
+#player {
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: gold;
+    border-radius: 20px;
+    text-align: center;
+    line-height: 80px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="player"></div>
-<div id="berry"></div>
+<div id="game">
+
+    <div class="panel">
+        🍓: <span id="berries">0</span><br>
+        ⚡: <span id="power">0</span><br><br>
+
+        <button onclick="farm()">🍓 Фарм</button>
+        <button onclick="upgrade()">⚡ Энергия</button>
+        <button onclick="spawnPet()">🐾 Питомец</button>
+    </div>
+
+    <div id="player">🧍</div>
+
+</div>
 
 <script>
-let player = document.getElementById("player");
-let berry = document.getElementById("berry");
+let berries = 0;
+let power = 0;
+let pet = false;
 
-let x = 100;
-let y = 100;
-
-let bx = 200;
-let by = 200;
-
-function draw() {
-    player.style.left = x + "px";
-    player.style.top = y + "px";
-
-    berry.style.left = bx + "px";
-    berry.style.top = by + "px";
+/* обновление UI */
+function update() {
+    document.getElementById("berries").innerText = berries;
+    document.getElementById("power").innerText = power;
 }
 
-function collision() {
-    if (Math.abs(x - bx) < 40 && Math.abs(y - by) < 40) {
-        bx = Math.random() * window.innerWidth;
-        by = Math.random() * window.innerHeight;
-        alert("🍓 +1 berry!");
-    }
+/* фарм */
+function farm() {
+    let gain = Math.floor(Math.random() * 5) + 1;
+
+    if (pet) gain *= 2;
+
+    berries += gain;
+    update();
+
+    showText("+" + gain + " 🍓");
 }
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "w") y -= 10;
-    if (e.key === "s") y += 10;
-    if (e.key === "a") x -= 10;
-    if (e.key === "d") x += 10;
+/* энергия */
+function upgrade() {
+    power++;
+    showText("⚡ +1 энергия");
+    update();
+}
 
-    draw();
-    collision();
-});
+/* питомец */
+function spawnPet() {
+    pet = true;
+    showText("🐾 Питомец активирован!");
+}
 
-draw();
+/* падающие ягоды */
+function createBerry() {
+    let b = document.createElement("div");
+    b.className = "berry";
+    b.style.left = Math.random() * window.innerWidth + "px";
+
+    b.onclick = () => {
+        berries += 1;
+        update();
+        b.remove();
+    };
+
+    document.getElementById("game").appendChild(b);
+
+    setTimeout(() => b.remove(), 5000);
+}
+
+setInterval(createBerry, 1200);
+
+/* текст эффект */
+function showText(text) {
+    let t = document.createElement("div");
+    t.innerText = text;
+    t.style.position = "absolute";
+    t.style.left = "50%";
+    t.style.top = "40%";
+    t.style.transform = "translate(-50%)";
+    t.style.fontSize = "20px";
+    t.style.color = "yellow";
+
+    document.getElementById("game").appendChild(t);
+
+    setTimeout(() => t.remove(), 800);
+}
+
+update();
 </script>
 
 </body>
