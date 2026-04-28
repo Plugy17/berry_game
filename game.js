@@ -22,6 +22,12 @@ function startGame() {
     berryLoop();
 }
 
+function loseGame() {
+    gameOver = true;
+
+    document.getElementById("lose").style.display = "block";
+}
+
 // 🟡 прыжок
 document.addEventListener("click", jump, { passive: true });
 document.addEventListener("touchstart", jump, { passive: true });
