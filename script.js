@@ -1,73 +1,125 @@
-console.log("script.js загружен");
+let scene, camera, renderer;
+let player;
+let obstacles = [];
+let coins = [];
+let gameStarted = false;
+let speed = 0.15;
 
+const loader = new THREE.GLTFLoader();
+
+// Telegram
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-let scene, camera, renderer, player;
-let gameStarted = false;
-
 function init() {
-    console.log("init() начала работу");
-
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x440077);
+    scene.background = new THREE.Color(0x2b0a3d);
+    scene.fog = new THREE.Fog(0x2b0a3d, 5, 40);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(2);
     document.body.appendChild(renderer.domElement);
 
-    console.log("Renderer и canvas созданы");
-
-    // Свет
-    scene.add(new THREE.AmbientLight(0xffffff, 1));
-    const light = new THREE.DirectionalLight(0xffaaff, 1);
-    light.position.set(5, 10, 10);
+    const light = new THREE.DirectionalLight(0xffccff, 1.2);
+    light.position.set(5, 10, 5);
     scene.add(light);
+    scene.add(new THREE.AmbientLight(0xaa66ff, 0.6));
 
-    // Большой яркий куб вместо игрока
-    player = new THREE.Mesh(
-        new THREE.BoxGeometry(2, 2.5, 2),
-        new THREE.MeshStandardMaterial({ color: 0xff00ff })
-    );
-    player.position.set(0, 1, 0);
-    scene.add(player);
+    // Дорога
+    const roadGeo = new THREE.PlaneGeometry(10, 200);
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0x3a0a5f });
+    const road = new THREE.Mesh(roadGeo, roadMat);
+    road.rotation.x = -Math.PI / 2;
+    road.position.z = -50;
+    scene.add(road);
 
-    camera.position.set(0, 6, 15);
-    camera.lookAt(0, 1, 0);
+    camera.position.set(0, 3, 6);
 
+    loadModels();
     animate();
-    console.log("init() завершена успешно");
+}
+
+function loadModels() {
+    // Игрок
+    loader.load("assets/berry.glb", (gltf) => {
+        player = gltf.scene;
+        player.scale.set(1, 1, 1);
+        player.position.set(0, 0, 0);
+        scene.add(player);
+    });
+
+    // Спавн препятствий
+    setInterval(() => {
+        if (!gameStarted) return;
+        loader.load("assets/obstacle.glb", (gltf) => {
+            let obs = gltf.scene;
+            obs.position.set((Math.random() - 0.5) * 4, 0, -30);
+            scene.add(obs);
+            obstacles.push(obs);
+        });
+    }, 1500);
+
+    // Спавн монет
+    setInterval(() => {
+        if (!gameStarted) return;
+        loader.load("assets/coin.glb", (gltf) => {
+            let coin = gltf.scene;
+            coin.position.set((Math.random() - 0.5) * 4, 1, -30);
+            scene.add(coin);
+            coins.push(coin);
+        });
+    }, 1200);
 }
 
 function animate() {
     requestAnimationFrame(animate);
-    if (gameStarted && player) {
-        player.position.z -= 0.1;
-        player.rotation.y += 0.03;
+
+    if (gameStarted) {
+        // Движение объектов
+        obstacles.forEach(o => o.position.z += speed);
+        coins.forEach(c => c.position.z += speed);
+
+        // Удаление ушедших объектов
+        obstacles = obstacles.filter(o => {
+            if (o.position.z > 10) {
+                scene.remove(o);
+                return false;
+            }
+            return true;
+        });
+
+        coins = coins.filter(c => {
+            if (c.position.z > 10) {
+                scene.remove(c);
+                return false;
+            }
+            return true;
+        });
+
+        if (player) {
+            player.position.z -= speed * 0.5;
+        }
     }
+
     renderer.render(scene, camera);
 }
 
 function startGame() {
-    console.log("=== Кнопка PLAY нажата ===");
-    const menu = document.getElementById("menu");
-    menu.style.opacity = "0";
-
-    setTimeout(() => {
-        menu.style.display = "none";
-        gameStarted = true;
-        console.log("Меню скрыто, игра должна запуститься");
-    }, 400);
+    document.getElementById("menu").style.display = "none";
+    gameStarted = true;
 }
 
-window.startGame = startGame;
-
-// Запуск Three.js сразу при загрузке страницы
-window.addEventListener("load", () => {
-    console.log("Страница загружена — запускаем init()");
-    init();
+// Управление клавишами (для теста)
+document.addEventListener("keydown", (e) => {
+    if (!player) return;
+    if (e.key === "ArrowLeft") player.position.x -= 0.5;
+    if (e.key === "ArrowRight") player.position.x += 0.5;
+    if (e.key === " ") {
+        player.position.y = 2;
+        setTimeout(() => player.position.y = 0, 400);
+    }
 });
+
+init();
