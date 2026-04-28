@@ -5,10 +5,19 @@ let jumping = false;
 
 // ▶ старт
 function startGame() {
+    console.log("START GAME");
+
     document.getElementById("lobby").style.display = "none";
-    document.getElementById("game").style.display = "block";
+
+    const game = document.getElementById("game");
+    game.style.display = "block";
+
+    game.style.background = "linear-gradient(#0b0f1a, #000)";
 
     player = document.getElementById("player");
+
+    score = 0;
+    document.getElementById("score").innerText = score;
 
     berryLoop();
 }
