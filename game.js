@@ -85,10 +85,7 @@ function obstacleLoop() {
     }, 1500);
 }
 // 🟡 прыжок
-document.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    jump();
-});
+
 
 let velocityY = 0;
 let gravity = 0.8;
