@@ -84,6 +84,9 @@ function spawnBerry() {
     }, 20);
 }
 
+function exitGame() {
+    location.reload();
+}
 // ⏱ цикл
 function berryLoop() {
     setInterval(spawnBerry, 1200);
