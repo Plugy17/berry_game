@@ -1,22 +1,68 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>BERRY 2D GAME</title>
+<title>FROST BERRY GAME</title>
 
 <style>
 body {
     margin: 0;
-    background: #0b0f1a;
+    background: #0a0f1e;
+    overflow: hidden;
     font-family: Arial;
     color: white;
 }
 
 #game {
+    position: relative;
     width: 100vw;
     height: 100vh;
-    position: relative;
-    overflow: hidden;
+}
+
+/* PLAYER */
+#player {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(145deg, gold, orange);
+    border-radius: 15px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 20px gold;
+    text-align: center;
+    line-height: 60px;
+    font-size: 30px;
+}
+
+/* ENEMY */
+.enemy {
+    width: 50px;
+    height: 50px;
+    background: red;
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 10px red;
+}
+
+/* COIN */
+.coin {
+    width: 25px;
+    height: 25px;
+    background: yellow;
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 10px yellow;
+}
+
+/* BOMB */
+.bomb {
+    width: 20px;
+    height: 20px;
+    background: cyan;
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 15px cyan;
 }
 
 /* UI */
@@ -24,7 +70,7 @@ body {
     position: absolute;
     top: 10px;
     left: 10px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     padding: 10px;
     border-radius: 10px;
 }
@@ -33,37 +79,10 @@ button {
     padding: 10px;
     margin: 5px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-}
-
-/* berry */
-.berry {
-    width: 30px;
-    height: 30px;
-    position: absolute;
-    background: red;
-    border-radius: 50%;
-    animation: fall 5s linear infinite;
-}
-
-@keyframes fall {
-    from { top: -50px; }
-    to { top: 100vh; }
-}
-
-/* player */
-#player {
-    width: 80px;
-    height: 80px;
-    position: absolute;
-    bottom: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: gold;
-    border-radius: 20px;
-    text-align: center;
-    line-height: 80px;
+    background: #ffcc00;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -73,12 +92,12 @@ button {
 <div id="game">
 
     <div class="panel">
-        🍓: <span id="berries">0</span><br>
-        ⚡: <span id="power">0</span><br><br>
+        💰: <span id="coins">0</span><br>
+        💣: <span id="bombs">0</span><br><br>
 
-        <button onclick="farm()">🍓 Фарм</button>
-        <button onclick="upgrade()">⚡ Энергия</button>
-        <button onclick="spawnPet()">🐾 Питомец</button>
+        <button onclick="dropBomb()">🍦 Бомба</button>
+        <button onclick="spawnCoin()">💰 Монета</button>
+        <button onclick="spawnEnemy()">👾 Враг</button>
     </div>
 
     <div id="player">🧍</div>
@@ -86,77 +105,110 @@ button {
 </div>
 
 <script>
-let berries = 0;
-let power = 0;
-let pet = false;
+let coins = 0;
+let bombs = 5;
 
-/* обновление UI */
-function update() {
-    document.getElementById("berries").innerText = berries;
-    document.getElementById("power").innerText = power;
+let player = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    speed: 10
+};
+
+const p = document.getElementById("player");
+
+function updateUI(){
+    document.getElementById("coins").innerText = coins;
+    document.getElementById("bombs").innerText = bombs;
 }
 
-/* фарм */
-function farm() {
-    let gain = Math.floor(Math.random() * 5) + 1;
-
-    if (pet) gain *= 2;
-
-    berries += gain;
-    update();
-
-    showText("+" + gain + " 🍓");
+function renderPlayer(){
+    p.style.left = player.x + "px";
+    p.style.top = player.y + "px";
 }
 
-/* энергия */
-function upgrade() {
-    power++;
-    showText("⚡ +1 энергия");
-    update();
-}
+document.addEventListener("keydown", (e) => {
+    if(e.key === "w") player.y -= player.speed;
+    if(e.key === "s") player.y += player.speed;
+    if(e.key === "a") player.x -= player.speed;
+    if(e.key === "d") player.x += player.speed;
 
-/* питомец */
-function spawnPet() {
-    pet = true;
-    showText("🐾 Питомец активирован!");
-}
+    renderPlayer();
+});
 
-/* падающие ягоды */
-function createBerry() {
+/* 💣 БОМБА */
+function dropBomb(){
+    if(bombs <= 0) return;
+
+    bombs--;
+
     let b = document.createElement("div");
-    b.className = "berry";
-    b.style.left = Math.random() * window.innerWidth + "px";
-
-    b.onclick = () => {
-        berries += 1;
-        update();
-        b.remove();
-    };
+    b.className = "bomb";
+    b.style.left = player.x + "px";
+    b.style.top = player.y + "px";
 
     document.getElementById("game").appendChild(b);
 
-    setTimeout(() => b.remove(), 5000);
+    let enemies = document.getElementsByClassName("enemy");
+
+    setInterval(() => {
+        let bx = b.offsetLeft;
+        let by = b.offsetTop;
+
+        for(let e of enemies){
+            let ex = e.offsetLeft;
+            let ey = e.offsetTop;
+
+            if(Math.abs(bx - ex) < 40 && Math.abs(by - ey) < 40){
+                e.remove();
+                coins += 5;
+                updateUI();
+            }
+        }
+
+        b.style.top = (b.offsetTop - 5) + "px";
+    }, 30);
+
+    setTimeout(() => b.remove(), 3000);
+
+    updateUI();
 }
 
-setInterval(createBerry, 1200);
+/* 💰 монеты */
+function spawnCoin(){
+    let c = document.createElement("div");
+    c.className = "coin";
+    c.style.left = Math.random() * window.innerWidth + "px";
+    c.style.top = Math.random() * window.innerHeight + "px";
 
-/* текст эффект */
-function showText(text) {
-    let t = document.createElement("div");
-    t.innerText = text;
-    t.style.position = "absolute";
-    t.style.left = "50%";
-    t.style.top = "40%";
-    t.style.transform = "translate(-50%)";
-    t.style.fontSize = "20px";
-    t.style.color = "yellow";
+    c.onclick = () => {
+        coins++;
+        c.remove();
+        updateUI();
+    };
 
-    document.getElementById("game").appendChild(t);
-
-    setTimeout(() => t.remove(), 800);
+    document.getElementById("game").appendChild(c);
 }
 
-update();
+/* 👾 враги */
+function spawnEnemy(){
+    let e = document.createElement("div");
+    e.className = "enemy";
+    e.style.left = Math.random() * window.innerWidth + "px";
+    e.style.top = Math.random() * window.innerHeight + "px";
+
+    document.getElementById("game").appendChild(e);
+}
+
+/* автоспавн */
+setInterval(() => {
+    if(Math.random() > 0.5) spawnCoin();
+    if(Math.random() > 0.7) spawnEnemy();
+    bombs = Math.min(bombs + 1, 10);
+    updateUI();
+}, 4000);
+
+renderPlayer();
+updateUI();
 </script>
 
 </body>
