@@ -1,30 +1,27 @@
-let player;
-lconst canvas = document.getElementById("game");
+const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// 📱 resize фикс (очень важно для GitHub + Telegram)
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-// 🖼️ ассеты
+// 🖼️ ASSETS (ИСПРАВЛЕНО: ./ путь!)
 const bg = new Image();
-bg.src = "assets/background.jpg";
+bg.src = "./assets/background.jpg";
 
 const playerImg = new Image();
-playerImg.src = "assets/unicorn.png";
+playerImg.src = "./assets/unicorn.png";
 
 const cubeImg = new Image();
-cubeImg.src = "assets/cube.png";
+cubeImg.src = "./assets/cube.png";
 
 // 👤 игрок
-let player = {
-    x: canvas.width / 2 - 40,
-    y: canvas.height - 150,
-    width: 80,
-    height: 80,
-    vx: 0
-};
-
-let obstacles = [];
+let player;
+let obstacles;
 let gameOver = false;
 let frame = 0;
 
@@ -51,12 +48,20 @@ function goHome() {
 
 // ♻️ сброс
 function resetGame() {
+    player = {
+        x: canvas.width / 2 - 40,
+        y: canvas.height - 150,
+        width: 80,
+        height: 80,
+        vx: 0
+    };
+
     obstacles = [];
     gameOver = false;
-    player.x = canvas.width / 2 - 40;
+    frame = 0;
 }
 
-// 🚧 спавн
+// 🚧 препятствия
 function spawnObstacle() {
     let size = 60;
 
@@ -76,55 +81,65 @@ document.addEventListener("touchmove", e => {
 });
 
 document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft") player.vx = -5;
-    if (e.key === "ArrowRight") player.vx = 5;
+    if (e.key === "ArrowLeft") player.vx = -6;
+    if (e.key === "ArrowRight") player.vx = 6;
 });
 
 document.addEventListener("keyup", () => {
     player.vx = 0;
 });
 
-// 🔁 цикл
+// 🔁 GAME LOOP
 function update() {
     if (gameOver) return;
 
     frame++;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // 🌌 фон
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 👤 игрок движение
+    // 🌌 фон (с fallback)
+    if (bg.complete) {
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = "#0a0010";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 👤 игрок
     player.x += player.vx;
 
-    // ✨ анимация
     let bob = Math.sin(frame * 0.1) * 5;
 
     ctx.save();
     ctx.translate(player.x + player.width/2, player.y);
 
-    ctx.rotate(player.vx * 0.05);
-
     ctx.shadowColor = "pink";
     ctx.shadowBlur = 20;
 
-    ctx.drawImage(playerImg, -40, bob, 80, 80);
+    if (playerImg.complete) {
+        ctx.drawImage(playerImg, -40, bob, 80, 80);
+    } else {
+        ctx.fillStyle = "white";
+        ctx.fillRect(-40, bob, 80, 80);
+    }
+
     ctx.restore();
 
     // 🚧 препятствия
     obstacles.forEach((o, i) => {
         o.y += o.speed;
 
-        // псевдо 3D
-        o.width += 0.05;
-        o.height += 0.05;
-
         ctx.shadowColor = "#ff00ff";
-        ctx.shadowBlur = 30;
+        ctx.shadowBlur = 25;
 
-        ctx.drawImage(cubeImg, o.x, o.y, o.width, o.height);
+        if (cubeImg.complete) {
+            ctx.drawImage(cubeImg, o.x, o.y, o.width, o.height);
+        } else {
+            ctx.fillStyle = "red";
+            ctx.fillRect(o.x, o.y, o.width, o.height);
+        }
 
-        // 💥 столкновение
+        // 💥 collision
         if (
             player.x < o.x + o.width &&
             player.x + player.width > o.x &&
@@ -136,12 +151,12 @@ function update() {
         }
 
         if (o.y > canvas.height) {
-            obstacles.splice(i,1);
+            obstacles.splice(i, 1);
         }
     });
 
     requestAnimationFrame(update);
 }
 
-// ⏱
+// ⏱ spawn
 setInterval(spawnObstacle, 1200);
