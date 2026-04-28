@@ -1,10 +1,4 @@
-// ==================== BERRY RUNNER v33 ====================
-
-alert("Скрипт загрузился v33");
-
-const tg = window.Telegram.WebApp;
-tg.expand();
-tg.ready();
+// ==================== BERRY RUNNER v34 ====================
 
 let scene, camera, renderer, player;
 let gameStarted = false;
@@ -12,8 +6,25 @@ let obstacles = [];
 let currentLane = 1;
 const lanes = [-2.5, 0, 2.5];
 
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
+
+// Ждём полной загрузки Three.js
+window.addEventListener('load', () => {
+    console.log("Страница загружена");
+    
+    if (typeof THREE === "undefined") {
+        alert("Three.js всё ещё не загружен. Попробуйте обновить страницу.");
+        return;
+    }
+
+    console.log("Three.js загружен успешно");
+    init();
+});
+
 function init() {
-    console.log("init() запущена");
+    console.log("init() началась");
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x2b0a3d);
@@ -39,9 +50,9 @@ function init() {
     road.position.z = -80;
     scene.add(road);
 
-    // Игрок (розовый кубик)
+    // Игрок
     player = new THREE.Mesh(
-        new THREE.BoxGeometry(1.4, 2, 1.4),
+        new THREE.BoxGeometry(1.4, 2.0, 1.4),
         new THREE.MeshStandardMaterial({ color: 0xff00ff })
     );
     player.position.set(lanes[currentLane], 1, 0);
@@ -51,21 +62,18 @@ function init() {
     camera.lookAt(0, 1, 0);
 
     animate();
-    console.log("Сцена готова");
 }
 
 function animate() {
     requestAnimationFrame(animate);
 
     if (gameStarted && player) {
-        // Имитация бега
         player.position.z -= 0.08;
         player.rotation.y = Math.sin(Date.now() * 0.005) * 0.1;
 
-        // Движение препятствий
         for (let i = obstacles.length - 1; i >= 0; i--) {
-            obstacles[i].position.z += 0.22;
-            if (obstacles[i].position.z > 15) {
+            obstacles[i].position.z += 0.25;
+            if (obstacles[i].position.z > 20) {
                 scene.remove(obstacles[i]);
                 obstacles.splice(i, 1);
             }
@@ -75,79 +83,61 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ====================== УПРАВЛЕНИЕ ======================
-let touchStartX = 0;
-
-document.addEventListener("touchstart", e => {
-    touchStartX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-    if (!gameStarted || !player) return;
-
-    const diff = touchStartX - e.changedTouches[0].clientX;
-
-    if (Math.abs(diff) > 40) {
-        // Свайп влево/вправо
-        if (diff > 0 && currentLane < 2) currentLane++;
-        else if (diff < 0 && currentLane > 0) currentLane--;
-
-        player.position.x = lanes[currentLane];
-    } else {
-        // Прыжок
-        jump();
-    }
-});
-
-function jump() {
-    if (!player || player.position.y > 1.5) return;
-
-    let y = 1;
-    let vel = 0.45;
-
-    const interval = setInterval(() => {
-        vel -= 0.035;
-        y += vel;
-        player.position.y = y;
-
-        if (y <= 1) {
-            player.position.y = 1;
-            clearInterval(interval);
-        }
-    }, 16);
-}
-
-// Спавн препятствий
-function spawnObstacle() {
-    if (!gameStarted) return;
-
-    const obs = new THREE.Mesh(
-        new THREE.BoxGeometry(1.6, 1.6, 1.6),
-        new THREE.MeshStandardMaterial({ color: 0xff3333 })
-    );
-    const lane = Math.floor(Math.random() * 3);
-    obs.position.set(lanes[lane], 0.8, -45);
-    scene.add(obs);
-    obstacles.push(obs);
-}
-
 function startGame() {
-    console.log("startGame вызвана");
     const menu = document.getElementById("menu");
     menu.style.opacity = "0";
 
     setTimeout(() => {
         menu.style.display = "none";
         gameStarted = true;
-        console.log("Игра запущена!");
 
         // Запуск спавна препятствий
-        setInterval(spawnObstacle, 1300);
-    }, 350);
+        setInterval(() => {
+            if (!gameStarted) return;
+            spawnObstacle();
+        }, 1200);
+    }, 400);
 }
 
-// Запуск
-window.addEventListener("load", () => {
-    console.log("Страница загружена");
-    init();
+function spawnObstacle() {
+    const obs = new THREE.Mesh(
+        new THREE.BoxGeometry(1.5, 1.6, 1.5),
+        new THREE.MeshStandardMaterial({ color: 0xff3366 })
+    );
+    const lane = Math.floor(Math.random() * 3);
+    obs.position.set(lanes[lane], 0.8, -50);
+    scene.add(obs);
+    obstacles.push(obs);
+}
+
+function jump() {
+    if (!player || player.position.y > 2) return;
+    // Простой прыжок
+    let y = 1;
+    let vel = 0.5;
+    const int = setInterval(() => {
+        vel -= 0.04;
+        y += vel;
+        player.position.y = y;
+        if (y <= 1) {
+            player.position.y = 1;
+            clearInterval(int);
+        }
+    }, 16);
+}
+
+// Управление
+let touchStartX = 0;
+document.addEventListener("touchstart", e => touchStartX = e.touches[0].clientX);
+document.addEventListener("touchend", e => {
+    if (!gameStarted || !player) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+
+    if (Math.abs(diff) > 40) {
+        if (diff > 0 && currentLane < 2) currentLane++;
+        else if (diff < 0 && currentLane > 0) currentLane--;
+        player.position.x = lanes[currentLane];
+    } else {
+        jump();
+    }
 });
