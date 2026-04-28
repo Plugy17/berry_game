@@ -1,118 +1,147 @@
 let player;
-let score = 0;
-let jumping = false;
+lconst canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-/* ⚙️ ФИЗИКА */
-const GRAVITY = 0.8;
-const JUMP_FORCE = -14;
-const GROUND = 110;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-let level = 1;
-let speed = 6;
-let berryRate = 1200;
+// 🖼️ ассеты
+const bg = new Image();
+bg.src = "assets/background.jpg";
 
-/* ▶ старт */
+const playerImg = new Image();
+playerImg.src = "assets/unicorn.png";
+
+const cubeImg = new Image();
+cubeImg.src = "assets/cube.png";
+
+// 👤 игрок
+let player = {
+    x: canvas.width / 2 - 40,
+    y: canvas.height - 150,
+    width: 80,
+    height: 80,
+    vx: 0
+};
+
+let obstacles = [];
+let gameOver = false;
+let frame = 0;
+
+// ▶ старт
 function startGame() {
-    document.getElementById("lobby").style.display = "none";
-    document.getElementById("game").classList.remove("hidden");
-
-    player = document.getElementById("player");
-
-    berryLoop();
-    obstacleLoop();
-    gameLoop();
+    document.getElementById("menu").style.display = "none";
+    resetGame();
+    update();
 }
 
-/* 🟡 ПРЫЖОК (ФИКС) */
-document.addEventListener("click", jump);
-document.addEventListener("touchstart", jump);
-
-let velY = 0;
-let y = 0;
-
-function jump() {
-    if (y >= 0) {
-        velY = JUMP_FORCE;
-    }
+// 🔄 рестарт
+function restartGame() {
+    document.getElementById("gameOver").style.display = "none";
+    resetGame();
+    update();
 }
 
-/* 🎮 ОСНОВНОЙ ЛУП (ФИЗИКА) */
-function gameLoop() {
-    velY += GRAVITY;
-    y += velY;
-
-    if (y > 0) {
-        y = 0;
-        velY = 0;
-    }
-
-    player.style.bottom = (GROUND - y) + "px";
-
-    updateLevel();
-
-    requestAnimationFrame(gameLoop);
+// 🏠 домой
+function goHome() {
+    gameOver = true;
+    document.getElementById("menu").style.display = "block";
+    document.getElementById("gameOver").style.display = "none";
 }
 
-/* 📈 УРОВНИ */
-function updateLevel() {
-    level = Math.floor(score / 10) + 1;
-
-    speed = 6 + level * 1.2;
-    berryRate = Math.max(400, 1200 - level * 100);
+// ♻️ сброс
+function resetGame() {
+    obstacles = [];
+    gameOver = false;
+    player.x = canvas.width / 2 - 40;
 }
 
-/* 🍓 BERRY */
-function spawnBerry() {
-    let b = document.createElement("div");
-    b.className = "berry";
+// 🚧 спавн
+function spawnObstacle() {
+    let size = 60;
 
-    b.style.left = window.innerWidth + "px";
-    b.style.bottom = (120 + Math.random() * 200) + "px";
+    obstacles.push({
+        x: Math.random() * (canvas.width - size),
+        y: -size,
+        width: size,
+        height: size,
+        speed: 5
+    });
+}
 
-    document.getElementById("game").appendChild(b);
+// 🎮 управление
+document.addEventListener("touchmove", e => {
+    let t = e.touches[0];
+    player.x = t.clientX - player.width / 2;
+});
 
-    let move = setInterval(() => {
-        let x = parseInt(b.style.left);
-        b.style.left = (x - speed) + "px";
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") player.vx = -5;
+    if (e.key === "ArrowRight") player.vx = 5;
+});
 
-        if (x < 100 && x > 0) {
-            score++;
-            document.getElementById("score").innerText = score;
-            b.remove();
-            clearInterval(move);
+document.addEventListener("keyup", () => {
+    player.vx = 0;
+});
+
+// 🔁 цикл
+function update() {
+    if (gameOver) return;
+
+    frame++;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // 🌌 фон
+    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    // 👤 игрок движение
+    player.x += player.vx;
+
+    // ✨ анимация
+    let bob = Math.sin(frame * 0.1) * 5;
+
+    ctx.save();
+    ctx.translate(player.x + player.width/2, player.y);
+
+    ctx.rotate(player.vx * 0.05);
+
+    ctx.shadowColor = "pink";
+    ctx.shadowBlur = 20;
+
+    ctx.drawImage(playerImg, -40, bob, 80, 80);
+    ctx.restore();
+
+    // 🚧 препятствия
+    obstacles.forEach((o, i) => {
+        o.y += o.speed;
+
+        // псевдо 3D
+        o.width += 0.05;
+        o.height += 0.05;
+
+        ctx.shadowColor = "#ff00ff";
+        ctx.shadowBlur = 30;
+
+        ctx.drawImage(cubeImg, o.x, o.y, o.width, o.height);
+
+        // 💥 столкновение
+        if (
+            player.x < o.x + o.width &&
+            player.x + player.width > o.x &&
+            player.y < o.y + o.height &&
+            player.y + player.height > o.y
+        ) {
+            gameOver = true;
+            document.getElementById("gameOver").style.display = "block";
         }
 
-        if (x < -50) {
-            b.remove();
-            clearInterval(move);
+        if (o.y > canvas.height) {
+            obstacles.splice(i,1);
         }
-    }, 20);
+    });
+
+    requestAnimationFrame(update);
 }
 
-/* ⏱ BERRY LOOP (ДИНАМИКА) */
-function berryLoop() {
-    setInterval(spawnBerry, berryRate);
-}
-
-/* 👾 ПРЕПЯТСТВИЯ */
-function obstacleLoop() {
-    setInterval(() => {
-        let obs = document.createElement("div");
-        obs.className = "obstacle";
-
-        obs.style.right = "0px";
-        obs.style.bottom = "110px";
-
-        document.getElementById("game").appendChild(obs);
-
-        let move = setInterval(() => {
-            let x = parseInt(obs.style.right);
-            obs.style.right = (x + speed) + "px";
-
-            if (x > window.innerWidth) {
-                obs.remove();
-                clearInterval(move);
-            }
-        }, 20);
-    }, 1800);
-}
+// ⏱
+setInterval(spawnObstacle, 1200);
