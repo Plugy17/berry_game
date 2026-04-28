@@ -20,6 +20,7 @@ function startGame() {
     document.getElementById("score").innerText = score;
 
     berryLoop();
+    initControls();
 }
 
 function enableMobileControls() {
