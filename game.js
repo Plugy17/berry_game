@@ -22,8 +22,8 @@ function startGame() {
 }
 
 // 🟡 прыжок
-document.addEventListener("click", jump);
-document.addEventListener("touchstart", jump);
+document.addEventListener("click", jump, { passive: true });
+document.addEventListener("touchstart", jump, { passive: true });
 
 function jump() {
     if (jumping) return;
