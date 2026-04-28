@@ -27,36 +27,81 @@ function loseGame() {
 
     document.getElementById("lose").style.display = "block";
 }
+function obstacleLoop() {
+    setInterval(() => {
+        if (gameOver) return;
 
+        let obs = document.createElement("div");
+
+        obs.style.position = "absolute";
+        obs.style.width = "50px";
+        obs.style.height = "50px";
+        obs.style.background = "blue";
+        obs.style.right = "0px";
+        obs.style.bottom = "110px";
+        obs.style.borderRadius = "10px";
+
+        document.getElementById("game").appendChild(obs);
+
+        let move = setInterval(() => {
+            if (gameOver) {
+                obs.remove();
+                clearInterval(move);
+                return;
+            }
+
+            let x = parseInt(obs.style.right);
+            obs.style.right = (x + 7) + "px";
+
+            // 💀 collision check
+            let p = player.getBoundingClientRect();
+            let o = obs.getBoundingClientRect();
+
+            if (
+                p.left < o.right &&
+                p.right > o.left &&
+                p.top < o.bottom &&
+                p.bottom > o.top
+            ) {
+                loseGame();
+            }
+
+            if (x > window.innerWidth) {
+                obs.remove();
+                clearInterval(move);
+            }
+        }, 20);
+    }, 1500);
+}
 // 🟡 прыжок
 document.addEventListener("click", jump, { passive: true });
 document.addEventListener("touchstart", jump, { passive: true });
 
 function jump() {
-    if (jumping) return;
+    if (jumping || gameOver) return;
+
     jumping = true;
 
     let h = 0;
-    let speed = 8;
 
     let up = setInterval(() => {
-        h += speed;
+        h += 10; // 🔼 выше прыжок
         player.style.bottom = (110 + h) + "px";
 
-        if (h >= 120) {
+        if (h > 180) {
             clearInterval(up);
 
             let down = setInterval(() => {
-                h -= speed;
+                h -= 10;
                 player.style.bottom = (110 + h) + "px";
 
                 if (h <= 0) {
                     clearInterval(down);
                     jumping = false;
                 }
-            }, 18);
+            }, 20);
         }
-    }, 18);
+    }, 20);
 }
 
 // 🍓 спавн ягод
