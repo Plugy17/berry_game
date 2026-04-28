@@ -1,101 +1,74 @@
-/* ---------------- RESET ---------------- */
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial, sans-serif;
-    background: #000;
+    font-family: Arial;
 }
 
-/* ---------------- CANVAS ---------------- */
+/* canvas */
 canvas {
     display: block;
 }
 
-/* ---------------- MENU + GAME OVER ---------------- */
+/* ---------------- MENU ---------------- */
 #menu, #gameOver {
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: 10;
 
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
 
-    color: white;
+    text-align: center;
 
-    background: linear-gradient(135deg, #2b0a3d, #7a2cff);
+    background: radial-gradient(circle at top,
+        #7a2cff,
+        #2b0a3d
+    );
+
+    color: white;
 }
 
-/* ---------------- TITLE ---------------- */
+/* TITLE */
 h1 {
-    font-size: 50px;
-    letter-spacing: 4px;
+    font-size: 60px;
+    margin: 0;
     text-shadow: 0 0 20px #ff66ff;
 }
 
-/* ---------------- BUTTONS ---------------- */
+/* BUTTON */
 button {
-    padding: 12px 30px;
-    margin: 10px;
+    margin-top: 20px;
+    padding: 14px 40px;
+
     border: none;
     border-radius: 12px;
 
     font-size: 18px;
     font-weight: bold;
 
-    cursor: pointer;
-
-    background: #ff66ff;
+    background: #ff4fd8;
     color: white;
 
-    transition: 0.2s;
+    cursor: pointer;
+
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
 }
 
 button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 20px #ff66ff;
 }
 
-/* ---------------- LINKS ---------------- */
-a {
-    color: white;
-    margin-top: 10px;
-    opacity: 0.8;
-}
-
-a:hover {
-    opacity: 1;
-}
-
-/* ---------------- HUD ---------------- */
+/* HUD */
 #hud {
     position: absolute;
     top: 10px;
     left: 10px;
 
-    z-index: 5;
-
-    color: white;
-    font-size: 18px;
-
     padding: 8px 12px;
 
+    color: white;
     background: rgba(0,0,0,0.3);
     border-radius: 10px;
-
-    backdrop-filter: blur(5px);
-}
-
-/* ---------------- MOBILE SUPPORT (под будущее свайпы) ---------------- */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 36px;
-    }
-
-    button {
-        font-size: 16px;
-        padding: 10px 24px;
-    }
 }
