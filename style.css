@@ -1,8 +1,9 @@
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial;
-    background: black;
+    touch-action: none; /* ❗ блокирует прокрутку */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #player {
