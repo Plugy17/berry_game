@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>BERRY LAND</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- 🏠 ЛОББИ -->
+<div id="lobby">
+    <h1>🦄 BERRY LAND</h1>
+    <button onclick="startGame()">▶ ИГРАТЬ</button>
+</div>
+
+<!-- 🎮 ИГРА -->
+<div id="game" class="hidden">
+    <div id="track"></div>
+    <div id="player"></div>
+
+    <div id="ui">🍓 <span id="score">0</span></div>
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>
