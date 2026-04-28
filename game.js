@@ -22,6 +22,10 @@ function startGame() {
     berryLoop();
 }
 
+function openProfile() {
+    alert("👤 ПРОФИЛЬ\n🍓 " + score + "\n🔥 уровень: 1");
+}
+
 function loseGame() {
     gameOver = true;
 
