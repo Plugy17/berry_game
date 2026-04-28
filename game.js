@@ -161,6 +161,24 @@ function berryLoop() {
     setInterval(spawnBerry, 1200);
 }
 
+function initControls() {
+    const layer = document.getElementById("touchLayer");
+
+    // ПК + мобилка
+    window.addEventListener("pointerdown", (e) => {
+        if (gameOver) return;
+        jump();
+    });
+
+    // ФИКС: отдельный слой для телефона
+    if (layer) {
+        layer.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+            if (gameOver) return;
+            jump();
+        });
+    }
+}
 // ✨ текст эффект
 function showPop(text) {
     let t = document.createElement("div");
