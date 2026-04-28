@@ -1,0 +1,65 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #2b0a3d;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    touch-action: none;
+}
+
+/* MENU */
+#menu {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: linear-gradient(135deg, #2b0a3d, #6a1bbd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+}
+
+.menu-content {
+    text-align: center;
+    color: white;
+}
+
+h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 50px;
+    text-shadow: 0 0 30px #ff66ff, 0 0 60px #ff00cc;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+}
+
+button {
+    padding: 18px 70px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #000;
+    background: linear-gradient(90deg, #00ffcc, #00ffaa);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.6);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Canvas от Three.js */
+canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
