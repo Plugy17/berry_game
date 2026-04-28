@@ -1,88 +1,64 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>FROST BERRY GAME</title>
+<title>FROST GAME FIX</title>
 
 <style>
 body {
     margin: 0;
-    background: #0a0f1e;
+    background: #070b18;
     overflow: hidden;
     font-family: Arial;
     color: white;
 }
 
 #game {
-    position: relative;
     width: 100vw;
     height: 100vh;
+    position: relative;
 }
 
 /* PLAYER */
 #player {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(145deg, gold, orange);
-    border-radius: 15px;
+    width: 50px;
+    height: 50px;
+    background: gold;
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    border-radius: 12px;
     box-shadow: 0 0 20px gold;
     text-align: center;
-    line-height: 60px;
-    font-size: 30px;
+    line-height: 50px;
+    font-size: 24px;
 }
 
 /* ENEMY */
 .enemy {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background: red;
     position: absolute;
     border-radius: 50%;
-    box-shadow: 0 0 10px red;
-}
-
-/* COIN */
-.coin {
-    width: 25px;
-    height: 25px;
-    background: yellow;
-    position: absolute;
-    border-radius: 50%;
-    box-shadow: 0 0 10px yellow;
 }
 
 /* BOMB */
 .bomb {
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     background: cyan;
     position: absolute;
     border-radius: 50%;
-    box-shadow: 0 0 15px cyan;
+    box-shadow: 0 0 10px cyan;
 }
 
-/* UI */
-.panel {
+/* EXPLOSION */
+.explosion {
+    width: 80px;
+    height: 80px;
+    background: rgba(0,255,255,0.3);
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.6);
-    padding: 10px;
-    border-radius: 10px;
-}
-
-button {
-    padding: 10px;
-    margin: 5px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #ffcc00;
-    font-weight: bold;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
 }
 </style>
 </head>
@@ -90,125 +66,130 @@ button {
 <body>
 
 <div id="game">
-
-    <div class="panel">
-        💰: <span id="coins">0</span><br>
-        💣: <span id="bombs">0</span><br><br>
-
-        <button onclick="dropBomb()">🍦 Бомба</button>
-        <button onclick="spawnCoin()">💰 Монета</button>
-        <button onclick="spawnEnemy()">👾 Враг</button>
-    </div>
-
     <div id="player">🧍</div>
-
 </div>
 
 <script>
-let coins = 0;
-let bombs = 5;
-
 let player = {
     x: window.innerWidth / 2,
     y: window.innerHeight / 2,
-    speed: 10
+    speed: 4
 };
+
+let keys = {};
+let mouse = {x: 0, y: 0};
 
 const p = document.getElementById("player");
 
-function updateUI(){
-    document.getElementById("coins").innerText = coins;
-    document.getElementById("bombs").innerText = bombs;
-}
+/* --- CONTROL HOLD --- */
+document.addEventListener("keydown", (e) => keys[e.key] = true);
+document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-function renderPlayer(){
-    p.style.left = player.x + "px";
-    p.style.top = player.y + "px";
-}
-
-document.addEventListener("keydown", (e) => {
-    if(e.key === "w") player.y -= player.speed;
-    if(e.key === "s") player.y += player.speed;
-    if(e.key === "a") player.x -= player.speed;
-    if(e.key === "d") player.x += player.speed;
-
-    renderPlayer();
+/* mouse aim */
+document.addEventListener("mousemove", (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
 });
 
-/* 💣 БОМБА */
-function dropBomb(){
-    if(bombs <= 0) return;
+/* PLAYER MOVE LOOP */
+function gameLoop(){
 
-    bombs--;
+    if(keys["w"]) player.y -= player.speed;
+    if(keys["s"]) player.y += player.speed;
+    if(keys["a"]) player.x -= player.speed;
+    if(keys["d"]) player.x += player.speed;
 
-    let b = document.createElement("div");
-    b.className = "bomb";
-    b.style.left = player.x + "px";
-    b.style.top = player.y + "px";
+    p.style.left = player.x + "px";
+    p.style.top = player.y + "px";
 
-    document.getElementById("game").appendChild(b);
-
-    let enemies = document.getElementsByClassName("enemy");
-
-    setInterval(() => {
-        let bx = b.offsetLeft;
-        let by = b.offsetTop;
-
-        for(let e of enemies){
-            let ex = e.offsetLeft;
-            let ey = e.offsetTop;
-
-            if(Math.abs(bx - ex) < 40 && Math.abs(by - ey) < 40){
-                e.remove();
-                coins += 5;
-                updateUI();
-            }
-        }
-
-        b.style.top = (b.offsetTop - 5) + "px";
-    }, 30);
-
-    setTimeout(() => b.remove(), 3000);
-
-    updateUI();
+    requestAnimationFrame(gameLoop);
 }
 
-/* 💰 монеты */
-function spawnCoin(){
-    let c = document.createElement("div");
-    c.className = "coin";
-    c.style.left = Math.random() * window.innerWidth + "px";
-    c.style.top = Math.random() * window.innerHeight + "px";
-
-    c.onclick = () => {
-        coins++;
-        c.remove();
-        updateUI();
-    };
-
-    document.getElementById("game").appendChild(c);
-}
-
-/* 👾 враги */
+/* ENEMIES */
 function spawnEnemy(){
     let e = document.createElement("div");
     e.className = "enemy";
-    e.style.left = Math.random() * window.innerWidth + "px";
-    e.style.top = Math.random() * window.innerHeight + "px";
+    e.x = Math.random() * window.innerWidth;
+    e.y = Math.random() * window.innerHeight;
+
+    e.style.left = e.x + "px";
+    e.style.top = e.y + "px";
 
     document.getElementById("game").appendChild(e);
+
+    setInterval(() => {
+        let dx = player.x - e.x;
+        let dy = player.y - e.y;
+
+        e.x += dx * 0.01;
+        e.y += dy * 0.01;
+
+        e.style.left = e.x + "px";
+        e.style.top = e.y + "px";
+    }, 30);
 }
 
-/* автоспавн */
-setInterval(() => {
-    if(Math.random() > 0.5) spawnCoin();
-    if(Math.random() > 0.7) spawnEnemy();
-    bombs = Math.min(bombs + 1, 10);
-    updateUI();
-}, 4000);
+/* 🍦 BOMB (click to shoot) */
+document.addEventListener("click", () => {
 
-renderPlayer();
-updateUI();
+    let b = document.createElement("div");
+    b.className = "bomb";
+
+    let dx = mouse.x - player.x;
+    let dy = mouse.y - player.y;
+
+    let dist = Math.sqrt(dx*dx + dy*dy);
+
+    let vx = (dx / dist) * 8;
+    let vy = (dy / dist) * 8;
+
+    let x = player.x;
+    let y = player.y;
+
+    b.style.left = x + "px";
+    b.style.top = y + "px";
+
+    document.getElementById("game").appendChild(b);
+
+    let move = setInterval(() => {
+        x += vx;
+        y += vy;
+
+        b.style.left = x + "px";
+        b.style.top = y + "px";
+
+        /* collision */
+        document.querySelectorAll(".enemy").forEach(en => {
+            let ex = en.offsetLeft;
+            let ey = en.offsetTop;
+
+            if(Math.abs(x - ex) < 40 && Math.abs(y - ey) < 40){
+
+                /* explosion */
+                let exx = document.createElement("div");
+                exx.className = "explosion";
+                exx.style.left = x + "px";
+                exx.style.top = y + "px";
+                document.getElementById("game").appendChild(exx);
+
+                setTimeout(() => exx.remove(), 300);
+
+                en.remove();
+            }
+        });
+
+    }, 20);
+
+    setTimeout(() => {
+        clearInterval(move);
+        b.remove();
+    }, 2000);
+});
+
+/* spawn enemies */
+setInterval(spawnEnemy, 2000);
+
+gameLoop();
 </script>
 
 </body>
