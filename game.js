@@ -22,6 +22,13 @@ function startGame() {
     berryLoop();
 }
 
+function enableMobileControls() {
+    document.getElementById("touchLayer").addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        jump();
+    });
+    
+}
 function openProfile() {
     alert("👤 ПРОФИЛЬ\n🍓 " + score + "\n🔥 уровень: 1");
 }
