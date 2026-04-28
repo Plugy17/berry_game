@@ -5,6 +5,30 @@ body {
     background: black;
 }
 
+#player {
+    position: absolute;
+    width: 60px;
+    height: 80px;
+    bottom: 110px;
+    left: 50px;
+    background: linear-gradient(#ffb6c1, #ff69b4);
+    border-radius: 25px;
+    box-shadow: 0 0 20px pink;
+}
+
+/* NEON LOSE */
+#lose {
+    display: none;
+    position: absolute;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    font-size: 80px;
+    color: #b400ff;
+    text-shadow: 0 0 20px #b400ff, 0 0 40px #8a00ff;
+    font-weight: bold;
+} 
+
 /* 🏠 ЛОББИ */
 #lobby {
     height: 100vh;
