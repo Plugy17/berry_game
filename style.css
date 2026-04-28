@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(#0b0f1a, #000);
+    font-family: Arial;
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 28px;
+    text-shadow: 0 0 10px black;
+}
+
+#attackBtn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background: #00e5ff;
+    cursor: pointer;
+}
