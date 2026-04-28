@@ -1,4 +1,3 @@
-console.log("GAME JS LOADED");
 let player;
 let score = 0;
 let jumping = false;
