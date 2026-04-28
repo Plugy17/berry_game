@@ -1,201 +1,118 @@
+// ==================== BERRY RUNNER ====================
 let scene, camera, renderer, player;
-let obstacles = [], coins = [];
-let score = 0;
 let gameStarted = false;
-let speed = 0.18;
-let isJumping = false;
-
-let playerModel, obstacleModel, coinModel;
 
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-// ====================== INIT ======================
-async function init() {
+console.log("Скрипт загружен");
+
+// Основная инициализация Three.js
+function initThree() {
+    console.log("initThree запущен");
+
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x2b0a3d);
-    scene.fog = new THREE.Fog(0x2b0a3d, 10, 50);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    
+    renderer = new THREE.WebGLRenderer({ 
+        antialias: true,
+        alpha: false 
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
     document.body.appendChild(renderer.domElement);
+    console.log("Canvas добавлен в body");
 
     // Свет
-    scene.add(new THREE.DirectionalLight(0xffccff, 1.5));
-    scene.add(new THREE.AmbientLight(0xbb99ff, 0.8));
+    const dirLight = new THREE.DirectionalLight(0xffccff, 1.4);
+    dirLight.position.set(5, 10, 10);
+    scene.add(dirLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
 
-    // Простая дорога
+    // Дорога
     const road = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, 300),
+        new THREE.PlaneGeometry(12, 300),
         new THREE.MeshStandardMaterial({ color: 0x3a0a5f })
     );
     road.rotation.x = -Math.PI / 2;
-    road.position.z = -80;
+    road.position.set(0, -0.1, -60);
     scene.add(road);
 
+    // Временный игрок — яркий кубик (чтобы сразу видеть результат)
+    const geometry = new THREE.BoxGeometry(1.2, 1.8, 1.2);
+    const material = new THREE.MeshStandardMaterial({ color: 0xff00ff });
+    player = new THREE.Mesh(geometry, material);
+    player.position.set(0, 0.9, 0);
+    scene.add(player);
+
     camera.position.set(0, 5, 10);
+    camera.lookAt(0, 1, 0);
 
-    await loadModels();
-    setupControls();
     animate();
+    console.log("initThree завершён успешно");
 }
 
-// Загрузка моделей
-async function loadModels() {
-    const loader = new THREE.GLTFLoader();
-    try {
-        const [p, o, c] = await Promise.all([
-            loader.loadAsync("assets/berry.glb"),
-            loader.loadAsync("assets/obstacle.glb"),
-            loader.loadAsync("assets/coin.glb")
-        ]);
-
-        playerModel = p.scene;
-        obstacleModel = o.scene;
-        coinModel = c.scene;
-
-        player = playerModel.clone();
-        player.scale.set(1.2, 1.2, 1.2);
-        player.position.y = 0;
-        scene.add(player);
-    } catch (err) {
-        console.error("Не удалось загрузить модели:", err);
-    }
-}
-
-// Спавн
-function spawnObstacle() {
-    if (!gameStarted || !obstacleModel) return;
-    const obs = obstacleModel.clone();
-    obs.position.set((Math.random() - 0.5) * 4.5, 0, -50);
-    scene.add(obs);
-    obstacles.push(obs);
-}
-
-function spawnCoin() {
-    if (!gameStarted || !coinModel) return;
-    const coin = coinModel.clone();
-    coin.position.set((Math.random() - 0.5) * 4.5, 1.4, -50);
-    scene.add(coin);
-    coins.push(coin);
-}
-
-// Игровой цикл
 function animate() {
     requestAnimationFrame(animate);
 
     if (gameStarted && player) {
-        obstacles.forEach((obs, i) => {
-            obs.position.z += speed;
-            if (obs.position.z > 15) {
-                scene.remove(obs);
-                obstacles.splice(i, 1);
-            }
-        });
-
-        coins.forEach((coin, i) => {
-            coin.position.z += speed;
-            coin.rotation.y += 0.08;
-            if (coin.position.z > 15) {
-                scene.remove(coin);
-                coins.splice(i, 1);
-            }
-        });
-
-        checkCollisions();
+        // Движение игрока вперёд (для ощущения бега)
+        player.position.z -= 0.15;
+        
+        // Лёгкое покачивание
+        player.rotation.y = Math.sin(Date.now() * 0.003) * 0.1;
     }
 
-    renderer.render(scene, camera);
-}
-
-function checkCollisions() {
-    if (!player) return;
-    const pBox = new THREE.Box3().setFromObject(player);
-
-    for (let i = obstacles.length - 1; i >= 0; i--) {
-        if (pBox.intersectsBox(new THREE.Box3().setFromObject(obstacles[i]))) {
-            gameOver();
-            return;
-        }
-    }
-
-    for (let i = coins.length - 1; i >= 0; i--) {
-        if (pBox.intersectsBox(new THREE.Box3().setFromObject(coins[i]))) {
-            score += 10;
-            scene.remove(coins[i]);
-            coins.splice(i, 1);
-        }
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
     }
 }
 
-function gameOver() {
-    gameStarted = false;
-    alert(`Игра окончена!\nСчёт: ${score}`);
-    document.getElementById("menu").style.display = "flex";
+// ====================== ЗАПУСК ИГРЫ ======================
+function startGame() {
+    console.log("Кнопка PLAY нажата");
+
+    const menu = document.getElementById("menu");
+    if (menu) {
+        menu.style.opacity = "0";
+        setTimeout(() => {
+            menu.style.display = "none";
+            console.log("Меню скрыто");
+            
+            gameStarted = true;
+            console.log("gameStarted = true");
+        }, 400);
+    }
 }
 
 // Управление
-function setupControls() {
-    let startX = 0;
+document.addEventListener("touchend", (e) => {
+    if (!gameStarted || !player) return;
 
-    document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-    document.addEventListener("touchend", e => {
-        if (!gameStarted || !player) return;
-        const diff = startX - e.changedTouches[0].clientX;
+    const touch = e.changedTouches[0];
+    // Простой прыжок по тапу
+    if (player.position.y < 1) {
+        let vel = 4;
+        const jumpInterval = setInterval(() => {
+            vel -= 0.35;
+            player.position.y += vel * 0.07;
+            if (player.position.y <= 0) {
+                player.position.y = 0;
+                clearInterval(jumpInterval);
+            }
+        }, 16);
+    }
+});
 
-        if (Math.abs(diff) > 30) {
-            player.position.x += diff > 0 ? -1.4 : 1.4;
-        } else if (!isJumping) {
-            jump();
-        }
-        player.position.x = Math.max(-4, Math.min(4, player.position.x));
-    });
-}
+// Инициализация при загрузке страницы
+window.onload = () => {
+    console.log("window.onload сработал");
+    initThree();
+};
 
-function jump() {
-    if (isJumping || !player) return;
-    isJumping = true;
-    let y = 0;
-    const interval = setInterval(() => {
-        y += 0.28;
-        player.position.y = y;
-        if (y >= 3) {
-            clearInterval(interval);
-            const down = setInterval(() => {
-                y -= 0.28;
-                player.position.y = y;
-                if (y <= 0) {
-                    player.position.y = 0;
-                    isJumping = false;
-                    clearInterval(down);
-                }
-            }, 16);
-        }
-    }, 16);
-}
-
-// ====================== ЗАПУСК ======================
-function startGame() {
-    const menu = document.getElementById("menu");
-    menu.style.opacity = "0";
-
-    setTimeout(() => {
-        menu.style.display = "none";
-        menu.style.opacity = "1"; // сброс для следующего раза
-
-        gameStarted = true;
-        score = 0;
-        obstacles = [];
-        coins = [];
-
-        // Запускаем спавнеры
-        setInterval(spawnObstacle, 1400);
-        setInterval(spawnCoin, 950);
-    }, 400);
-}
-
-// Старт приложения
-init();
+// Для отладки
+console.log("Скрипт полностью загружен");
