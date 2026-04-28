@@ -1,6 +1,7 @@
 // ---------------- SCENE ----------------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05060a);
+scene.fog = new THREE.Fog(0x000000, 5, 25);
 
 const camera = new THREE.PerspectiveCamera(
     75,
@@ -21,10 +22,22 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
 
+const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(50, 50),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = 0;
+
+scene.add(ground);
 // ---------------- PLAYER ----------------
 const player = new THREE.Mesh(
+    player.material.emissive = new THREE.Color(0x222222);
+player.material.emissiveIntensity = 0.8;
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshStandardMaterial({ color: 0xffd700 })
+     new THREE.MeshStandardMaterial({ color: 0xff0000,emissive: 0x330000});
 );
 
 player.position.y = 0.5;
