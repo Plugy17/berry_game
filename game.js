@@ -86,7 +86,25 @@ function obstacleLoop() {
     }, 1500);
 }
 // 🟡 прыжок
+function initControls() {
 
+    function handleJump(e) {
+        e.preventDefault?.();
+        if (gameOver) return;
+        jump();
+    }
+
+    // ПК
+    window.addEventListener("mousedown", handleJump);
+
+    // Клавиатура (дополнительно)
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") handleJump(e);
+    });
+
+    // МОБИЛКА (главное)
+    window.addEventListener("touchstart", handleJump, { passive: false });
+}
 
 let velocityY = 0;
 let gravity = 0.8;
