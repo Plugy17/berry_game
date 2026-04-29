@@ -20,13 +20,13 @@ body {
     z-index: 10;
 }
 
-/* Эффект плавного появления экрана */
+/* Эффект плавного появления экрана из твоего кода */
 .screen:not(.hidden) {
     animation: screenEntry 0.5s ease-out;
 }
 
 @keyframes screenEntry {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -48,24 +48,42 @@ body {
     color: #fff; 
     text-shadow: 0 0 15px #ff4fd8, 0 0 30px #ff00ff;
     text-align: center; 
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     letter-spacing: -1px;
 }
 
+/* Статистика в меню (Красивые блоки) */
+.menu-stats-container {
+    display: flex; gap: 15px; 
+    justify-content: center; align-items: center; 
+    margin-bottom: 20px;
+}
+
+.balance-info, .record-info {
+    font-size: 16px; color: #fff; font-weight: bold;
+    background: rgba(0, 0, 0, 0.7); 
+    padding: 10px 22px; border-radius: 20px;
+    border: 2px solid #ff4fd8;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
+    text-shadow: 0 0 5px #ff4fd8;
+}
+
+/* Кнопки и инпуты (Стиль из твоего кода + неоновые правки) */
 #menu button, #menu select, #menu input {
     background: linear-gradient(180deg, rgba(40,40,40,0.95), rgba(20,20,20,0.95)) !important;
     border: 2px solid #ff4fd8 !important; 
     color: white !important;
-    width: 80% !important; 
+    width: 85% !important; 
     max-width: 280px; 
     padding: 14px;
     border-radius: 30px; 
     font-size: 15px; 
     font-weight: 800;
-    margin: 10px 0; 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 79, 216, 0.2);
+    margin: 8px 0; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     text-transform: uppercase; 
-    letter-spacing: 1.5px; 
+    letter-spacing: 1px; 
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
@@ -76,65 +94,55 @@ body {
     border-color: #fff !important;
 }
 
-#menu button:active { transform: scale(0.95); }
-
 .welcome-text {
-    background: rgba(255, 255, 255, 0.05); 
-    padding: 12px 30px;
+    background: rgba(255, 79, 216, 0.15); 
+    padding: 10px 25px;
     border-radius: 20px; 
-    border: 1px solid rgba(255, 79, 216, 0.4);
-    color: #ffd1f3; 
-    font-size: 14px; 
-    margin-bottom: 25px;
-    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 79, 216, 0.5);
+    color: #fff; font-size: 14px; 
+    margin-bottom: 20px; backdrop-filter: blur(5px);
 }
 
 /* --- МАГАЗИН --- */
-.shop-item {
-    background: rgba(255, 255, 255, 0.03); 
-    border: 1px solid rgba(255, 79, 216, 0.3);
-    padding: 20px; 
-    border-radius: 25px; 
-    width: 85%; 
-    max-width: 300px;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 15px; 
-    margin: 0 auto 20px;
-    transition: background 0.3s;
+#shop h2 {
+    font-size: clamp(28px, 8vw, 40px);
+    color: #fff; text-shadow: 0 0 15px #ff4fd8; text-align: center;
 }
 
-.shop-item:hover { background: rgba(255, 79, 216, 0.07); }
+.shop-item {
+    background: rgba(255, 255, 255, 0.05); 
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 79, 216, 0.3);
+    padding: 20px; border-radius: 25px;
+    width: 85%; max-width: 320px;
+    display: flex; flex-direction: column; 
+    align-items: center; gap: 15px;
+    margin: 0 auto 15px;
+    transition: 0.3s;
+}
 
 .shop-item button {
     background: linear-gradient(45deg, #ff4fd8, #9d269d); 
-    border: none;
-    color: white; 
-    padding: 12px; 
-    border-radius: 18px; 
-    width: 100%; 
-    font-weight: bold;
+    border: none; color: white; padding: 12px;
+    border-radius: 18px; width: 100%; font-weight: bold;
     box-shadow: 0 4px 10px rgba(255, 79, 216, 0.3);
+    cursor: pointer;
 }
 
 /* --- ИГРОВОЙ ЭКРАН --- */
 #track { width: 100%; height: 100%; position: absolute; inset: 0; overflow: hidden; z-index: 1; }
 
 #player, #obstacle {
-    position: absolute; 
+    position: absolute;
     background-size: contain !important;
     background-repeat: no-repeat !important; 
     background-position: center !important;
 }
 
 #player {
-    bottom: 15%; 
-    left: 50%; 
-    width: 100px !important; 
-    height: 100px !important;
+    bottom: 15%; left: 50%; 
+    width: 100px !important; height: 100px !important;
     transform: translateX(-50%); 
-    background-image: url('assets/berry.png');
     z-index: 10; 
     transition: left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s;
     filter: drop-shadow(0 0 10px rgba(255, 79, 216, 0.5));
@@ -142,70 +150,56 @@ body {
 
 #obstacle { width: 60px !important; height: 60px !important; z-index: 5; }
 
+/* Игровой HUD */
 #hud {
-    position: absolute; top: 20px; left: 20px; 
+    position: absolute; top: 15px; left: 15px; 
     padding: 12px 25px;
     background: rgba(0, 0, 0, 0.8); 
     backdrop-filter: blur(12px);
-    border-radius: 20px; 
-    border: 2px solid #ff4fd8; 
+    border-radius: 20px; border: 2px solid #ff4fd8;
     z-index: 20;
 }
 
 .score-main { 
-    font-size: 30px; 
-    font-weight: 900; 
+    font-size: 28px; font-weight: 900; 
     text-shadow: 0 0 10px #ff4fd8; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
+    display: flex; align-items: center; gap: 10px; 
 }
 
 #backBtn {
-    position: absolute; top: 20px; right: 20px;
+    position: absolute; top: 15px; right: 15px;
     width: 55px; height: 55px; 
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px); 
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 18px; 
-    color: white; 
-    font-size: 24px; 
-    z-index: 20;
-    transition: all 0.3s;
+    border-radius: 18px; color: white;
+    font-size: 24px; z-index: 20;
 }
 
-#backBtn:hover { background: #ff4fd8; border-color: #fff; }
-
-/* ПАНЕЛЬ БОНУСОВ */
+/* Бонусы и счетчики (Полный фикс) */
 #bonus-panel {
-    position: absolute; bottom: 35px; right: 20px;
-    display: flex; flex-direction: column; gap: 18px; z-index: 20;
+    position: absolute; bottom: 30px; right: 15px;
+    display: flex; flex-direction: column; gap: 15px; z-index: 20;
 }
 
 .bonus-btn {
-    width: 75px; height: 75px;
-    border-radius: 50%; 
-    border: 3px solid #ff4fd8;
+    width: 70px; height: 70px;
+    border-radius: 50%; border: 3px solid #ff4fd8;
     background: rgba(0, 0, 0, 0.85); 
-    color: white; 
-    font-size: 32px;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
+    color: white; font-size: 30px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
     box-shadow: 0 5px 15px rgba(255, 79, 216, 0.4);
-    transition: transform 0.2s;
 }
-
-.bonus-btn:active { transform: scale(0.9); }
 
 .bonus-btn span {
-    position: absolute; bottom: -2px; right: -2px; 
+    position: absolute; bottom: -5px; right: -5px; 
     background: #ff4fd8;
-    color: white; font-size: 14px; padding: 4px 10px;
-    border-radius: 12px; border: 2px solid white;
+    color: white; font-size: 14px; font-weight: bold;
+    padding: 3px 9px; border-radius: 12px; border: 2px solid white;
 }
 
-/* --- ЭФФЕКТЫ --- */
+/* Эффекты */
 .shield-aura {
     box-shadow: 0 0 30px #00ffff, 0 0 50px rgba(0, 255, 255, 0.6), inset 0 0 20px #fff !important;
     filter: drop-shadow(0 0 15px #00ffff) !important;
@@ -217,14 +211,19 @@ body {
 }
 
 @keyframes rainbowBorder {
-    0% { border-color: #ff0000; } 20% { border-color: #ffff00; }
-    40% { border-color: #00ff00; } 60% { border-color: #00ffff; }
-    80% { border-color: #0000ff; } 100% { border-color: #ff00ff; }
+    0% { border-color: #ff0000; } 25% { border-color: #00ff00; }
+    50% { border-color: #00ffff; } 75% { border-color: #0000ff; }
+    100% { border-color: #ff00ff; }
 }
 
 .combo-badge {
-    font-size: 11px; font-weight: bold;
+    font-size: 12px; font-weight: bold;
     background: linear-gradient(90deg, #ff4fd8, #00ffff);
-    padding: 4px 14px; border-radius: 12px; margin-top: 8px;
-    text-transform: uppercase; animation: pulseCombo 0.6s infinite alternate;
+    padding: 5px 15px; border-radius: 12px; margin-top: 5px;
+    animation: pulseCombo 0.6s infinite alternate;
+}
+
+@keyframes pulseCombo { 
+    from { transform: scale(1); } 
+    to { transform: scale(1.1); } 
 }
