@@ -22,12 +22,12 @@ window.onload = () => {
 
 function updateMenuInfo() {
     if (nick) {
-        // Приветствие со вспышками
         document.getElementById("welcome").innerHTML = `<span class="flash-effect"></span> Герой <b>${nick}</b> готов к забегу! <span class="flash-effect"></span>`;
         document.getElementById("nick").style.display = "none";
     }
-    document.getElementById("menuLeaderboard").innerText = "🏆 Рекорд: " + best;
-    document.getElementById("total-balance").innerHTML = `У тебя всего: ${totalCoins} <img src="assets/icecream.png" style="width:20px; vertical-align:middle;">`;
+    // ПРАВКА: Заполняем счет и рекорд лаконично
+    document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
+    document.getElementById("total-balance").innerHTML = `${totalCoins} <img src="assets/icecream.png" style="width:22px; vertical-align:middle;">`;
 }
 
 function startGame() {
