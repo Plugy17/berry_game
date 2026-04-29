@@ -9,7 +9,6 @@ body {
     background-color: #020205;
 }
 
-/* Общий космический стиль для всех экранов */
 .screen {
     position: fixed; 
     top: 0; 
@@ -20,7 +19,6 @@ body {
     flex-direction: column; 
     align-items: center; 
     z-index: 10;
-    /* Глубокий космос со звездами */
     background: radial-gradient(circle at center, #1a1a2e 0%, #020205 100%);
     background-image: 
         radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
@@ -31,153 +29,148 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- КНОПКИ И ИНПУТЫ (GLASSMORPHISM) --- */
+/* --- ФИКС КНОПОК И ИНПУТОВ --- */
 button, select, input, .bonus-btn {
     background: rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: white !important;
-    padding: 12px 25px;
-    border-radius: 15px;
-    font-weight: bold;
+    padding: 15px 20px !important; /* Фиксированный внутренний отступ */
+    border-radius: 20px;
+    font-size: 18px !important; /* Единый размер шрифта */
+    font-weight: 800;
     text-transform: uppercase;
     transition: 0.3s all ease;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    z-index: 10;
+    width: 100%; /* Занимают всю ширину контейнера */
+    box-sizing: border-box;
 }
 
 button:hover {
     background: rgba(255, 255, 255, 0.2) !important;
-    transform: scale(1.05);
+    transform: scale(1.02);
     border-color: #00d4ff !important;
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
 
 /* --- МЕНЮ --- */
-#menu { justify-content: flex-start; }
+#menu { justify-content: center; padding: 20px; box-sizing: border-box; }
+
 .welcome-text {
-    margin-top: 40px; 
-    font-size: 28px; 
+    margin-bottom: 20px;
+    font-size: 26px; 
     font-weight: 900;
-    text-shadow: 0 0 20px #00d4ff;
+    text-shadow: 0 0 15px #ff4fd8;
     color: white; 
-    z-index: 20;
+    text-align: center;
 }
 
-.menu-stats-container { display: flex; gap: 15px; margin-top: 20px; }
+.menu-stats-container { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 30px; 
+    width: 100%;
+    max-width: 320px;
+}
+
 .balance-info, .record-info {
-    font-size: 18px; 
+    flex: 1;
+    font-size: 16px; 
     color: #fff; 
-    font-weight: 900;
-    background: rgba(255, 255, 255, 0.1); 
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.05); 
     backdrop-filter: blur(5px);
-    padding: 10px 20px; 
+    padding: 12px; 
     border-radius: 15px; 
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(255, 79, 216, 0.4);
+    text-align: center;
 }
 
 .menu-controls { 
-    margin-top: auto; 
-    margin-bottom: 60px; 
     display: flex; 
     flex-direction: column; 
-    gap: 15px; 
-    width: 85%; 
-    max-width: 320px; 
+    gap: 12px; 
+    width: 100%; 
+    max-width: 300px; 
 }
 
-/* --- HUD (ИНТЕРФЕЙС В ИГРЕ) --- */
+/* --- HUD (В ИГРЕ) --- */
 #hud {
-    position: absolute; top: 30px; left: 20px;
-    background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
-    padding: 12px 20px; border-radius: 20px;
-    border: 1px solid #00d4ff; color: white; z-index: 100;
+    position: absolute; top: 20px; left: 20px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+    padding: 10px 15px; border-radius: 15px;
+    border: 1px solid #ff4fd8; color: white; z-index: 100;
 }
+
+.hud-coins { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+.mini-ice { width: 20px; }
 
 #bonus-panel {
-    position: absolute; top: 85px; right: 15px;
-    display: flex; flex-direction: column; gap: 12px; z-index: 100;
+    position: absolute; top: 20px; right: 20px;
+    display: flex; flex-direction: column; gap: 10px; z-index: 100;
+    width: auto !important; /* Фикс для панели бонусов */
 }
 
-/* Красивые баффы в HUD */
 .bonus-btn {
+    width: 60px !important; /* Маленькие кнопки в игре */
+    height: 60px !important;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 0;
-    border-left: 4px solid transparent !important;
+    padding: 0 !important;
 }
-/* Щит - голубой */
-#count-shield-parent, .bonus-btn:nth-child(1) { border-left-color: #00d4ff !important; }
-/* Магнит - розовый */
-#count-magnet-parent, .bonus-btn:nth-child(2) { border-left-color: #ff00ff !important; }
 
-/* --- ПЕРСОНАЖ И ВИЗУАЛЬНЫЕ ЭФФЕКТЫ --- */
+/* --- МАГАЗИН --- */
+#shop { padding-top: 60px; }
+
+.shop-item {
+    background: rgba(255, 255, 255, 0.08); 
+    backdrop-filter: blur(15px);
+    margin: 8px 0; 
+    padding: 15px 20px; 
+    border-radius: 20px; 
+    border: 1px solid rgba(255, 79, 216, 0.3);
+    width: 90%; 
+    max-width: 350px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    color: white; 
+    z-index: 5;
+}
+
+#backBtn {
+    position: absolute; top: 15px; right: 15px;
+    width: 45px !important; height: 45px !important; 
+    padding: 0 !important; font-size: 20px !important;
+}
+
+/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
 #player {
-    position: absolute; bottom: 18%; left: 50%; width: 100px; height: 100px;
+    position: absolute; bottom: 18%; left: 50%; width: 80px; height: 80px;
     transform: translateX(-50%); 
-    transition: left 0.2s ease-out, transform 0.1s;
+    transition: left 0.2s ease-out;
     background-image: url('assets/berry.png') !important; 
     background-size: contain; background-repeat: no-repeat; 
     z-index: 99;
 }
 
-/* Эффект ЩИТА (Пульсация) */
+/* Свечение для активных бонусов */
 .shield-aura {
-    outline: 5px solid #00d4ff;
-    outline-offset: 5px;
-    border-radius: 50%;
     filter: drop-shadow(0 0 15px #00eaff) !important;
-    animation: pulseShield 1s infinite;
+    transform: translateX(-50%) scale(1.1);
 }
 
-@keyframes pulseShield {
-    0% { box-shadow: 0 0 10px #00d4ff; transform: translateX(-50%) scale(1.1); }
-    50% { box-shadow: 0 0 30px #00d4ff; transform: translateX(-50%) scale(1.15); }
-    100% { box-shadow: 0 0 10px #00d4ff; transform: translateX(-50%) scale(1.1); }
-}
-
-/* Эффект МАГНИТА (Неоновое свечение) */
 .magnet-aura {
-    filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 25px #ff00ff) !important;
-    animation: magnetPulse 0.7s infinite alternate;
+    filter: drop-shadow(0 0 20px #ff00ff) !important;
 }
 
-@keyframes magnetPulse {
-    from { transform: translateX(-50%) scale(1); }
-    to { transform: translateX(-50%) scale(1.05); }
-}
-
-/* --- МАГАЗИН И ЭФФЕКТЫ ПАДЕНИЯ --- */
-#shop { background: radial-gradient(circle at center, #1a012e 0%, #020205 100%); }
-
-.shop-item {
-    background: rgba(255, 255, 255, 0.05); 
-    backdrop-filter: blur(10px);
-    margin: 10px; padding: 20px; border-radius: 20px; 
-    border: 1px solid rgba(255, 79, 216, 0.3);
-    width: 85%; display: flex; justify-content: space-between; 
-    align-items: center; color: white; z-index: 5;
-}
-
-/* Падающее мороженое */
+/* Эффект падающих частиц */
 .falling-ice {
-    position: absolute;
-    width: 30px;
-    pointer-events: none;
-    z-index: 1;
-    animation: fall linear infinite;
+    position: absolute; width: 25px; z-index: 1; animation: fall linear infinite;
 }
 
 @keyframes fall {
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-}
-
-#combo-ui {
-    position: absolute; top: 25%; font-size: 70px; font-weight: 900;
-    color: #ffeb3b; text-shadow: 0 0 25px orange; z-index: 100;
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
 }
