@@ -29,36 +29,33 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- ФИКС КНОПОК И ИНПУТОВ --- */
-button, select, input, .bonus-btn {
+/* --- ФИКС КНОПОК --- */
+button, select, input {
     background: rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: white !important;
-    padding: 15px 20px !important; /* Фиксированный внутренний отступ */
+    padding: 15px 20px !important;
     border-radius: 20px;
-    font-size: 18px !important; /* Единый размер шрифта */
+    font-size: 16px !important;
     font-weight: 800;
     text-transform: uppercase;
     transition: 0.3s all ease;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    width: 100%; /* Занимают всю ширину контейнера */
+    width: 100% !important;
+    max-height: 55px; /* Фикс высоты */
     box-sizing: border-box;
+    flex: none !important; /* Чтобы кнопки не раздувались */
 }
 
-button:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
-    transform: scale(1.02);
-    border-color: #00d4ff !important;
-}
+button:active { transform: scale(0.95); }
 
 /* --- МЕНЮ --- */
-#menu { justify-content: center; padding: 20px; box-sizing: border-box; }
+#menu { justify-content: center; padding: 20px; }
 
 .welcome-text {
     margin-bottom: 20px;
-    font-size: 26px; 
+    font-size: 24px; 
     font-weight: 900;
     text-shadow: 0 0 15px #ff4fd8;
     color: white; 
@@ -68,7 +65,7 @@ button:hover {
 .menu-stats-container { 
     display: flex; 
     gap: 10px; 
-    margin-bottom: 30px; 
+    margin-bottom: 20px; 
     width: 100%;
     max-width: 320px;
 }
@@ -80,7 +77,7 @@ button:hover {
     font-weight: 800;
     background: rgba(255, 255, 255, 0.05); 
     backdrop-filter: blur(5px);
-    padding: 12px; 
+    padding: 10px; 
     border-radius: 15px; 
     border: 1px solid rgba(255, 79, 216, 0.4);
     text-align: center;
@@ -89,7 +86,7 @@ button:hover {
 .menu-controls { 
     display: flex; 
     flex-direction: column; 
-    gap: 12px; 
+    gap: 10px; 
     width: 100%; 
     max-width: 300px; 
 }
@@ -98,79 +95,56 @@ button:hover {
 #hud {
     position: absolute; top: 20px; left: 20px;
     background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
-    padding: 10px 15px; border-radius: 15px;
+    padding: 8px 12px; border-radius: 15px;
     border: 1px solid #ff4fd8; color: white; z-index: 100;
 }
 
-.hud-coins { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
-.mini-ice { width: 20px; }
-
 #bonus-panel {
     position: absolute; top: 20px; right: 20px;
-    display: flex; flex-direction: column; gap: 10px; z-index: 100;
-    width: auto !important; /* Фикс для панели бонусов */
+    display: flex; flex-direction: column; gap: 8px; z-index: 100;
 }
 
 .bonus-btn {
-    width: 60px !important; /* Маленькие кнопки в игре */
-    height: 60px !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 50px !important; 
+    height: 50px !important;
+    display: flex; justify-content: center; align-items: center;
     padding: 0 !important;
+    border-radius: 50% !important;
 }
 
 /* --- МАГАЗИН --- */
-#shop { padding-top: 60px; }
-
 .shop-item {
     background: rgba(255, 255, 255, 0.08); 
-    backdrop-filter: blur(15px);
-    margin: 8px 0; 
-    padding: 15px 20px; 
-    border-radius: 20px; 
+    backdrop-filter: blur(10px);
+    margin: 5px 0; 
+    padding: 10px 15px; 
+    border-radius: 15px; 
     border: 1px solid rgba(255, 79, 216, 0.3);
-    width: 90%; 
-    max-width: 350px;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    color: white; 
-    z-index: 5;
+    width: 90%; max-width: 350px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: white; z-index: 5;
 }
+.shop-item button { width: auto !important; padding: 10px 15px !important; }
 
 #backBtn {
     position: absolute; top: 15px; right: 15px;
-    width: 45px !important; height: 45px !important; 
-    padding: 0 !important; font-size: 20px !important;
+    width: 40px !important; height: 40px !important; padding: 0 !important;
 }
 
-/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
+/* --- ПЕРСОНАЖ --- */
 #player {
-    position: absolute; bottom: 18%; left: 50%; width: 80px; height: 80px;
+    position: absolute; bottom: 18%; left: 50%; width: 70px; height: 70px;
     transform: translateX(-50%); 
-    transition: left 0.2s ease-out;
     background-image: url('assets/berry.png') !important; 
-    background-size: contain; background-repeat: no-repeat; 
-    z-index: 99;
+    background-size: contain; background-repeat: no-repeat; z-index: 99;
 }
 
-/* Свечение для активных бонусов */
-.shield-aura {
-    filter: drop-shadow(0 0 15px #00eaff) !important;
-    transform: translateX(-50%) scale(1.1);
-}
+.shield-aura { filter: drop-shadow(0 0 15px #00eaff) !important; outline: 3px solid #00eaff; border-radius: 50%; }
+.magnet-aura { filter: drop-shadow(0 0 20px #ff00ff) !important; }
 
-.magnet-aura {
-    filter: drop-shadow(0 0 20px #ff00ff) !important;
-}
-
-/* Эффект падающих частиц */
-.falling-ice {
-    position: absolute; width: 25px; z-index: 1; animation: fall linear infinite;
-}
-
+.falling-ice { position: absolute; width: 25px; z-index: 1; animation: fall linear infinite; pointer-events: none; }
 @keyframes fall {
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
+    20% { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
