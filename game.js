@@ -68,7 +68,6 @@ function resetGame() {
     obstacleY = -100;
     gameRunning = true;
     
-    // Сброс визуальных эффектов радуги
     const hud = document.getElementById("hud");
     hud.classList.remove("rainbow-active");
     
@@ -93,7 +92,6 @@ function update() {
     if (!gameRunning) return;
 
     obstacleY += speed;
-    // Постоянное микро-ускорение от сложности
     speed += difficulty;
 
     const obs = document.getElementById("obstacle");
@@ -112,27 +110,23 @@ function update() {
     }
 
     if (obstacleY > window.innerHeight) {
-        // Если пропустили мороженку — сбрасываем комбо
         if (obs.dataset.type === "good") {
             comboCount = 0;
+            updateScore(); // Обновляем HUD, чтобы скрыть счетчик комбо
         }
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
 }
 
-// ЛОГИКА СБОРА И БОНУСОВ
 function handleCollect() {
-    // 1. Начисление очков (в 2 раза больше в режиме радуги)
     let reward = isRainbowMode ? 2 : 1;
     coins += reward;
     
-    // 2. Ускорение: каждые 10 очков увеличиваем скорость на 10%
     if (coins % 10 === 0) {
         speed *= 1.1;
     }
 
-    // 3. Работа с комбо
     if (!isRainbowMode) {
         comboCount++;
         if (comboCount >= 5) {
@@ -142,7 +136,6 @@ function handleCollect() {
 
     updateScore();
 
-    // Эффект тряски HUD
     const hud = document.getElementById("hud");
     hud.classList.add("score-bump");
     setTimeout(() => hud.classList.remove("score-bump"), 200);
@@ -153,23 +146,35 @@ function activateRainbowMode() {
     comboCount = 0;
     const hud = document.getElementById("hud");
     
-    hud.classList.add("rainbow-active"); // Добавляем CSS анимацию
+    hud.classList.add("rainbow-active");
 
     if (rainbowTimer) clearTimeout(rainbowTimer);
     rainbowTimer = setTimeout(() => {
         isRainbowMode = false;
         hud.classList.remove("rainbow-active");
-    }, 5000); // Режим на 5 секунд
+        updateScore();
+    }, 5000);
 }
 
+// ОБНОВЛЕННАЯ ФУНКЦИЯ UPDATE SCORE
 function updateScore() {
     const hud = document.getElementById("hud");
-    // Если радуга — подсвечиваем текст
-    const scoreText = isRainbowMode ? `<span style="color:#fff; text-shadow: 0 0 10px #fff;">x2! ${coins}</span>` : coins;
     
+    // Если радуга — делаем акцент на множителе
+    const scoreDisplay = isRainbowMode 
+        ? `<span class="rainbow-text">X2</span> ${coins}` 
+        : coins;
+    
+    // Формируем содержимое HUD
     hud.innerHTML = `
-        <div class="score-main">${scoreText} <img src="assets/icecream.png" style="width:35px; vertical-align:middle;"></div>
-        <div class="score-record">Best: ${best} ${comboCount > 0 && !isRainbowMode ? ` | Combo: ${comboCount}` : ''}</div>
+        <div class="score-main">
+            ${scoreDisplay} 
+            <img src="assets/icecream.png" class="hud-icon">
+        </div>
+        <div class="score-record">
+            Best: ${best}
+        </div>
+        ${comboCount > 0 && !isRainbowMode ? `<div class="combo-badge">Combo: ${comboCount}</div>` : ''}
     `;
 }
 
@@ -186,7 +191,7 @@ function gameOver() {
         localStorage.setItem("best", best);
     }
 
-    alert(`Берри врезался! 💥\nСобрано: ${coins} 🍦\nКомбо было: ${comboCount}\nВсего в копилке: ${totalCoins}`);
+    alert(`Берри врезался! 💥\nСобрано: ${coins} 🍦\nВсего в копилке: ${totalCoins}`);
     backToMenu();
 }
 
@@ -198,7 +203,6 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
