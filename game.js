@@ -8,35 +8,57 @@ let loopId = null;
 
 let nick = localStorage.getItem("nick");
 let coins = 0;
-let best = parseInt(localStorage.getItem("best")) || 0;
-let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
-
-let speed = 6;
-let baseSpeed = 6;
-let difficulty = 0.002;
-
-let inventory = {
-    magnet: parseInt(localStorage.getItem("inv_magnet")) || 0,
-    shield: parseInt(localStorage.getItem("inv_shield")) || 0
-};
+let best = 0;
+let totalCoins = 0;
+let inventory = { magnet: 0, shield: 0 };
 const PRICES = { magnet: 500, shield: 300 };
 
 let shieldActive = false;
 let magnetActive = false;
 let comboCount = 0;
-let isRainbowMode = false;
 let comboMultiplier = 1;
 
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-window.onload = () => { updateMenuInfo(); };
+// --- РАБОТА С FIREBASE ---
+
+function loadUserData(playerNick) {
+    db.ref('players/' + playerNick).once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            best = data.best || 0;
+            totalCoins = data.totalCoins || 0;
+            inventory.shield = data.inventory?.shield || 0;
+            inventory.magnet = data.inventory?.magnet || 0;
+        } else {
+            saveUserData(); // Создаем нового игрока
+        }
+        updateMenuInfo();
+    });
+}
+
+function saveUserData() {
+    if (!nick) return;
+    db.ref('players/' + nick).set({
+        best: best,
+        totalCoins: totalCoins,
+        inventory: inventory
+    });
+}
+
+// --- ЛОГИКА ИГРЫ ---
+
+window.onload = () => { 
+    if(nick) loadUserData(nick);
+    else updateMenuInfo();
+};
 
 function updateMenuInfo() {
     const welcome = document.getElementById("welcome");
     const nickInput = document.getElementById("nick");
     if (nick && welcome) {
-        welcome.innerHTML = `<span style="color:white">Герой <b>${nick}</b> готов!</span>`;
+        welcome.innerHTML = `<span style="color:white">Герой <b>${nick}</b></span>`;
         if(nickInput) nickInput.style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
@@ -52,10 +74,14 @@ function updateBonusUI() {
 
 function startGame() {
     const nickInput = document.getElementById("nick");
-    if (!nick && nickInput) {
-        nick = nickInput.value.trim() || "Игрок";
+    if (!nick) {
+        const val = nickInput.value.trim();
+        if (val.length < 2) return alert("Введи ник!");
+        nick = val;
         localStorage.setItem("nick", nick);
+        loadUserData(nick);
     }
+    
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
@@ -73,7 +99,6 @@ function resetGame() {
     p.classList.remove("shield-aura");
     p.style.left = lanes[targetLane] + "%";
     
-    document.getElementById("combo-ui").classList.add("hidden");
     updateScore();
     spawnObstacle();
     if (loopId) cancelAnimationFrame(loopId);
@@ -83,45 +108,40 @@ function resetGame() {
 function spawnObstacle() {
     const obs = document.getElementById("obstacle");
     if(!obs) return;
-
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
-    
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
-    obs.style.top = obstacleY + "px";
-    obs.style.display = "block"; // Гарантируем видимость
+    obs.style.display = "block";
 }
 
 function update() {
     if (!gameRunning) return;
-
     obstacleY += speed;
     speed += difficulty;
-    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     
-    // Магнит
     if (magnetActive && obs.dataset.type === "good") {
         obstacleLane = targetLane;
         obs.style.left = lanes[obstacleLane] + "%";
     }
-    
     obs.style.top = obstacleY + "px";
 
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    // Проверка столкновения
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
-            if (comboCount >= 6) { comboMultiplier = 3; showCombo("x3"); }
-            else if (comboCount >= 3) { comboMultiplier = 2; showCombo("x2"); }
-            
+            comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
+            if(comboMultiplier > 1) {
+                const ui = document.getElementById("combo-ui");
+                ui.innerText = "x" + comboMultiplier;
+                ui.classList.remove("hidden");
+            }
             coins += comboMultiplier;
             updateScore();
             spawnObstacle();
@@ -131,29 +151,16 @@ function update() {
         }
     }
 
-    // Если улетело за экран
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { 
-            comboCount = 0; 
-            comboMultiplier = 1; 
-            document.getElementById("combo-ui").classList.add("hidden"); 
-        }
+        if (obs.dataset.type === "good") { comboCount = 0; comboMultiplier = 1; document.getElementById("combo-ui").classList.add("hidden"); }
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
 }
 
-function showCombo(txt) {
-    const ui = document.getElementById("combo-ui");
-    ui.innerText = txt; ui.classList.remove("hidden");
-}
-
 function updateScore() {
-    const hud = document.getElementById("hud");
-    hud.innerHTML = `
-        <div class="hud-coins">
-            <img src="assets/icecream.png" class="hud-ice"> ${coins}
-        </div>
+    document.getElementById("hud").innerHTML = `
+        <div class="hud-coins"><img src="assets/icecream.png" class="hud-ice"> ${coins}</div>
         <div class="hud-best">Best: ${best}</div>
     `;
 }
@@ -166,9 +173,10 @@ function gameOver() {
     }
     gameRunning = false;
     totalCoins += coins;
-    localStorage.setItem("totalCoins", totalCoins);
-    if (coins > best) { best = coins; localStorage.setItem("best", best); }
-    alert("Берри врезался! Собрано: " + coins);
+    if (coins > best) best = coins;
+    
+    saveUserData(); // Сохранение в Firebase
+    alert("Игра окончена! Собрано: " + coins);
     backToMenu();
 }
 
@@ -179,29 +187,33 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление
+// Управление свайпами
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
-    
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
-    
     const p = document.getElementById("player");
     p.style.left = lanes[targetLane] + "%";
-    
-    let rot = diff > 0 ? 15 : -15;
-    p.style.transform = `translateX(-50%) rotate(${rot}deg)`;
-    setTimeout(() => { p.style.transform = "translateX(-50%) rotate(0deg)"; }, 150);
 });
+
+function buyItem(type) {
+    if (totalCoins >= PRICES[type]) {
+        totalCoins -= PRICES[type];
+        inventory[type]++;
+        saveUserData(); // Сохранение покупки в Firebase
+        updateMenuInfo();
+    } else alert("Мало BERRY!");
+}
 
 function useShield() {
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
         inventory.shield--; shieldActive = true;
         document.getElementById("player").classList.add("shield-aura");
+        saveUserData();
         updateBonusUI();
     }
 }
@@ -209,6 +221,7 @@ function useShield() {
 function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
         inventory.magnet--; magnetActive = true;
+        saveUserData();
         updateBonusUI();
         setTimeout(() => { magnetActive = false; }, 10000);
     }
@@ -216,11 +229,3 @@ function useMagnet() {
 
 function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
 function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
-function buyItem(type) {
-    if (totalCoins >= PRICES[type]) {
-        totalCoins -= PRICES[type]; inventory[type]++;
-        localStorage.setItem("totalCoins", totalCoins);
-        localStorage.setItem("inv_" + type, inventory[type]);
-        updateMenuInfo();
-    } else alert("Мало BERRY!");
-}
