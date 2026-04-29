@@ -72,8 +72,8 @@ button:active { transform: scale(0.95); }
 
 /* --- МЕНЮ (КНОПКИ НИЖЕ) --- */
 #menu { 
-    justify-content: flex-end; /* Смещаем контент вниз */
-    padding: 20px 20px 80px 20px; /* Отступ снизу для кнопок */
+    justify-content: flex-end; 
+    padding: 20px 20px 80px 20px; 
 }
 
 .welcome-text {
@@ -123,20 +123,27 @@ button:active { transform: scale(0.95); }
     gap: 8px;
 }
 
-/* ИКОНКА МОРОЖЕНОГО ИЗ ASSETS */
+/* ИКОНКА МОРОЖЕНОГО (С ЭФФЕКТОМ ПОКАЧИВАНИЯ) */
 .ice-icon {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
     display: inline-block;
+    filter: drop-shadow(0 0 5px #fff);
+    animation: iceSway 2s ease-in-out infinite;
 }
 
-/* --- БАФФЫ (ОПУСКАЕМ ВНИЗ ПОД БЕРРИ) --- */
+@keyframes iceSway {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+}
+
+/* --- БАФФЫ (ВНИЗУ) --- */
 #bonus-panel {
     position: absolute; 
-    top: auto !important; /* Убираем привязку к верху */
-    bottom: 30px; /* Ставим внизу */
+    top: auto !important; 
+    bottom: 30px; 
     right: 20px;
     display: flex; 
     flex-direction: column; 
@@ -157,7 +164,7 @@ button:active { transform: scale(0.95); }
 }
 
 .bonus-btn:active {
-    transform: scale(1.2); /* Эффект при нажатии */
+    transform: scale(1.2); 
     border-color: #ff4fd8 !important;
     box-shadow: 0 0 20px #ff4fd8;
 }
@@ -177,20 +184,21 @@ button:active { transform: scale(0.95); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
 }
 
-/* --- МАГАЗИН (СЧЕТ В УГЛУ) --- */
+/* --- МАГАЗИН (СЧЕТ В УГЛУ ПО СТРЕЛКЕ) --- */
 #shop .shop-balance-container {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0,0,0,0.5);
-    padding: 10px 20px;
+    top: 25px; /* Перемещено выше по твоей правке */
+    right: 25px;
+    background: rgba(0,0,0,0.6);
+    padding: 8px 18px;
     border-radius: 15px;
     border: 2px solid #ff4fd8;
     color: white;
     font-weight: 900;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    z-index: 1000;
 }
 
 .shop-item {
@@ -221,17 +229,36 @@ button:active { transform: scale(0.95); }
     transition: transform 0.2s ease-out, left 0.3s ease-out;
 }
 
-/* ВСЕ ТВОИ ЭФФЕКТЫ АУРЫ (СОХРАНЕНЫ) */
+/* УСИЛЕННЫЕ ЭФФЕКТЫ */
 .shield-aura { 
     filter: drop-shadow(0 0 15px #00eaff) brightness(1.2) !important; 
     outline: 3px solid #00eaff; 
     border-radius: 50%; 
 }
+
+/* МАГНИТ С ЭФФЕКТОМ ПУЛЬСАЦИИ */
 .magnet-aura { 
     filter: drop-shadow(0 0 25px #ff00ff) !important; 
+    animation: magnetPulse 1s infinite alternate;
 }
 
-/* ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНОК (СОХРАНЕН) */
+@keyframes magnetPulse {
+    from { filter: drop-shadow(0 0 15px #ff00ff); }
+    to { filter: drop-shadow(0 0 35px #ff00ff) brightness(1.2); }
+}
+
+/* ПАДАЮЩИЕ МОРОЖЕНКИ В МЕНЮ */
+.menu-falling-ice {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-size: contain !important;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНОК В ИГРЕ */
 .falling-ice { 
     position: absolute; 
     width: 30px; 
