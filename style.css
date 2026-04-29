@@ -58,6 +58,31 @@ button {
   background: radial-gradient(circle at bottom, #050505, #000);
 }
 
+/* SELECT */
+select {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+/* SHOP */
+#shop {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #111;
+  color: white;
+}
+
+/* MENU LEADERBOARD */
+#menuLeaderboard {
+  margin-top: 20px;
+  color: white;
+  font-size: 14px;
+}
+
 /* TRACK */
 #track {
   width: 100vw;
