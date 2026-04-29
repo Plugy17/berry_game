@@ -9,11 +9,11 @@
 <body>
 
 <div id="menu" class="screen">
-    <h1 class="game-title">🍦 BERRY RUNNER</h1>
+    <h1 class="game-title active-title">BERRY RUNNER</h1>
+    <div id="welcome" class="welcome-text"></div>
+    <div id="total-balance" class="balance-info">У тебя всего: 0 🍦</div>
 
-    <div id="welcome"></div>
-
-    <input id="nick" type="text" placeholder="Введите ник..." maxlength="12" />
+    <input id="nick" placeholder="Введите ник..." maxlength="12" />
 
     <select id="difficulty" class="custom-select">
         <option value="easy">🟢 Легко</option>
@@ -25,6 +25,18 @@
     <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
 
     <div id="menuLeaderboard"></div>
+</div>
+
+<div id="game" class="screen hidden">
+    <div id="hud">🍦 <span id="score">0</span></div>
+    <button id="backBtn" onclick="backToMenu()" style="z-index: 1001; pointer-events: auto;">🏠</button>
+
+    <div id="track">
+        <div id="player"></div> 
+        <div id="obstacle"></div> 
+    </div>
+
+    <div id="leaderboard"></div>
 </div>
 
 <div id="shop" class="screen hidden">
