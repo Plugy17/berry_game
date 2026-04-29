@@ -1,3 +1,6 @@
+localStorage:
+- nick
+- coins
 let lane = 1;
 let score = 0;
 let gameRunning = false;
