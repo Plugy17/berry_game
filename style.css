@@ -136,3 +136,7 @@ body.hit {
   from { transform: translateX(-50%) translateY(0); }
   to { transform: translateX(-50%) translateY(-10px); }
 }
+
+body.flash {
+  background: white;
+}
