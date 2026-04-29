@@ -74,17 +74,44 @@ function updateBonusUI() {
 
 function startGame() {
     const nickInput = document.getElementById("nick");
+    
     if (!nick) {
         const val = nickInput.value.trim();
-        if (val.length < 2) return alert("Введи ник!");
+        if (val.length < 2) return alert("Введи ник (минимум 2 символа)!");
         nick = val;
         localStorage.setItem("nick", nick);
-        loadUserData(nick);
+        
+        // Показываем, что идет загрузка
+        const btn = document.querySelector(".play-btn") || document.querySelector("button");
+        if(btn) btn.innerText = "Загрузка...";
+
+        // Пытаемся загрузить данные из Firebase
+        db.ref('players/' + nick).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                best = data.best || 0;
+                totalCoins = data.totalCoins || 0;
+                inventory.shield = data.inventory?.shield || 0;
+                inventory.magnet = data.inventory?.magnet || 0;
+            } else {
+                saveUserData(); // Новый игрок
+            }
+            proceedToGame(); // Запускаем после загрузки
+        }).catch((error) => {
+            console.error("Ошибка Firebase:", error);
+            proceedToGame(); // Если база упала, все равно пускаем играть
+        });
+    } else {
+        proceedToGame();
     }
-    
+}
+
+// Отдельная функция для запуска, чтобы не дублировать код
+function proceedToGame() {
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
+    
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     resetGame();
