@@ -11,7 +11,13 @@ let best = parseInt(localStorage.getItem("best")) || 0;
 let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
 
 let speed = 6;
+let baseSpeed = 6; // Запоминаем стартовую скорость для расчетов
 let difficulty = 0.002;
+
+// --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ КОМБО И РАДУГИ ---
+let comboCount = 0;
+let isRainbowMode = false;
+let rainbowTimer = null;
 
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
@@ -25,7 +31,6 @@ function updateMenuInfo() {
         document.getElementById("welcome").innerHTML = `<span class="flash-effect"></span> Герой <b>${nick}</b> готов к забегу! <span class="flash-effect"></span>`;
         document.getElementById("nick").style.display = "none";
     }
-    // ПРАВКА: Заполняем счет и рекорд лаконично
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
     document.getElementById("total-balance").innerHTML = `${totalCoins} <img src="assets/icecream.png" style="width:22px; vertical-align:middle;">`;
 }
@@ -42,7 +47,8 @@ function startGame() {
     }
 
     const mode = document.getElementById("difficulty").value;
-    speed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
+    baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
+    speed = baseSpeed;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
 
     document.getElementById("menu").classList.add("hidden");
@@ -53,11 +59,19 @@ function startGame() {
 
 function resetGame() {
     coins = 0;
-    updateScore(); // Сброс счета и показ рекорда в HUD
+    comboCount = 0;
+    isRainbowMode = false;
+    speed = baseSpeed;
+    updateScore();
     lane = 1;
     targetLane = 1;
     obstacleY = -100;
     gameRunning = true;
+    
+    // Сброс визуальных эффектов радуги
+    const hud = document.getElementById("hud");
+    hud.classList.remove("rainbow-active");
+    
     spawnObstacle();
     if (loopId) cancelAnimationFrame(loopId);
     update();
@@ -69,8 +83,7 @@ function spawnObstacle() {
     const obs = document.getElementById("obstacle");
     
     const isGood = Math.random() < 0.6;
-    obs.dataset.type = "good"; // Тип по умолчанию
-    if (!isGood) obs.dataset.type = "bad";
+    obs.dataset.type = isGood ? "good" : "bad";
     
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = [15, 50, 85][obstacleLane] + "%";
@@ -80,6 +93,7 @@ function update() {
     if (!gameRunning) return;
 
     obstacleY += speed;
+    // Постоянное микро-ускорение от сложности
     speed += difficulty;
 
     const obs = document.getElementById("obstacle");
@@ -88,14 +102,7 @@ function update() {
     if (obstacleY > window.innerHeight - 180 && obstacleY < window.innerHeight - 80) {
         if (obstacleLane === targetLane) {
             if (obs.dataset.type === "good") {
-                coins++;
-                updateScore();
-                
-                // Эффект увеличения HUD при сборе
-                const hud = document.getElementById("hud");
-                hud.classList.add("score-bump");
-                setTimeout(() => hud.classList.remove("score-bump"), 200);
-
+                handleCollect();
                 spawnObstacle();
             } else {
                 gameOver();
@@ -104,22 +111,72 @@ function update() {
         }
     }
 
-    if (obstacleY > window.innerHeight) spawnObstacle();
+    if (obstacleY > window.innerHeight) {
+        // Если пропустили мороженку — сбрасываем комбо
+        if (obs.dataset.type === "good") {
+            comboCount = 0;
+        }
+        spawnObstacle();
+    }
     loopId = requestAnimationFrame(update);
 }
 
-// ПРАВКА: Красивый HUD со счетом и рекордом снизу
+// ЛОГИКА СБОРА И БОНУСОВ
+function handleCollect() {
+    // 1. Начисление очков (в 2 раза больше в режиме радуги)
+    let reward = isRainbowMode ? 2 : 1;
+    coins += reward;
+    
+    // 2. Ускорение: каждые 10 очков увеличиваем скорость на 10%
+    if (coins % 10 === 0) {
+        speed *= 1.1;
+    }
+
+    // 3. Работа с комбо
+    if (!isRainbowMode) {
+        comboCount++;
+        if (comboCount >= 5) {
+            activateRainbowMode();
+        }
+    }
+
+    updateScore();
+
+    // Эффект тряски HUD
+    const hud = document.getElementById("hud");
+    hud.classList.add("score-bump");
+    setTimeout(() => hud.classList.remove("score-bump"), 200);
+}
+
+function activateRainbowMode() {
+    isRainbowMode = true;
+    comboCount = 0;
+    const hud = document.getElementById("hud");
+    
+    hud.classList.add("rainbow-active"); // Добавляем CSS анимацию
+
+    if (rainbowTimer) clearTimeout(rainbowTimer);
+    rainbowTimer = setTimeout(() => {
+        isRainbowMode = false;
+        hud.classList.remove("rainbow-active");
+    }, 5000); // Режим на 5 секунд
+}
+
 function updateScore() {
     const hud = document.getElementById("hud");
+    // Если радуга — подсвечиваем текст
+    const scoreText = isRainbowMode ? `<span style="color:#fff; text-shadow: 0 0 10px #fff;">x2! ${coins}</span>` : coins;
+    
     hud.innerHTML = `
-        <div class="score-main">${coins} <img src="assets/icecream.png" style="width:35px; vertical-align:middle;"></div>
-        <div class="score-record">Best: ${best}</div>
+        <div class="score-main">${scoreText} <img src="assets/icecream.png" style="width:35px; vertical-align:middle;"></div>
+        <div class="score-record">Best: ${best} ${comboCount > 0 && !isRainbowMode ? ` | Combo: ${comboCount}` : ''}</div>
     `;
 }
 
 function gameOver() {
     gameRunning = false;
     cancelAnimationFrame(loopId);
+    if (rainbowTimer) clearTimeout(rainbowTimer);
 
     totalCoins += coins;
     localStorage.setItem("totalCoins", totalCoins);
@@ -129,7 +186,7 @@ function gameOver() {
         localStorage.setItem("best", best);
     }
 
-    alert(`Берри врезался! 💥\nСобрано сейчас: ${coins} 🍦\nВсего в копилке: ${totalCoins}`);
+    alert(`Берри врезался! 💥\nСобрано: ${coins} 🍦\nКомбо было: ${comboCount}\nВсего в копилке: ${totalCoins}`);
     backToMenu();
 }
 
