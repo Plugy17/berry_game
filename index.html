@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>BERRY RUNNER</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="menu">
+  <h1>🍓 BERRY RUNNER</h1>
+  <input id="nick" placeholder="Введите ник..." />
+  <button onclick="startGame()">Играть</button>
+</div>
+
+<div id="game" class="hidden">
+  <div id="hud">
+    🍓 <span id="score">0</span>
+  </div>
+
+  <div id="track">
+    <div class="lane" id="lane0"></div>
+    <div class="lane" id="lane1"></div>
+    <div class="lane" id="lane2"></div>
+
+    <div id="player">🧍</div>
+    <div id="obstacle">🍓</div>
+  </div>
+
+  <div id="controls">
+    <button onclick="moveLeft()">⬅️</button>
+    <button onclick="jump()">⬆️</button>
+    <button onclick="moveRight()">➡️</button>
+  </div>
+
+  <button onclick="restart()">🔁 Рестарт</button>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
