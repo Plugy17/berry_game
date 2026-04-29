@@ -5,7 +5,6 @@ let gameRunning = false;
 let obstacleLane = 0;
 let obstacleY = -150; 
 let loopId = null;
-let spawnTimeout = null; // Для контроля пауз спавна
 let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
@@ -82,22 +81,16 @@ function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
-    
-    if (loopId) cancelAnimationFrame(loopId);
-    if (spawnTimeout) clearTimeout(spawnTimeout);
-    
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
     p.style.filter = "none";
-    
-    updateScore(); 
-    spawnObstacle();
+    updateScore(); spawnObstacle();
+    if (loopId) cancelAnimationFrame(loopId);
     update();
 }
 
 function spawnObstacle() {
-    if (!gameRunning) return;
     const obs = document.getElementById("obstacle");
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
@@ -127,7 +120,7 @@ function update() {
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    // Проверка столкновения (добавлена проверка на type !== "none")
+    // ПРОВЕРКА СТОЛКНОВЕНИЯ
     if (obs.dataset.type !== "none" && oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
@@ -140,6 +133,7 @@ function update() {
         }
     }
 
+    // ЛОГИКА ВЫХОДА ЗА ЭКРАН (И ПЕРЕЗАПУСКА)
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
             comboCount = 0; 
@@ -163,13 +157,14 @@ function gameOver() {
         p.classList.remove("shield-aura");
         
         if (obs) {
-            obstacleLane = -1; 
             obs.dataset.type = "none";
             obs.style.display = "none";
-            obstacleY = 2000;
+            obs.style.left = "-1000px"; // Полное удаление из зоны видимости
+            obstacleY = window.innerHeight + 500; // Пробрасываем вниз для триггера spawnObstacle
+            obstacleLane = -1;
         }
         
-        spawnTimeout = setTimeout(() => { if (gameRunning) spawnObstacle(); }, 300);
+        // Форсированный перезапуск через цикл update
         return; 
     }
     
@@ -183,7 +178,6 @@ function gameOver() {
 
 function backToMenu() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
