@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>BERRY RUNNER</title>
+    <title>BERRY RUNNER ONLINE</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -30,12 +33,10 @@
     <div id="hud"></div> 
     <button id="backBtn" onclick="backToMenu()">🏠</button>
     <div id="combo-ui" class="hidden">x2</div>
-    
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">🛡️ <span id="count-shield">0</span></div>
         <div class="bonus-btn" onclick="useMagnet()">🧲 <span id="count-magnet">0</span></div>
     </div>
-
     <div id="track">
         <div id="player"></div> 
         <div id="obstacle"></div> 
@@ -43,6 +44,7 @@
 </div>
 
 <div id="shop" class="screen hidden">
+    <div class="shop-overlay"></div>
     <h2 style="color: white; margin-top: 50px; z-index: 5;">🛒 МАГАЗИН</h2>
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5;">0</div>
     <div class="shop-item">
@@ -53,8 +55,25 @@
         <span>🧲 МАГНИТ (500)</span>
         <button onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
-    <button onclick="closeShop()" style="margin-top: 30px; padding: 10px 30px; border-radius: 15px;">Назад</button>
+    <button onclick="closeShop()" style="margin-top: 30px; padding: 10px 30px; border-radius: 15px; z-index: 5;">Назад</button>
 </div>
+
+<script>
+  // КОНФИГУРАЦИЯ FIREBASE
+  const firebaseConfig = {
+    apiKey: "ВСТАВЬ_СВОЙ_API_KEY_ЗДЕСЬ", 
+    authDomain: "berry-game-4fa9b.firebaseapp.com",
+    databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
+    projectId: "berry-game-4fa9b",
+    storageBucket: "berry-game-4fa9b.appspot.com",
+    messagingSenderId: "ОСТАЛЬНОЕ_ИЗ_КОНСОЛИ",
+    appId: "ОСТАЛЬНОЕ_ИЗ_КОНСОЛИ"
+  };
+
+  // Инициализация
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 
 <script src="game.js"></script>
 </body>
