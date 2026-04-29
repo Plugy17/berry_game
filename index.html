@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -12,17 +12,22 @@
 <body>
 
 <div id="menu" class="screen">
-    <div id="welcome" class="welcome-text">БЕРРИ РАННЕР</div>
-    <div class="menu-stats-container">
-        <div id="total-balance" class="balance-info">0 🍦</div>
-        <div id="menuLeaderboard" class="record-info">🏆 0</div>
+    <div class="top-bar-container">
+        <div id="welcome" class="welcome-text">Герой BERRY</div>
+        <div class="menu-stats-container">
+            <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
+            <div id="menuLeaderboard" class="record-info">🏆 0</div>
+        </div>
     </div>
+
+    <div class="spacer-middle"></div>
+
     <div class="menu-controls">
         <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
         <select id="difficulty">
-            <option value="easy">🟢 Легко</option>
-            <option value="medium" selected>🟡 Средне</option>
-            <option value="hard">🔴 Сложно</option>
+            <option value="easy">🟩 Легко</option>
+            <option value="medium" selected>🟨 Средне</option>
+            <option value="hard">🟥 Сложно</option>
         </select>
         <button onclick="startGame()">ИГРАТЬ</button>
         <button onclick="openShop()">🛒 Магазин</button>
@@ -30,7 +35,9 @@
 </div>
 
 <div id="game" class="screen hidden">
-    <div id="hud"></div> 
+    <div id="hud">
+        <span id="score-display">0</span> <span class="ice-icon"></span>
+    </div> 
     <button id="backBtn" onclick="backToMenu()">🏠</button>
     <div id="combo-ui" class="hidden">x2</div>
     <div id="bonus-panel">
@@ -42,8 +49,12 @@
 </div>
 
 <div id="shop" class="screen hidden">
-    <h2 style="color: white; margin-top: 50px; z-index: 5;">🛒 МАГАЗИН</h2>
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5; width: 200px;">0 🍦</div>
+    <div class="shop-balance-container">
+        <span id="shop-balance-val">0</span> <span class="ice-icon"></span>
+    </div>
+
+    <h2 style="color: white; margin-top: 80px; z-index: 5; text-shadow: 0 0 15px #ff4fd8;">🛒 МАГАЗИН</h2>
+    
     <div class="shop-item">
         <span>🛡️ ЩИТ (300)</span>
         <button onclick="buyItem('shield')">КУПИТЬ</button>
@@ -52,7 +63,7 @@
         <span>🧲 МАГНИТ (500)</span>
         <button onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
-    <button onclick="closeShop()" style="width: 200px !important; margin-top: 30px;">Назад</button>
+    <button onclick="closeShop()" style="width: 200px !important; margin-top: 30px;">НАЗАД</button>
 </div>
 
 <script>
