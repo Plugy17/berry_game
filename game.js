@@ -22,11 +22,11 @@ window.onload = () => {
 
 function updateMenuInfo() {
     if (nick) {
-        document.getElementById("welcome").innerHTML = `✨ Герой <b>${nick}</b> готов к забегу! ✨`;
+        // Приветствие со вспышками
+        document.getElementById("welcome").innerHTML = `<span class="flash-effect"></span> Герой <b>${nick}</b> готов к забегу! <span class="flash-effect"></span>`;
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 Рекорд: " + best;
-    // ПРАВКА: Добавляем иконку в баланс
     document.getElementById("total-balance").innerHTML = `У тебя всего: ${totalCoins} <img src="assets/icecream.png" style="width:20px; vertical-align:middle;">`;
 }
 
@@ -53,7 +53,7 @@ function startGame() {
 
 function resetGame() {
     coins = 0;
-    updateScore();
+    updateScore(); // Сброс счета и показ рекорда в HUD
     lane = 1;
     targetLane = 1;
     obstacleY = -100;
@@ -69,7 +69,9 @@ function spawnObstacle() {
     const obs = document.getElementById("obstacle");
     
     const isGood = Math.random() < 0.6;
-    obs.dataset.type = isGood ? "good" : "bad";
+    obs.dataset.type = "good"; // Тип по умолчанию
+    if (!isGood) obs.dataset.type = "bad";
+    
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = [15, 50, 85][obstacleLane] + "%";
 }
@@ -89,14 +91,10 @@ function update() {
                 coins++;
                 updateScore();
                 
-                // ПРАВКА: Эффект увеличения счета
-                const scoreHud = document.getElementById("score");
-                scoreHud.style.transform = "scale(1.3)";
-                scoreHud.style.color = "#fff";
-                setTimeout(() => {
-                    scoreHud.style.transform = "scale(1)";
-                    scoreHud.style.color = "#ff4fd8";
-                }, 100);
+                // Эффект увеличения HUD при сборе
+                const hud = document.getElementById("hud");
+                hud.classList.add("score-bump");
+                setTimeout(() => hud.classList.remove("score-bump"), 200);
 
                 spawnObstacle();
             } else {
@@ -107,12 +105,16 @@ function update() {
     }
 
     if (obstacleY > window.innerHeight) spawnObstacle();
-
     loopId = requestAnimationFrame(update);
 }
 
+// ПРАВКА: Красивый HUD со счетом и рекордом снизу
 function updateScore() {
-    document.getElementById("score").innerText = coins;
+    const hud = document.getElementById("hud");
+    hud.innerHTML = `
+        <div class="score-main">${coins} <img src="assets/icecream.png" style="width:35px; vertical-align:middle;"></div>
+        <div class="score-record">Best: ${best}</div>
+    `;
 }
 
 function gameOver() {
@@ -139,17 +141,15 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление свайпами
+// Управление
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
-    
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
 
     const playerImg = document.getElementById("player");
-    
     if (diff > 0) {
         targetLane = Math.min(2, targetLane + 1);
         playerImg.style.transform = "translateX(-50%) rotate(15deg)";
@@ -157,9 +157,7 @@ document.addEventListener("touchend", e => {
         targetLane = Math.max(0, targetLane - 1);
         playerImg.style.transform = "translateX(-50%) rotate(-15deg)";
     }
-    
     playerImg.style.left = [15, 50, 85][targetLane] + "%";
-
     setTimeout(() => {
         playerImg.style.transform = "translateX(-50%) rotate(0deg)";
     }, 200);
