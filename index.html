@@ -16,16 +16,18 @@
     <div class="menu-stats-container">
         <div id="total-balance" class="balance-info">0 <img src="assets/icecream.png" style="width:20px;"></div>
         <div id="menuLeaderboard" class="record-info">🏆 0</div>
-    }
+    </div>
 
-    <input id="nick" placeholder="Введите ник..." maxlength="12" />
-    <select id="difficulty">
-        <option value="easy">🟢 Легко</option>
-        <option value="medium" selected>🟡 Средне</option>
-        <option value="hard">🔴 Сложно</option>
-    </select>
-    <button class="play-btn" onclick="startGame()">ИГРАТЬ</button>
-    <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
+    <div class="menu-controls">
+        <input id="nick" placeholder="Введите ник..." maxlength="12" />
+        <select id="difficulty">
+            <option value="easy">🟢 Легко</option>
+            <option value="medium" selected>🟡 Средне</option>
+            <option value="hard">🔴 Сложно</option>
+        </select>
+        <button class="play-btn" onclick="startGame()">ИГРАТЬ</button>
+        <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
+    </div>
 </div>
 
 <div id="game" class="screen hidden">
@@ -34,7 +36,8 @@
 
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
-            🛡️ <span id="count-shield">0</span> </div>
+            🛡️ <span id="count-shield">0</span> 
+        </div>
         <div class="bonus-btn" onclick="useMagnet()">
             🧲 <span id="count-magnet">0</span>
         </div>
@@ -48,8 +51,7 @@
 
 <div id="shop" class="screen hidden">
     <h2>🛒 МАГАЗИН</h2>
-    
-    <div id="shop-balance" class="shop-balance-info">Balance: 0 <img src="assets/icecream.png" style="width:22px; vertical-align:middle;"></div>
+    <div id="shop-balance" class="shop-balance-info">Balance: 0</div>
     
     <div class="shop-item">
         <span>🛡️ ЩИТ (300 BERRY)</span>
@@ -60,7 +62,7 @@
         <button onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
     
-    <button onclick="closeShop()" style="margin-top: 30px; background: rgba(255, 255, 255, 0.1); width: 160px; color: rgba(255, 255, 255, 0.7) !important;">Назад</button>
+    <button onclick="closeShop()" class="back-from-shop">Назад</button>
 </div>
 
 <script src="game.js"></script>
