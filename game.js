@@ -99,6 +99,7 @@ function spawnObstacle() {
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
+    obs.style.opacity = "1";
 }
 
 function update() {
@@ -129,11 +130,23 @@ function update() {
             if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
             coins += comboMultiplier; updateScore(); spawnObstacle();
         } else {
-            gameOver(); return; 
+            // Если врезались и есть щит — превращаем беду в пользу
+            if (shieldActive) {
+                shieldActive = false;
+                p.classList.remove("shield-aura");
+                // Мгновенно подменяем врага на собранное мороженое
+                coins += 1;
+                updateScore();
+                spawnObstacle();
+                return;
+            } else {
+                gameOver(); 
+                return; 
+            }
         }
     }
 
-    // ЛОГИКА ВЫХОДА ЗА ЭКРАН (И ПЕРЕЗАПУСКА)
+    // ЛОГИКА ВЫХОДА ЗА ЭКРАН
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
             comboCount = 0; 
@@ -150,26 +163,6 @@ function updateScore() {
 }
 
 function gameOver() {
-    if (shieldActive) {
-        shieldActive = false;
-        const p = document.getElementById("player");
-        const obs = document.getElementById("obstacle");
-        p.classList.remove("shield-aura");
-        
-        if (obs) {
-            // Мгновенно нейтрализуем текущий объект
-            obs.dataset.type = "none";
-            obs.style.display = "none";
-            obs.style.left = "-2000px"; 
-            obstacleY = window.innerHeight + 1000; 
-            obstacleLane = -1;
-        }
-        
-        // МГНОВЕННЫЙ спавн нового препятствия, чтобы игра не замирала
-        spawnObstacle();
-        return; 
-    }
-    
     gameRunning = false;
     totalCoins += coins;
     if (coins > best) best = coins;
