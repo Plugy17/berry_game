@@ -15,14 +15,14 @@
         <div id="menuLeaderboard" class="record-info">🏆 0</div>
     </div>
     <div class="menu-controls">
-        <input id="nick" placeholder="Введите ник..." maxlength="12" />
+        <input id="nick" placeholder="Имя героя..." maxlength="12" />
         <select id="difficulty">
             <option value="easy">🟢 Легко</option>
             <option value="medium" selected>🟡 Средне</option>
             <option value="hard">🔴 Сложно</option>
         </select>
-        <button class="play-btn" onclick="startGame()">ИГРАТЬ</button>
-        <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
+        <button onclick="startGame()">ИГРАТЬ</button>
+        <button onclick="openShop()">🛒 Магазин</button>
     </div>
 </div>
 
@@ -30,10 +30,12 @@
     <div id="hud"></div> 
     <button id="backBtn" onclick="backToMenu()">🏠</button>
     <div id="combo-ui" class="hidden">x2</div>
+    
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">🛡️ <span id="count-shield">0</span></div>
         <div class="bonus-btn" onclick="useMagnet()">🧲 <span id="count-magnet">0</span></div>
     </div>
+
     <div id="track">
         <div id="player"></div> 
         <div id="obstacle"></div> 
@@ -41,18 +43,17 @@
 </div>
 
 <div id="shop" class="screen hidden">
-    <div class="shop-overlay"></div>
-    <h2 style="color: white; z-index: 5; margin-top: 50px;">🛒 МАГАЗИН</h2>
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5;">Balance: 0</div>
+    <h2 style="color: white; margin-top: 50px; z-index: 5;">🛒 МАГАЗИН</h2>
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5;">0</div>
     <div class="shop-item">
         <span>🛡️ ЩИТ (300)</span>
-        <button onclick="buyItem('shield')" style="padding:10px; background:#ff4fd8; color:white; border:none; border-radius:10px;">КУПИТЬ</button>
+        <button onclick="buyItem('shield')">КУПИТЬ</button>
     </div>
     <div class="shop-item">
         <span>🧲 МАГНИТ (500)</span>
-        <button onclick="buyItem('magnet')" style="padding:10px; background:#ff4fd8; color:white; border:none; border-radius:10px;">КУПИТЬ</button>
+        <button onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
-    <button onclick="closeShop()" style="margin-top:30px; padding:15px 40px; border-radius:20px; z-index:5;">Назад</button>
+    <button onclick="closeShop()" style="margin-top: 30px; padding: 10px 30px; border-radius: 15px;">Назад</button>
 </div>
 
 <script src="game.js"></script>
