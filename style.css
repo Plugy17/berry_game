@@ -174,19 +174,22 @@ body {
 
 /* Магнит: Неоновые вспышки строго по форме персонажа */
 .magnet-aura {
-    /* Убираем любые box-shadow, работаем только с силуэтом */
+    /* Принудительно убираем фоновые цвета блока */
+    background-color: transparent !important;
+    box-shadow: none !important; 
+    /* Работаем ТОЛЬКО через фильтр силуэта */
     animation: neon-pulse 0.7s infinite alternate;
 }
 
 @keyframes neon-pulse {
     0% {
-        filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 10px #ff00ff);
+        filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.8));
         transform: translateX(-50%) scale(1);
     }
     100% {
-        /* Двойной shadow создает эффект мощной неоновой лампы */
-        filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 30px #ff00ff) brightness(1.4);
-        transform: translateX(-50%) scale(1.08);
+        /* Делаем два слоя тени для "неонового" объема по форме персонажа */
+        filter: drop-shadow(0 0 12px #ff00ff) drop-shadow(0 0 25px #ff00ff);
+        transform: translateX(-50%) scale(1.05);
     }
 }
 
