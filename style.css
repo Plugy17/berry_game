@@ -160,15 +160,34 @@ body {
 }
 
 /* Эффекты Бонусов */
+/* Щит: Эффект неонового пузыря вокруг Берри */
 .shield-aura { 
-    filter: drop-shadow(0 0 20px #00eaff) brightness(1.2);
+    /* Внешний светящийся круг (пузырь) */
+    box-shadow: 0 0 0 10px rgba(0, 234, 255, 0.2), 0 0 40px 10px rgba(0, 234, 255, 0.4) !important;
     border-radius: 50%;
-    box-shadow: inset 0 0 20px #00eaff;
+    /* Свечение самого персонажа по контуру */
+    filter: drop-shadow(0 0 15px #00eaff) !important;
+    /* Увеличиваем масштаб, чтобы пузырь казался объемнее */
+    transform: translateX(-50%) scale(1.15) !important; 
+    transition: all 0.3s ease-out;
 }
 
+/* Магнит: Неоновые вспышки строго по форме персонажа */
 .magnet-aura {
-    filter: drop-shadow(0 0 20px #ff00ff);
-    animation: pulse-magnet 1s infinite;
+    /* Убираем любые box-shadow, работаем только с силуэтом */
+    animation: neon-pulse 0.7s infinite alternate;
+}
+
+@keyframes neon-pulse {
+    0% {
+        filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 10px #ff00ff);
+        transform: translateX(-50%) scale(1);
+    }
+    100% {
+        /* Двойной shadow создает эффект мощной неоновой лампы */
+        filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 30px #ff00ff) brightness(1.4);
+        transform: translateX(-50%) scale(1.08);
+    }
 }
 
 @keyframes pulse-magnet {
