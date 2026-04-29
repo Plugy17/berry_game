@@ -1,10 +1,10 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BERRY RUNNER ONLINE</title>
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css?v=1.2">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -12,6 +12,8 @@
 <body>
 
 <div id="menu" class="screen">
+    <div id="menu-particles"></div>
+
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
@@ -38,19 +40,25 @@
     <div id="hud">
         <span id="score-display">0</span> <span class="ice-icon"></span>
     </div> 
+    
     <button id="backBtn" onclick="backToMenu()">🏠</button>
-    <div id="combo-ui" class="hidden">x2</div>
+    
+    <div id="combo-container">
+        <div id="combo-ui" class="hidden">x2</div>
+        <div id="combo-msg"></div> </div>
+
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">🛡️ <span id="count-shield">0</span></div>
         <div class="bonus-btn" onclick="useMagnet()">🧲 <span id="count-magnet">0</span></div>
     </div>
+    
     <div id="player"></div> 
     <div id="obstacle" style="position: absolute; width: 60px; height: 60px; background-size: contain; background-repeat: no-repeat;"></div> 
 </div>
 
 <div id="shop" class="screen hidden">
     <div class="shop-balance-container">
-        <span id="shop-balance-val">0</span> <span class="ice-icon"></span>
+        <span id="shop-balance">0</span> <span class="ice-icon"></span>
     </div>
 
     <h2 style="color: white; margin-top: 80px; z-index: 5; text-shadow: 0 0 15px #ff4fd8;">🛒 МАГАЗИН</h2>
