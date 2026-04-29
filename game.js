@@ -18,7 +18,6 @@ const PRICES = { magnet: 500, shield: 300 };
 
 let shieldActive = false;
 let magnetActive = false;
-let isInvulnerable = false; // НОВАЯ ПЕРЕМЕННАЯ ДЛЯ ЗАЩИТЫ ОТ БАГА
 let comboCount = 0;
 let comboMultiplier = 1;
 
@@ -80,12 +79,11 @@ function startGame() {
 
 function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
-    shieldActive = false; magnetActive = false; isInvulnerable = false;
+    shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
-    p.style.filter = "none";
     updateScore(); spawnObstacle();
     if (loopId) cancelAnimationFrame(loopId);
     update();
@@ -104,38 +102,20 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
+    
     obstacleY += speed;
     speed += difficulty;
     
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     
-    if (magnetActive && obs.dataset.type === "good") {
-        let currentLeft = parseFloat(obs.style.left);
-        let targetLeft = lanes[targetLane];
-        obs.style.left = (currentLeft + (targetLeft - currentLeft) * 0.2) + "%"; 
-        if (Math.abs(currentLeft - targetLeft) < 5) obstacleLane = targetLane;
-    }
-
     obs.style.top = obstacleY + "px";
-    let pRect = p.getBoundingClientRect();
-    let oRect = obs.getBoundingClientRect();
 
-    // ПРОВЕРКА СТОЛКНОВЕНИЯ
-    if (!isInvulnerable && oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
-        if (obs.dataset.type === "good") {
-            comboCount++;
-            comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
-            const ui = document.getElementById("combo-ui");
-            if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
-            coins += comboMultiplier; updateScore(); spawnObstacle();
-        } else {
-            if (shieldActive) {
-                activateShieldProtection();
-            } else {
-                gameOver(); return; 
-            }
-        }
+    // Упрощенная проверка столкновения по Y (без вызова тяжелых функций)
+    const playerTop = window.innerHeight * 0.75; // Примерная позиция Берри
+    
+    if (obstacleLane === targetLane && obstacleY > playerTop - 50 && obstacleY < playerTop + 50) {
+        handleCollision(obs, p);
     }
 
     if (obstacleY > window.innerHeight) {
@@ -146,30 +126,32 @@ function update() {
         }
         spawnObstacle();
     }
-    loopId = requestAnimationFrame(update);
+    
+    if (gameRunning) loopId = requestAnimationFrame(update);
 }
 
-function activateShieldProtection() {
-    shieldActive = false;
-    isInvulnerable = true; // Включаем временную неуязвимость
-    const p = document.getElementById("player");
-    const obs = document.getElementById("obstacle");
-    
-    p.classList.remove("shield-aura");
-    p.style.opacity = "0.5"; // Показываем, что щит лопнул
-    
-    // Мгновенно убираем опасный объект
-    if (obs) {
-        obs.style.display = "none";
-        obstacleY = 2000;
-    }
-
-    // Через 0.5 сек возвращаем нормальное состояние и спавним новый кубик
-    setTimeout(() => {
-        isInvulnerable = false;
-        p.style.opacity = "1";
+function handleCollision(obs, p) {
+    if (obs.dataset.type === "good") {
+        comboCount++;
+        comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
+        const ui = document.getElementById("combo-ui");
+        if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
+        coins += comboMultiplier; 
+        updateScore(); 
         spawnObstacle();
-    }, 500);
+    } else if (obs.dataset.type === "bad") {
+        if (shieldActive) {
+            shieldActive = false;
+            p.classList.remove("shield-aura");
+            // КЛЮЧЕВОЙ МОМЕНТ: Мы не просто прячем, мы "взрываем" объект по координатам
+            obstacleY = window.innerHeight + 1000; 
+            obs.style.display = "none";
+            obs.dataset.type = "none";
+            setTimeout(spawnObstacle, 10);
+        } else {
+            gameOver();
+        }
+    }
 }
 
 function updateScore() {
@@ -178,6 +160,7 @@ function updateScore() {
 
 function gameOver() {
     gameRunning = false;
+    cancelAnimationFrame(loopId);
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
@@ -236,4 +219,4 @@ function useMagnet() {
 }
 
 function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
-function closeShop() { document.getElementById("shop").classList.remove("hidden"); document.getElementById("menu").classList.remove("hidden"); }
+function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
