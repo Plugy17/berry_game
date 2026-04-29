@@ -195,19 +195,31 @@ function updateScore() {
 
 function gameOver() {
     if (shieldActive) {
+        // 1. Выключаем щит
         shieldActive = false;
         const p = document.getElementById("player");
         if (p) p.classList.remove("shield-aura");
         
-        // ФИКС: Сначала выкидываем объект далеко наверх, потом вызываем spawn
-        obstacleY = -500; 
-        spawnObstacle(); 
-        
-        // Продолжаем цикл игры, так как мы вышли из update через return
-        loopId = requestAnimationFrame(update);
+        // 2. КРИТИЧЕСКИЙ ФИКС: Убираем старое препятствие СОВСЕМ
+        const obs = document.getElementById("obstacle");
+        if (obs) {
+            obs.style.display = "none"; // Прячем визуально
+            obstacleY = -500;           // Выкидываем далеко вверх
+        }
+
+        // 3. Даем задержку перед появлением нового объекта
+        // Чтобы игра не "заспамила" тебя сразу новым кубиком
+        setTimeout(() => {
+            if (gameRunning) {
+                spawnObstacle();
+            }
+        }, 100); 
+
+        console.log("Щит поглотил удар!");
         return; 
     }
     
+    // Обычная логика проигрыша
     gameRunning = false;
     totalCoins += coins;
     if (coins > best) best = coins;
