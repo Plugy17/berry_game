@@ -1,80 +1,72 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BERRY RUNNER</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>BERRY RUNNER</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- 🌈 MENU -->
 <div id="menu" class="screen">
-  <h1>🍦 BERRY RUNNER</h1>
+    <h1 class="game-title">🍦 BERRY RUNNER</h1>
 
-  <div id="welcome"></div>
+    <div id="welcome"></div>
 
-  <input id="nick" placeholder="Введите ник..." />
+    <input id="nick" type="text" placeholder="Введите ник..." maxlength="12" />
 
-  <select id="difficulty">
-    <option value="easy">🟢 Легко</option>
-    <option value="medium" selected>🟡 Средне</option>
-    <option value="hard">🔴 Сложно</option>
-  </select>
+    <select id="difficulty" class="custom-select">
+        <option value="easy">🟢 Легко</option>
+        <option value="medium" selected>🟡 Средне</option>
+        <option value="hard">🔴 Сложно</option>
+    </select>
 
-  <button onclick="startGame()">Играть</button>
-  <button onclick="openShop()">🛒 Магазин</button>
+    <button class="play-btn floating" onclick="startGame()">ИГРАТЬ</button>
+    <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
 
-  <div id="menuLeaderboard"></div>
+    <div id="menuLeaderboard"></div>
 </div>
 
-<!-- 🛒 SHOP -->
 <div id="shop" class="screen hidden">
-  <h2>🛒 Магазин</h2>
-  <p>Скоро скины 🦄</p>
-  <button onclick="closeShop()">Назад</button>
+    <h2>🛒 Магазин</h2>
+    <p>Скоро новые скины 🦄</p>
+    <button onclick="closeShop()">Назад</button>
 </div>
 
-<!-- 🎮 GAME -->
 <div id="game" class="screen hidden">
+    <div id="hud">🍦 <span id="score">0</span></div>
+    <button id="backBtn" onclick="backToMenu()">🏠</button>
 
-  <div id="hud">🍦 <span id="score">0</span></div>
-  <button id="backBtn" onclick="backToMenu()">🏠</button>
+    <div id="track">
+        <div id="player"></div> 
+        <div id="obstacle"></div> 
+    </div>
 
-  <div id="track">
-    <div id="player"></div> 
-    
-    <div id="obstacle"></div> 
-  </div>
-
-  <div id="leaderboard"></div>
-
+    <div id="leaderboard"></div>
 </div>
 
-<!-- 🔥 FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } 
-from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } 
+    from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AFLHXTRPDUYCKHQAAAAK3LZB6CDSHFCR5QIDYJEEJXJBMTK427YRDAFDQ2IFSKAZEAQK6ZY",
-  authDomain: "berry-game-4fa9b.firebaseapp.com",
-  databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
-  projectId: "berry-game-4fa9b",
-};
+    const firebaseConfig = {
+        apiKey: "AFLHXTRPDUYCKHQAAAAK3LZB6CDSHFCR5QIDYJEEJXJBMTK427YRDAFDQ2IFSKAZEAQK6ZY",
+        authDomain: "berry-game-4fa9b.firebaseapp.com",
+        databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
+        projectId: "berry-game-4fa9b",
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-window.db = db;
-window.ref = ref;
-window.set = set;
-window.onValue = onValue;
-window.query = query;
-window.orderByChild = orderByChild;
-window.limitToLast = limitToLast;
+    window.db = db;
+    window.ref = ref;
+    window.set = set;
+    window.onValue = onValue;
+    window.query = query;
+    window.orderByChild = orderByChild;
+    window.limitToLast = limitToLast;
 </script>
 
 <script src="game.js"></script>
