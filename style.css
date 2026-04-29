@@ -17,9 +17,14 @@ body {
     align-items: center;
     justify-content: center;
     gap: 15px;
+    transition: opacity 0.4s ease-in-out; /* Плавное появление */
 }
 
-.hidden { display: none !important; }
+/* Изменяем hidden для плавности */
+.hidden { 
+    display: none !important; 
+    opacity: 0;
+}
 
 /* --- ФОНЫ --- */
 #menu, #game {
@@ -31,7 +36,6 @@ body {
 #menu {
     background: url('assets/bg.jpg') no-repeat;
     color: white;
-    /* Улучшенное распределение элементов */
     justify-content: space-evenly; 
     padding: 20px 0;
 }
@@ -45,7 +49,6 @@ body {
     font-size: 45px;
     font-family: 'Arial Black', sans-serif;
     color: #fff;
-    /* Объемный неоновый текст */
     text-shadow: 0 0 15px #ff4fd8, 0 5px 0 #b030b0; 
     letter-spacing: 2px;
     margin: 0;
@@ -54,7 +57,6 @@ body {
     z-index: 2;
 }
 
-/* Пульсация заголовка */
 .active-title {
     animation: titleGlow 2s ease-in-out infinite;
 }
@@ -88,9 +90,9 @@ body {
     gap: 8px;
 }
 
-/* --- КНОПКИ И ПОЛЯ (Стеклянный стиль) --- */
+/* --- КНОПКИ И ПОЛЯ --- */
 #nick, .custom-select, button {
-    width: 260px; /* Оптимальная ширина для мобилок */
+    width: 260px; 
     padding: 14px;
     border-radius: 25px;
     border: none;
@@ -102,10 +104,7 @@ body {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-#nick {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-}
+#nick { background: rgba(255, 255, 255, 0.9); color: #333; }
 
 .play-btn {
     background: linear-gradient(45deg, rgba(255, 79, 216, 0.8), rgba(176, 48, 176, 0.8));
@@ -122,13 +121,9 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-button:active {
-    transform: scale(0.95);
-}
+button:active { transform: scale(0.95); }
 
-.floating {
-    animation: floatAnim 3s ease-in-out infinite;
-}
+.floating { animation: floatAnim 3s ease-in-out infinite; }
 
 @keyframes floatAnim {
     0%, 100% { transform: translateY(0); }
@@ -136,11 +131,7 @@ button:active {
 }
 
 /* --- ГЕЙМПЛЕЙ --- */
-#track {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-}
+#track { width: 100vw; height: 100vh; position: relative; }
 
 #player {
     position: absolute;
@@ -151,14 +142,13 @@ button:active {
     transform: translateX(-50%);
     background: url('assets/berry.png') no-repeat center center;
     background-size: contain;
-    transition: left 0.15s ease-out;
-    /* Оживляем Берри */
+    transition: left 0.15s ease-out, transform 0.2s;
     animation: berryLive 1.5s ease-in-out infinite;
 }
 
 @keyframes berryLive {
-    0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
-    50% { transform: translateX(-50%) scale(1.08) rotate(2deg); filter: brightness(1.2); }
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
 }
 
 #obstacle {
@@ -185,6 +175,7 @@ button:active {
     font-weight: bold;
     border: 1px solid #ff4fd8;
     z-index: 10;
+    transition: transform 0.1s; /* Для эффекта увеличения счета */
 }
 
 #backBtn {
@@ -204,7 +195,6 @@ button:active {
     font-size: 20px;
 }
 
-/* РЕКОРД В МЕНЮ */
 #menuLeaderboard {
     font-weight: bold;
     color: white;
