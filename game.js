@@ -8,7 +8,6 @@ let loopId = null;
 let nick = localStorage.getItem("nick");
 let coins = 0;
 let best = parseInt(localStorage.getItem("best")) || 0;
-// Общий баланс игрока
 let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
 
 let speed = 6;
@@ -17,7 +16,6 @@ let difficulty = 0.002;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// Инициализация при загрузке
 window.onload = () => {
     updateMenuInfo();
 };
@@ -28,7 +26,8 @@ function updateMenuInfo() {
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 Рекорд: " + best;
-    document.getElementById("total-balance").innerText = "У тебя всего: " + totalCoins + " 🍦";
+    // ПРАВКА: Добавляем иконку в баланс
+    document.getElementById("total-balance").innerHTML = `У тебя всего: ${totalCoins} <img src="assets/icecream.png" style="width:20px; vertical-align:middle;">`;
 }
 
 function startGame() {
@@ -89,6 +88,16 @@ function update() {
             if (obs.dataset.type === "good") {
                 coins++;
                 updateScore();
+                
+                // ПРАВКА: Эффект увеличения счета
+                const scoreHud = document.getElementById("score");
+                scoreHud.style.transform = "scale(1.3)";
+                scoreHud.style.color = "#fff";
+                setTimeout(() => {
+                    scoreHud.style.transform = "scale(1)";
+                    scoreHud.style.color = "#ff4fd8";
+                }, 100);
+
                 spawnObstacle();
             } else {
                 gameOver();
@@ -130,7 +139,7 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление свайпами и оживление Берри
+// Управление свайпами
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
@@ -143,16 +152,14 @@ document.addEventListener("touchend", e => {
     
     if (diff > 0) {
         targetLane = Math.min(2, targetLane + 1);
-        playerImg.style.transform = "translateX(-50%) rotate(15deg)"; // Наклон вправо
+        playerImg.style.transform = "translateX(-50%) rotate(15deg)";
     } else {
         targetLane = Math.max(0, targetLane - 1);
-        playerImg.style.transform = "translateX(-50%) rotate(-15deg)"; // Наклон влево
+        playerImg.style.transform = "translateX(-50%) rotate(-15deg)";
     }
     
-    // Перемещаем игрока на нужную дорожку
     playerImg.style.left = [15, 50, 85][targetLane] + "%";
 
-    // Возвращаем персонажа в ровное положение через 200мс
     setTimeout(() => {
         playerImg.style.transform = "translateX(-50%) rotate(0deg)";
     }, 200);
