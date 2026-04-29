@@ -7,13 +7,13 @@ let obstacleY = 0;
 let nick = localStorage.getItem("nick") || "";
 let coins = parseInt(localStorage.getItem("coins")) || 0;
 
-/* ================= WELCOME ================= */
+/* 👋 WELCOME */
 if (nick) {
   document.getElementById("welcome").innerText =
     "👋 С возвращением, " + nick;
 }
 
-/* ================= START ================= */
+/* 🎮 START GAME */
 function startGame() {
   const input = document.getElementById("nick").value;
 
@@ -25,14 +25,20 @@ function startGame() {
   document.getElementById("menu").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
+  resetGame();
+}
+
+/* 🔁 RESET */
+function resetGame() {
   lane = 1;
   gameRunning = true;
+  obstacleY = 0;
 
   spawnObstacle();
   update();
 }
 
-/* ================= BACK ================= */
+/* 🏠 BACK MENU */
 function backToMenu() {
   gameRunning = false;
 
@@ -40,7 +46,7 @@ function backToMenu() {
   document.getElementById("menu").classList.remove("hidden");
 }
 
-/* ================= TOUCH FIX (ВАЖНО) ================= */
+/* 📱 SWIPE FIX */
 let startX = 0;
 
 document.addEventListener("touchstart", (e) => {
@@ -59,7 +65,7 @@ document.addEventListener("touchend", (e) => {
   else moveLeft();
 });
 
-/* ================= MOVE ================= */
+/* MOVE */
 function moveLeft() {
   lane = Math.max(0, lane - 1);
   updatePlayer();
@@ -70,35 +76,22 @@ function moveRight() {
   updatePlayer();
 }
 
-/* ================= PLAYER POSITION FIX ================= */
+/* 🧍 PLAYER */
 function updatePlayer() {
-  const player = document.getElementById("player");
-
-  let x = 33;
-
-  if (lane === 0) x = 15;
-  if (lane === 1) x = 50;
-  if (lane === 2) x = 85;
-
-  player.style.left = x + "%";
+  const x = [15, 50, 85][lane];
+  document.getElementById("player").style.left = x + "%";
 }
 
-/* ================= OBSTACLE ================= */
+/* 🍦 OBSTACLE */
 function spawnObstacle() {
   obstacleLane = Math.floor(Math.random() * 3);
   obstacleY = 0;
 
-  const obs = document.getElementById("obstacle");
-
-  let x = 50;
-  if (obstacleLane === 0) x = 15;
-  if (obstacleLane === 1) x = 50;
-  if (obstacleLane === 2) x = 85;
-
-  obs.style.left = x + "%";
+  const x = [15, 50, 85][obstacleLane];
+  document.getElementById("obstacle").style.left = x + "%";
 }
 
-/* ================= GAME LOOP ================= */
+/* 🎮 GAME LOOP */
 function update() {
   if (!gameRunning) return;
 
@@ -108,8 +101,7 @@ function update() {
   obs.style.top = obstacleY + "px";
 
   if (obstacleY > window.innerHeight - 200 && obstacleLane === lane) {
-    alert("💥 GAME OVER");
-    location.reload();
+    gameOver();
     return;
   }
 
@@ -123,4 +115,15 @@ function update() {
   }
 
   requestAnimationFrame(update);
+}
+
+/* 💥 GAME OVER */
+function gameOver() {
+  gameRunning = false;
+
+  localStorage.setItem("coins", coins);
+
+  alert("💥 GAME OVER\n🍦 " + coins);
+
+  location.reload();
 }
