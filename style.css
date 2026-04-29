@@ -1,59 +1,55 @@
 body {
+body {
   margin: 0;
   font-family: Arial;
   background: #111;
   color: white;
-  text-align: center;
+  overflow: hidden;
 }
 
-#menu {
-  margin-top: 100px;
-}
-
-input {
-  padding: 10px;
-  font-size: 18px;
-}
-
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  font-size: 18px;
+#menu, #game {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 #track {
-  width: 300px;
-  height: 500px;
-  margin: 20px auto;
+  width: 100%;
+  height: 80vh;
   position: relative;
   background: linear-gradient(#222, #333);
-  display: flex;
-}
-
-.lane {
-  flex: 1;
-  border: 1px solid #444;
+  overflow: hidden;
 }
 
 #player {
   position: absolute;
-  bottom: 20px;
+  bottom: 50px;
   left: 50%;
+  font-size: 45px;
   transform: translateX(-50%);
-  font-size: 40px;
 }
 
 #obstacle {
   position: absolute;
   top: 0;
   left: 50%;
-  font-size: 30px;
+  font-size: 35px;
 }
 
 #hud {
-  font-size: 22px;
+  position: absolute;
+  top: 20px;
+  font-size: 24px;
 }
 
 .hidden {
   display: none;
+}
+
+input, button {
+  padding: 12px;
+  font-size: 18px;
+  margin-top: 10px;
 }
