@@ -95,7 +95,7 @@ button:active { transform: scale(0.95); }
 }
 
 .welcome-text {
-    font-size: 28px; 
+    font-size: 32px; /* Чуть увеличил для солидности */
     font-weight: 900;
     text-shadow: 0 0 15px #ff4fd8;
     color: white; 
@@ -103,37 +103,49 @@ button:active { transform: scale(0.95); }
     margin: 0;
 }
 
+/* ПРАВКА: УБРАЛИ РЕКОРД, ЦЕНТРИРУЕМ СЧЕТ */
 .menu-stats-container { 
     display: flex; 
-    gap: 10px; 
+    justify-content: center; /* Центрируем счет */
     width: 100%;
     max-width: 320px;
 }
 
+.record-info { display: none !important; } /* УБРАНО */
+
+.balance-info {
+    flex: 0 1 auto; /* Больше не растягивается на пол-экрана */
+    font-size: 22px !important; 
+    color: #fff; 
+    font-weight: 900;
+    background: rgba(0, 0, 0, 0.6) !important; 
+    backdrop-filter: blur(15px);
+    padding: 12px 25px !important; 
+    border-radius: 30px !important; 
+    border: 2px solid #ff4fd8 !important;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
+    animation: scorePulse 2s infinite alternate; /* Эффектный пульс */
+}
+
+@keyframes scorePulse {
+    from { box-shadow: 0 0 10px rgba(255, 79, 216, 0.4); border-color: #ff4fd8; }
+    to { box-shadow: 0 0 25px rgba(0, 234, 255, 0.6); border-color: #00eaff; }
+}
+
+/* ПРАВКА: СДВИГАЕМ КНОПКИ ВЛЕВО */
 .menu-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     margin-bottom: 120px; 
+    margin-right: 40px; /* Сдвиг всего блока влево */
     z-index: 20;
-}
-
-.balance-info, .record-info {
-    flex: 1;
-    font-size: 16px; 
-    color: #fff; 
-    font-weight: 800;
-    background: rgba(0, 0, 0, 0.5) !important; 
-    backdrop-filter: blur(8px);
-    padding: 12px; 
-    border-radius: 15px; 
-    border: 2px solid rgba(255, 79, 216, 0.6) !important;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
 }
 
 /* --- HUD И СЧЕТ В ИГРЕ --- */
@@ -191,17 +203,6 @@ button:active { transform: scale(0.95); }
     animation: msgPop 0.3s ease-out;
 }
 
-@keyframes msgPop {
-    0% { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes comboFlash {
-    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); }
-}
-
 /* --- МАГАЗИН --- */
 #shop .shop-balance-container {
     position: absolute;
@@ -257,11 +258,6 @@ button:active { transform: scale(0.95); }
     animation: magnetPulse 1s infinite alternate;
 }
 
-@keyframes magnetPulse {
-    from { filter: drop-shadow(0 0 15px #ff00ff); }
-    to { filter: drop-shadow(0 0 35px #ff00ff) brightness(1.2); }
-}
-
 /* --- ПАДАЮЩИЕ ОБЪЕКТЫ --- */
 .menu-falling-ice, .falling-ice {
     position: absolute;
@@ -281,14 +277,14 @@ button:active { transform: scale(0.95); }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
-/* --- ПРАВКА: БАФФЫ ПОД БЕРРИ ВДОЛЬ ЭКРАНА --- */
+/* --- БАФФЫ ПОД БЕРРИ --- */
 #bonus-panel {
     position: absolute; 
-    bottom: 35px; /* Чуть ниже персонажа */
+    bottom: 35px; 
     left: 50%;
     transform: translateX(-50%);
     display: flex; 
-    flex-direction: row; /* Горизонтальный ряд */
+    flex-direction: row; 
     gap: 20px; 
     z-index: 110;
 }
@@ -299,14 +295,14 @@ button:active { transform: scale(0.95); }
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(8px);
     border: 2px solid rgba(255, 79, 216, 0.4) !important;
-    border-radius: 50% !important; /* Идеальный круг */
+    border-radius: 50% !important; 
     display: flex; 
     justify-content: center; 
     align-items: center;
     padding: 0 !important;
     transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
-    animation: floatBtn 3s ease-in-out infinite; /* Эффект парения */
+    animation: floatBtn 3s ease-in-out infinite; 
 }
 
 .bonus-btn:active {
@@ -315,7 +311,6 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px #00eaff;
 }
 
-/* Эффект парения для кнопок */
 @keyframes floatBtn {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
