@@ -76,7 +76,6 @@ button:active { transform: scale(0.95); }
     padding: 60px 20px; 
 }
 
-/* Слой для падающих мороженок в меню */
 #menu-particles {
     position: absolute;
     top: 0; left: 0;
@@ -111,17 +110,15 @@ button:active { transform: scale(0.95); }
     max-width: 320px;
 }
 
-/* ПРАВКА: ПОДНИМАЕМ КНОПКИ ВЫШЕ К ЦЕНТРУ */
 .menu-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 120px; /* Увеличено с 40px, чтобы кнопки поднялись вверх */
+    margin-bottom: 120px; 
     z-index: 20;
 }
 
-/* КРАСИВЫЙ СЧЕТ В МЕНЮ */
 .balance-info, .record-info {
     flex: 1;
     font-size: 16px; 
@@ -284,12 +281,42 @@ button:active { transform: scale(0.95); }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
+/* --- ПРАВКА: БАФФЫ ПОД БЕРРИ ВДОЛЬ ЭКРАНА --- */
 #bonus-panel {
     position: absolute; 
-    bottom: 30px; 
-    right: 20px;
+    bottom: 35px; /* Чуть ниже персонажа */
+    left: 50%;
+    transform: translateX(-50%);
     display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-    z-index: 100;
+    flex-direction: row; /* Горизонтальный ряд */
+    gap: 20px; 
+    z-index: 110;
+}
+
+.bonus-btn {
+    width: 60px !important; 
+    height: 60px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 79, 216, 0.4) !important;
+    border-radius: 50% !important; /* Идеальный круг */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    padding: 0 !important;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
+    animation: floatBtn 3s ease-in-out infinite; /* Эффект парения */
+}
+
+.bonus-btn:active {
+    transform: scale(1.2); 
+    border-color: #00eaff !important;
+    box-shadow: 0 0 20px #00eaff;
+}
+
+/* Эффект парения для кнопок */
+@keyframes floatBtn {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
 }
