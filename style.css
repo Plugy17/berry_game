@@ -69,6 +69,19 @@ body {
     overflow: hidden;
     text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
 }
+/* Эффект перелива для режима Радуги */
+.rainbow-active {
+    animation: rainbowBorder 1s linear infinite;
+    border-width: 3px !important;
+}
+
+@keyframes rainbowBorder {
+    0% { border-color: #ff0000; }
+    25% { border-color: #00ff00; }
+    50% { border-color: #0000ff; }
+    75% { border-color: #ffff00; }
+    100% { border-color: #ff00ff; }
+}
 
 .welcome-text::after {
     content: "";
