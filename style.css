@@ -19,20 +19,19 @@ body {
     flex-direction: column; 
     align-items: center; 
     z-index: 10;
-    /* ВОЗВРАЩАЕМ ТВОЙ ФОН МЕНЮ */
-    background: url('bg.jpg') no-repeat center center;
+    /* Твой фон из assets */
+    background: url('assets/bg.jpg') no-repeat center center;
     background-size: cover;
 }
 
-/* ФОН ДЛЯ ЭКРАНА ИГРЫ */
 #game.screen {
-    background: url('game_bg.jpg') no-repeat center center;
+    background: url('assets/game_bg.jpg') no-repeat center center;
     background-size: cover;
 }
 
 .hidden { display: none !important; }
 
-/* --- ТВОИ КРАСИВЫЕ КНОПКИ --- */
+/* --- ФИКС КНОПОК --- */
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(12px);
@@ -46,10 +45,10 @@ button, select, input {
     transition: 0.3s all ease;
     cursor: pointer;
     width: 100% !important;
-    max-width: 280px; /* Ограничиваем ширину, чтобы не «расползались» */
+    max-width: 280px;
     box-sizing: border-box;
     margin: 5px 0;
-    box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3); /* Легкое розовое свечение */
+    box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
 }
 
 button:active { transform: scale(0.95); }
@@ -87,15 +86,7 @@ button:active { transform: scale(0.95); }
     text-align: center;
 }
 
-.menu-controls { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center;
-    gap: 10px; 
-    width: 100%; 
-}
-
-/* --- HUD (В ИГРЕ) --- */
+/* --- HUD --- */
 #hud {
     position: absolute; top: 20px; left: 20px;
     background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
@@ -114,6 +105,7 @@ button:active { transform: scale(0.95); }
     background: rgba(255, 255, 255, 0.2) !important;
     border-radius: 50% !important;
     display: flex; justify-content: center; align-items: center;
+    padding: 0 !important;
 }
 
 /* --- МАГАЗИН --- */
@@ -130,7 +122,7 @@ button:active { transform: scale(0.95); }
 }
 .shop-item button { width: auto !important; padding: 10px 20px !important; font-size: 14px !important; }
 
-/* --- ТВОЙ ПЕРСОНАЖ БЕРРИ --- */
+/* --- ПЕРСОНАЖ БЕРРИ --- */
 #player {
     position: absolute; 
     bottom: 18%; 
@@ -138,14 +130,14 @@ button:active { transform: scale(0.95); }
     width: 85px; 
     height: 85px;
     transform: translateX(-50%); 
-    /* ИСПОЛЬЗУЕМ ТВОЙ ФАЙЛ НАПРЯМУЮ */
-    background: url('berry.png') no-repeat center center !important;
+    background: url('assets/berry.png') no-repeat center center !important;
     background-size: contain !important; 
     z-index: 99;
 }
 
-.shield-aura { filter: drop-shadow(0 0 15px #00eaff); outline: 3px solid #00eaff; border-radius: 50%; }
-.magnet-aura { filter: drop-shadow(0 0 20px #ff00ff); }
+/* ВСЕ ТВОИ ЭФФЕКТЫ АУРЫ */
+.shield-aura { filter: drop-shadow(0 0 15px #00eaff) !important; outline: 3px solid #00eaff; border-radius: 50%; }
+.magnet-aura { filter: drop-shadow(0 0 20px #ff00ff) !important; }
 
 /* ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНОК */
 .falling-ice { 
