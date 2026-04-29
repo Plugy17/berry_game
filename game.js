@@ -109,6 +109,7 @@ function resetGame() {
     const p = document.getElementById("player");
     if(p) {
         p.classList.remove("shield-aura");
+        p.style.boxShadow = "none";
         p.style.left = lanes[targetLane] + "%";
         p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
     }
@@ -140,9 +141,13 @@ function update() {
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     
+    // ЭФФЕКТ МАГНИТА: Плавное поглощение
     if (magnetActive && obs.dataset.type === "good") {
-        obstacleLane = targetLane;
-        obs.style.left = lanes[obstacleLane] + "%";
+        let currentLeft = parseFloat(obs.style.left);
+        let targetLeft = lanes[targetLane];
+        // Мороженое плавно летит к Берри (0.2 - скорость всасывания)
+        obs.style.left = (currentLeft + (targetLeft - currentLeft) * 0.2) + "%";
+        if (Math.abs(currentLeft - targetLeft) < 5) obstacleLane = targetLane;
     }
     
     obs.style.top = obstacleY + "px";
@@ -150,7 +155,6 @@ function update() {
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    // Проверка столкновения
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
@@ -166,7 +170,6 @@ function update() {
             updateScore();
             spawnObstacle();
         } else {
-            // Если врезались во врага — вызываем gameOver и ВЫХОДИМ из функции
             gameOver();
             return; 
         }
@@ -195,31 +198,28 @@ function updateScore() {
 
 function gameOver() {
     if (shieldActive) {
-        // 1. Выключаем щит
         shieldActive = false;
         const p = document.getElementById("player");
-        if (p) p.classList.remove("shield-aura");
+        if (p) {
+            p.classList.remove("shield-aura");
+            // Вспышка при ударе
+            p.style.filter = "brightness(3)";
+            setTimeout(() => p.style.filter = "none", 150);
+        }
         
-        // 2. КРИТИЧЕСКИЙ ФИКС: Убираем старое препятствие СОВСЕМ
         const obs = document.getElementById("obstacle");
         if (obs) {
-            obs.style.display = "none"; // Прячем визуально
-            obstacleY = -500;           // Выкидываем далеко вверх
+            obs.style.display = "none";
+            obstacleY = -500; 
         }
 
-        // 3. Даем задержку перед появлением нового объекта
-        // Чтобы игра не "заспамила" тебя сразу новым кубиком
         setTimeout(() => {
-            if (gameRunning) {
-                spawnObstacle();
-            }
+            if (gameRunning) spawnObstacle();
         }, 100); 
 
-        console.log("Щит поглотил удар!");
         return; 
     }
     
-    // Обычная логика проигрыша
     gameRunning = false;
     totalCoins += coins;
     if (coins > best) best = coins;
@@ -281,9 +281,19 @@ function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
         inventory.magnet--; 
         magnetActive = true;
+        
+        // Визуальный эффект активации магнита
+        const p = document.getElementById("player");
+        p.style.boxShadow = "0 0 25px 5px #ff00ff";
+        
         saveUserData();
         updateBonusUI();
-        setTimeout(() => { magnetActive = false; }, 10000);
+        
+        // Магнит работает ровно 10 секунд
+        setTimeout(() => { 
+            magnetActive = false; 
+            p.style.boxShadow = "none";
+        }, 10000);
     }
 }
 
