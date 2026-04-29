@@ -13,7 +13,7 @@
 <div id="menu">
   <h1>🍦 BERRY RUNNER</h1>
 
-  <div id="welcomeText"></div>
+  <div id="welcome"></div>
 
   <input id="nick" placeholder="Введите ник..." />
   <button onclick="startGame()">Играть</button>
@@ -21,8 +21,10 @@
 
 <!-- GAME -->
 <div id="game" class="hidden">
-  
+
   <div id="hud">🍦 <span id="score">0</span></div>
+
+  <button id="backBtn" onclick="backToMenu()">🏠 Меню</button>
 
   <div id="track">
     <div id="player">🧍</div>
