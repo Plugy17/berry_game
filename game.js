@@ -146,28 +146,42 @@ function updateScore() {
 
 function gameOver() {
     if (shieldActive) {
-        shieldActive = false;
+        shieldActive = false; // Выключаем щит
         const p = document.getElementById("player");
         const obs = document.getElementById("obstacle");
 
-        // Визуальный эффект: Берри вспыхивает
-        p.style.filter = "brightness(4) drop-shadow(0 0 30px #00eaff)";
+        // 1. Визуальный фидбек: Берри мигает
+        p.classList.remove("shield-aura");
+        p.style.filter = "brightness(3) contrast(1.2)";
         setTimeout(() => p.style.filter = "none", 200);
-        
-        // КРИТИЧЕСКИЙ ФИКС: Делаем объект "призраком" и убираем
+
+        // 2. ГЛАВНЫЙ ФИКС: Убиваем логику столкновения для текущего объекта
         if (obs) {
-            obs.dataset.type = "none"; // Меняем тип, чтобы столкновение больше не срабатывало
+            obstacleLane = -1; // Уводим "логическую" линию объекта в небытие
+            obs.dataset.type = "none"; // Чтобы update() игнорировал этот объект
             obs.style.display = "none";
-            obstacleY = -1000; // Выбрасываем максимально далеко
+            obstacleY = 2000; // Мгновенно прокидываем его вниз за экран
         }
 
+        // 3. Спавним новое через паузу
         setTimeout(() => {
-            if (gameRunning) spawnObstacle();
-        }, 150);
+            if (gameRunning) {
+                spawnObstacle();
+            }
+        }, 300);
 
-        console.log("Щит спас Берри!");
+        console.log("Щит поглотил урон!");
         return; 
     }
+    
+    // Если щита нет — обычный проигрыш
+    gameRunning = false;
+    totalCoins += coins;
+    if (coins > best) best = coins;
+    saveUserData();
+    alert("Берри врезался! Собрано: " + coins);
+    backToMenu();
+}
     
     gameRunning = false;
     totalCoins += coins;
