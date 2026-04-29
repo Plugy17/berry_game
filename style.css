@@ -1,55 +1,91 @@
 body {
-body {
   margin: 0;
   font-family: Arial;
-  background: #111;
-  color: white;
   overflow: hidden;
+  height: 100vh;
+  background: #000;
+  color: white;
 }
 
+/* 🌌 АНИМИРОВАННЫЙ ФОН */
+body::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 20%, #ff4fd8, transparent),
+              radial-gradient(circle at 80% 30%, #4fd8ff, transparent),
+              radial-gradient(circle at 50% 80%, #7dff4f, transparent);
+  animation: moveBg 10s linear infinite;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+@keyframes moveBg {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-50px, 50px); }
+  100% { transform: translate(0,0); }
+}
+
+/* MENU */
 #menu, #game {
   height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+/* TRACK */
 #track {
-  width: 100%;
-  height: 80vh;
+  width: 100vw;
+  height: 100vh;
   position: relative;
-  background: linear-gradient(#222, #333);
   overflow: hidden;
+  background: linear-gradient(#111, #222);
 }
 
+/* PLAYER */
 #player {
   position: absolute;
-  bottom: 50px;
+  bottom: 80px;
   left: 50%;
-  font-size: 45px;
   transform: translateX(-50%);
+  font-size: 50px;
 }
 
+/* OBSTACLE */
 #obstacle {
   position: absolute;
   top: 0;
   left: 50%;
-  font-size: 35px;
+  font-size: 40px;
 }
 
+/* HUD */
 #hud {
   position: absolute;
   top: 20px;
   font-size: 24px;
 }
 
-.hidden {
-  display: none;
+/* BACK BUTTON */
+#backBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  padding: 10px;
 }
 
+/* INPUT */
 input, button {
   padding: 12px;
   font-size: 18px;
   margin-top: 10px;
+}
+
+.hidden {
+  display: none;
 }
