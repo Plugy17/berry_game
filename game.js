@@ -111,8 +111,7 @@ function update() {
     
     obs.style.top = obstacleY + "px";
 
-    // Упрощенная проверка столкновения по Y (без вызова тяжелых функций)
-    const playerTop = window.innerHeight * 0.75; // Примерная позиция Берри
+    const playerTop = window.innerHeight * 0.75; 
     
     if (obstacleLane === targetLane && obstacleY > playerTop - 50 && obstacleY < playerTop + 50) {
         handleCollision(obs, p);
@@ -143,7 +142,6 @@ function handleCollision(obs, p) {
         if (shieldActive) {
             shieldActive = false;
             p.classList.remove("shield-aura");
-            // КЛЮЧЕВОЙ МОМЕНТ: Мы не просто прячем, мы "взрываем" объект по координатам
             obstacleY = window.innerHeight + 1000; 
             obs.style.display = "none";
             obs.dataset.type = "none";
@@ -218,5 +216,30 @@ function useMagnet() {
     }
 }
 
-function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
-function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
+// Эффект падающего мороженого для Магазина
+function createFallingEffects() {
+    const shopScreen = document.getElementById("shop");
+    const oldParticles = document.querySelectorAll('.falling-ice');
+    oldParticles.forEach(p => p.remove());
+
+    for (let i = 0; i < 15; i++) {
+        const ice = document.createElement("img");
+        ice.src = "assets/icecream.png";
+        ice.className = "falling-ice";
+        ice.style.left = Math.random() * 100 + "vw";
+        ice.style.animationDuration = (Math.random() * 3 + 2) + "s";
+        ice.style.animationDelay = Math.random() * 2 + "s";
+        shopScreen.appendChild(ice);
+    }
+}
+
+function openShop() { 
+    document.getElementById("menu").classList.add("hidden"); 
+    document.getElementById("shop").classList.remove("hidden"); 
+    createFallingEffects();
+}
+
+function closeShop() { 
+    document.getElementById("shop").classList.add("hidden"); 
+    document.getElementById("menu").classList.remove("hidden"); 
+}
