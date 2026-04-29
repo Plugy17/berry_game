@@ -5,6 +5,7 @@ let gameRunning = false;
 let obstacleLane = 0;
 let obstacleY = -150; 
 let loopId = null;
+let spawnTimeout = null; // Для контроля пауз спавна
 let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
@@ -81,16 +82,22 @@ function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
+    
+    if (loopId) cancelAnimationFrame(loopId);
+    if (spawnTimeout) clearTimeout(spawnTimeout);
+    
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
     p.style.filter = "none";
-    updateScore(); spawnObstacle();
-    if (loopId) cancelAnimationFrame(loopId);
+    
+    updateScore(); 
+    spawnObstacle();
     update();
 }
 
 function spawnObstacle() {
+    if (!gameRunning) return;
     const obs = document.getElementById("obstacle");
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
@@ -120,7 +127,8 @@ function update() {
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
+    // Проверка столкновения (добавлена проверка на type !== "none")
+    if (obs.dataset.type !== "none" && oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
             comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
@@ -133,7 +141,11 @@ function update() {
     }
 
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { comboCount = 0; comboMultiplier = 1; document.getElementById("combo-ui").classList.add("hidden"); }
+        if (obs.dataset.type === "good") { 
+            comboCount = 0; 
+            comboMultiplier = 1; 
+            document.getElementById("combo-ui").classList.add("hidden"); 
+        }
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
@@ -151,13 +163,13 @@ function gameOver() {
         p.classList.remove("shield-aura");
         
         if (obs) {
-            obstacleLane = -1; // Критично: убираем линию
+            obstacleLane = -1; 
             obs.dataset.type = "none";
             obs.style.display = "none";
-            obstacleY = 2000; // Улетает вниз
+            obstacleY = 2000;
         }
         
-        setTimeout(() => { if (gameRunning) spawnObstacle(); }, 300);
+        spawnTimeout = setTimeout(() => { if (gameRunning) spawnObstacle(); }, 300);
         return; 
     }
     
@@ -171,6 +183,7 @@ function gameOver() {
 
 function backToMenu() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
