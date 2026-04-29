@@ -99,14 +99,18 @@ body {
     transition: left 0.15s ease-out;
 }
 
+/* Препятствие/Бонус (теперь мороженое) */
 #obstacle {
     position: absolute;
     top: -100px;
-    width: 65px;
-    height: 65px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    width: 60px; /* Размер, который мы обсуждали */
+    height: 60px;
+    /* ПРАВИЛЬНЫЙ ФОН */
+    background-color: transparent; /* Гарантирует, что сам div прозрачный */
+    background-size: contain; /* Картинка вписывается в блок */
+    background-repeat: no-repeat; /* Не повторяется */
+    background-position: center; /* Центрируется */
+    /* Сама картинка придет из JS, но мы гарантируем, что фон div не мешает */
 }
 
 #hud {
