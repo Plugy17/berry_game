@@ -16,6 +16,9 @@ const good = "🍦";
 const bad = ["🍩","🍫","🧱"];
 let currentType = good;
 
+/* CONTROL FLAG (ФИКС ЦИКЛА) */
+let loopId = null;
+
 /* START SCREEN */
 window.onload = () => {
   if (nick) {
@@ -48,23 +51,27 @@ function startGame() {
   resetGame();
 }
 
-/* RESET */
+/* RESET (ФИКС СТАРТА) */
 function resetGame() {
   lane = 1;
   targetLane = 1;
-  obstacleY = -200;
+  obstacleY = -120; // ближе к игроку (визуально лучше)
   gameRunning = true;
 
   spawnObstacle();
-  requestAnimationFrame(update);
+
+  cancelAnimationFrame(loopId);
+  loopId = requestAnimationFrame(update);
 }
 
-/* MENU */
+/* MENU FIX (СТОП ЦИКЛА) */
 function backToMenu() {
   gameRunning = false;
 
   document.getElementById("game").classList.add("hidden");
   document.getElementById("menu").classList.remove("hidden");
+
+  cancelAnimationFrame(loopId);
 }
 
 /* SHOP */
@@ -107,22 +114,24 @@ function smoothMove() {
 }
 smoothMove();
 
-/* SPAWN */
+/* SPAWN (ФИКС БАГА С ЗАСТРЕВАНИЕМ) */
 function spawnObstacle() {
-  obstacleLane = Math.floor(Math.random()*3);
-  obstacleY = -200;
+  obstacleLane = Math.floor(Math.random() * 3);
+
+  obstacleY = -100; // БЛИЖЕ К ИГРОКУ (ВАЖНО)
 
   const obs = document.getElementById("obstacle");
 
   currentType = Math.random() < 0.6
-    ? bad[Math.floor(Math.random()*bad.length)]
+    ? bad[Math.floor(Math.random() * bad.length)]
     : good;
 
   obs.innerText = currentType;
   obs.style.left = [15,50,85][obstacleLane] + "%";
+  obs.style.opacity = "1";
 }
 
-/* LOOP */
+/* LOOP (СТАБИЛЬНЫЙ) */
 function update() {
   if (!gameRunning) return;
 
@@ -131,28 +140,32 @@ function update() {
 
   const obs = document.getElementById("obstacle");
 
-  let hitZone = obstacleY > window.innerHeight - 300;
   let playerLane = Math.round(lane);
+  let hitZone = obstacleY > window.innerHeight - 280;
 
   obs.style.top = obstacleY + "px";
 
+  /* COLLISION FIX */
   if (hitZone && obstacleLane === playerLane) {
+
     if (currentType === good) {
       coins++;
       localStorage.setItem("coins", coins);
       document.getElementById("score").innerText = coins + " 🍦";
-      spawnObstacle();
+
+      spawnObstacle(); // 🔥 НЕ ЛОМАЕТ ПОТОК
     } else {
       gameOver();
+      return;
     }
-    return;
   }
 
+  /* RESPAWN */
   if (obstacleY > window.innerHeight) {
     spawnObstacle();
   }
 
-  requestAnimationFrame(update);
+  loopId = requestAnimationFrame(update);
 }
 
 /* GAME OVER */
