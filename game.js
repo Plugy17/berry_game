@@ -5,6 +5,9 @@ let gameRunning = false;
 let obstacleLane = 0;
 let obstacleY = -150; 
 let loopId = null;
+let speed = 7;
+let baseSpeed = 7;
+let difficulty = 0.002;
 
 let nick = localStorage.getItem("nick");
 let coins = 0;
@@ -24,6 +27,8 @@ const imgBad = "url('assets/obstacle.png')";
 // --- РАБОТА С FIREBASE ---
 
 function loadUserData(playerNick) {
+    if (typeof db === 'undefined') return updateMenuInfo();
+    
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
@@ -32,14 +37,17 @@ function loadUserData(playerNick) {
             inventory.shield = data.inventory?.shield || 0;
             inventory.magnet = data.inventory?.magnet || 0;
         } else {
-            saveUserData(); // Создаем нового игрока
+            saveUserData(); 
         }
+        updateMenuInfo();
+    }).catch(e => {
+        console.log("Firebase error, using local data");
         updateMenuInfo();
     });
 }
 
 function saveUserData() {
-    if (!nick) return;
+    if (!nick || typeof db === 'undefined') return;
     db.ref('players/' + nick).set({
         best: best,
         totalCoins: totalCoins,
@@ -50,17 +58,22 @@ function saveUserData() {
 // --- ЛОГИКА ИГРЫ ---
 
 window.onload = () => { 
-    if(nick) loadUserData(nick);
-    else updateMenuInfo();
+    if(nick) {
+        loadUserData(nick);
+    } else {
+        updateMenuInfo();
+    }
 };
 
 function updateMenuInfo() {
     const welcome = document.getElementById("welcome");
     const nickInput = document.getElementById("nick");
-    if (nick && welcome) {
-        welcome.innerHTML = `<span style="color:white">Герой <b>${nick}</b></span>`;
-        if(nickInput) nickInput.style.display = "none";
+    
+    if (nick) {
+        if (welcome) welcome.innerHTML = `<span style="color:white">Герой <b>${nick}</b></span>`;
+        if (nickInput) nickInput.style.display = "none";
     }
+    
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
     document.getElementById("total-balance").innerHTML = `${totalCoins} <img src="assets/icecream.png" class="mini-ice">`;
     document.getElementById("shop-balance").innerText = "Баланс: " + totalCoins;
@@ -75,7 +88,6 @@ function updateBonusUI() {
 function startGame() {
     const nickInput = document.getElementById("nick");
     
-    // Если ника нет, берем из инпута
     if (!nick) {
         const val = nickInput.value.trim();
         if (val.length < 2) return alert("Введи имя!");
@@ -83,38 +95,14 @@ function startGame() {
         localStorage.setItem("nick", nick);
     }
 
-    // СРАЗУ показываем экран игры, не дожидаясь базы
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-
-    // Пытаемся подгрузить данные в фоне
-    if (typeof db !== 'undefined') {
-        db.ref('players/' + nick).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    best = data.best || 0;
-                    totalCoins = data.totalCoins || 0;
-                    inventory.shield = data.inventory?.shield || 0;
-                    inventory.magnet = data.inventory?.magnet || 0;
-                    updateScore();
-                    updateBonusUI();
-                }
-            })
-            .catch(e => console.log("Firebase Offline, играем локально"));
-    }
-
-    resetGame();
-}
-
-// Отдельная функция для запуска, чтобы не дублировать код
-function proceedToGame() {
+    // Принудительно настраиваем скорость перед стартом
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-    
+
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
+    
     resetGame();
 }
 
@@ -124,8 +112,11 @@ function resetGame() {
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     
     const p = document.getElementById("player");
-    p.classList.remove("shield-aura");
-    p.style.left = lanes[targetLane] + "%";
+    if(p) {
+        p.classList.remove("shield-aura");
+        p.style.left = lanes[targetLane] + "%";
+        p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
+    }
     
     updateScore();
     spawnObstacle();
@@ -164,14 +155,13 @@ function update() {
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    // Проверка столкновения
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
             comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
             
+            const ui = document.getElementById("combo-ui");
             if(comboMultiplier > 1) {
-                const ui = document.getElementById("combo-ui");
                 ui.innerText = "x" + comboMultiplier;
                 ui.classList.remove("hidden");
             }
@@ -180,7 +170,6 @@ function update() {
             updateScore();
             spawnObstacle();
         } else {
-            // ВОТ ТУТ БЫЛА ОШИБКА:
             gameOver();
             return;
         }
@@ -197,13 +186,20 @@ function update() {
     loopId = requestAnimationFrame(update);
 }
 
+function updateScore() {
+    const hud = document.getElementById("hud");
+    if(hud) {
+        hud.innerHTML = `
+            <div class="hud-coins"><img src="assets/icecream.png" class="hud-ice"> ${coins}</div>
+            <div class="hud-best">Best: ${best}</div>
+        `;
+    }
+}
+
 function gameOver() {
     if (shieldActive) {
         shieldActive = false;
-        const p = document.getElementById("player");
-        p.classList.remove("shield-aura");
-        
-        // ФИКС: Сбрасываем позицию текущего препятствия, чтобы оно "исчезло" и пошло новое
+        document.getElementById("player").classList.remove("shield-aura");
         obstacleY = -150; 
         spawnObstacle(); 
         return; 
@@ -218,6 +214,14 @@ function gameOver() {
     backToMenu();
 }
 
+function backToMenu() {
+    gameRunning = false;
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
+    updateMenuInfo();
+}
+
+// УПРАВЛЕНИЕ (ОБЪЕДИНЕННОЕ)
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
@@ -231,7 +235,6 @@ document.addEventListener("touchend", e => {
     const p = document.getElementById("player");
     p.style.left = lanes[targetLane] + "%";
     
-    // Имитация движения (наклон и прыжок)
     let rot = diff > 0 ? 15 : -15;
     p.style.transform = `translateX(-50%) rotate(${rot}deg) scale(1.1)`;
     
@@ -240,31 +243,11 @@ document.addEventListener("touchend", e => {
     }, 150);
 });
 
-function backToMenu() {
-    gameRunning = false;
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("menu").classList.remove("hidden");
-    updateMenuInfo();
-}
-
-// Управление свайпами
-let startX = 0;
-document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
-document.addEventListener("touchend", e => {
-    if (!gameRunning) return;
-    let diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) < 30) return;
-    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
-    else targetLane = Math.max(0, targetLane - 1);
-    const p = document.getElementById("player");
-    p.style.left = lanes[targetLane] + "%";
-});
-
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type];
         inventory[type]++;
-        saveUserData(); // Сохранение покупки в Firebase
+        saveUserData(); 
         updateMenuInfo();
     } else alert("Мало BERRY!");
 }
@@ -287,5 +270,12 @@ function useMagnet() {
     }
 }
 
-function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
-function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
+function openShop() { 
+    document.getElementById("menu").classList.add("hidden"); 
+    document.getElementById("shop").classList.remove("hidden"); 
+}
+
+function closeShop() { 
+    document.getElementById("shop").classList.add("hidden"); 
+    document.getElementById("menu").classList.remove("hidden"); 
+}
