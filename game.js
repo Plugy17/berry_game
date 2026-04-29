@@ -68,10 +68,13 @@ function resetGame() {
 function backToMenu() {
   gameRunning = false;
 
+  // стоп игры
+  if (loopId) cancelAnimationFrame(loopId);
+
   document.getElementById("game").classList.add("hidden");
   document.getElementById("menu").classList.remove("hidden");
 
-  cancelAnimationFrame(loopId);
+  obstacleY = -200;
 }
 
 /* SHOP */
@@ -181,3 +184,17 @@ function gameOver() {
 
   location.reload();
 }
+
+setInterval(() => {
+  if (gameRunning) return;
+
+  const el = document.getElementById("leaderboard");
+  if (!el) return;
+
+  if (coins === undefined) return;
+
+  el.innerHTML =
+    "🏆 BEST:<br>" +
+    "You: " + coins + "<br>" +
+    "Record: " + best;
+}, 1000);
