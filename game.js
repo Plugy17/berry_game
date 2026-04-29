@@ -18,6 +18,7 @@ const PRICES = { magnet: 500, shield: 300 };
 
 let shieldActive = false;
 let magnetActive = false;
+let isInvulnerable = false; // НОВАЯ ПЕРЕМЕННАЯ ДЛЯ ЗАЩИТЫ ОТ БАГА
 let comboCount = 0;
 let comboMultiplier = 1;
 
@@ -79,7 +80,7 @@ function startGame() {
 
 function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
-    shieldActive = false; magnetActive = false;
+    shieldActive = false; magnetActive = false; isInvulnerable = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     const p = document.getElementById("player");
     p.className = ""; 
@@ -99,7 +100,6 @@ function spawnObstacle() {
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
-    obs.style.opacity = "1";
 }
 
 function update() {
@@ -122,7 +122,7 @@ function update() {
     let oRect = obs.getBoundingClientRect();
 
     // ПРОВЕРКА СТОЛКНОВЕНИЯ
-    if (obs.dataset.type !== "none" && oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
+    if (!isInvulnerable && oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
             comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
@@ -130,23 +130,14 @@ function update() {
             if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
             coins += comboMultiplier; updateScore(); spawnObstacle();
         } else {
-            // Если врезались и есть щит — превращаем беду в пользу
             if (shieldActive) {
-                shieldActive = false;
-                p.classList.remove("shield-aura");
-                // Мгновенно подменяем врага на собранное мороженое
-                coins += 1;
-                updateScore();
-                spawnObstacle();
-                return;
+                activateShieldProtection();
             } else {
-                gameOver(); 
-                return; 
+                gameOver(); return; 
             }
         }
     }
 
-    // ЛОГИКА ВЫХОДА ЗА ЭКРАН
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
             comboCount = 0; 
@@ -156,6 +147,29 @@ function update() {
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
+}
+
+function activateShieldProtection() {
+    shieldActive = false;
+    isInvulnerable = true; // Включаем временную неуязвимость
+    const p = document.getElementById("player");
+    const obs = document.getElementById("obstacle");
+    
+    p.classList.remove("shield-aura");
+    p.style.opacity = "0.5"; // Показываем, что щит лопнул
+    
+    // Мгновенно убираем опасный объект
+    if (obs) {
+        obs.style.display = "none";
+        obstacleY = 2000;
+    }
+
+    // Через 0.5 сек возвращаем нормальное состояние и спавним новый кубик
+    setTimeout(() => {
+        isInvulnerable = false;
+        p.style.opacity = "1";
+        spawnObstacle();
+    }, 500);
 }
 
 function updateScore() {
@@ -222,4 +236,4 @@ function useMagnet() {
 }
 
 function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
-function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
+function closeShop() { document.getElementById("shop").classList.remove("hidden"); document.getElementById("menu").classList.remove("hidden"); }
