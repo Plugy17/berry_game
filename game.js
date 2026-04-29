@@ -27,6 +27,7 @@ let magnetTimer = null;
 let comboCount = 0;
 let isRainbowMode = false;
 
+// ПРОВЕРЬ ЭТИ ПУТИ К ФАЙЛАМ
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
@@ -38,7 +39,7 @@ function updateMenuInfo() {
     const welcome = document.getElementById("welcome");
     const nickInput = document.getElementById("nick");
     if (nick && welcome) {
-        welcome.innerHTML = `Герой <b>${nick}</b> готов!`;
+        welcome.innerHTML = `<span style="color:white">Герой <b>${nick}</b> готов!</span>`;
         if(nickInput) nickInput.style.display = "none";
     }
     
@@ -92,8 +93,13 @@ function resetGame() {
     if(player) {
         player.classList.remove("shield-aura");
         player.style.left = lanes[targetLane] + "%";
-        player.style.backgroundImage = "url('assets/player.png')"; // Убедись, что путь верный
+        // ПРАВКА ПЕРСОНАЖА
+        player.style.backgroundImage = "url('assets/berry.png')"; 
+        player.style.display = "block";
     }
+
+    // Принудительно ставим фон игры
+    document.getElementById("game").style.backgroundImage = "url('assets/game_bg.jpg')";
 
     updateScore();
     spawnObstacle();
@@ -110,6 +116,8 @@ function spawnObstacle() {
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
+    // Резервный цвет, если картинки нет
+    obs.style.backgroundColor = isGood ? "transparent" : "transparent"; 
 }
 
 function update() {
@@ -131,7 +139,7 @@ function update() {
     let pRect = player.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    if (oRect.bottom > pRect.top + 10 && oRect.top < pRect.bottom - 10 && obstacleLane === targetLane) {
+    if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             coins += isRainbowMode ? 2 : 1;
             comboCount = isRainbowMode ? 0 : comboCount + 1;
@@ -190,7 +198,7 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление свайпами
+// Управление
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
