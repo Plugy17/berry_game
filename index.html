@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -10,8 +10,13 @@
 
 <div id="menu" class="screen">
     <h1 class="game-title active-title">BERRY RUNNER</h1>
+    
     <div id="welcome" class="welcome-text"></div>
-    <div id="total-balance" class="balance-info">У тебя всего: 0 🍦</div>
+
+    <div class="menu-stats-container">
+        <div id="total-balance" class="balance-info">0 🍦</div>
+        <div id="menuLeaderboard" class="record-info">🏆 0</div>
+    </div>
 
     <input id="nick" placeholder="Введите ник..." maxlength="12" />
 
@@ -23,13 +28,12 @@
 
     <button class="play-btn floating" onclick="startGame()">ИГРАТЬ</button>
     <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
-
-    <div id="menuLeaderboard"></div>
 </div>
 
 <div id="game" class="screen hidden">
-    <div id="hud">🍦 <span id="score">0</span></div>
-    <button id="backBtn" onclick="backToMenu()" style="z-index: 1001; pointer-events: auto;">🏠</button>
+    <div id="hud"></div> 
+    
+    <button id="backBtn" onclick="backToMenu()">🏠</button>
 
     <div id="track">
         <div id="player"></div> 
@@ -43,18 +47,6 @@
     <h2>🛒 Магазин</h2>
     <p>Скоро новые скины 🦄</p>
     <button onclick="closeShop()">Назад</button>
-</div>
-
-<div id="game" class="screen hidden">
-    <div id="hud">🍦 <span id="score">0</span></div>
-    <button id="backBtn" onclick="backToMenu()">🏠</button>
-
-    <div id="track">
-        <div id="player"></div> 
-        <div id="obstacle"></div> 
-    </div>
-
-    <div id="leaderboard"></div>
 </div>
 
 <script type="module">
@@ -82,5 +74,6 @@
 </script>
 
 <script src="game.js"></script>
+
 </body>
 </html>
