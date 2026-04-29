@@ -1,14 +1,28 @@
 /* --- БАЗОВЫЕ НАСТРОЙКИ --- */
 body {
-    margin: 0; font-family: 'Segoe UI', Roboto, sans-serif;
-    overflow: hidden; height: 100vh; width: 100vw;
-    touch-action: none; background-color: #000;
+    margin: 0; 
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden; 
+    height: 100vh; 
+    width: 100vw;
+    touch-action: none; 
+    background-color: #000;
 }
+
 .screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; flex-direction: column; align-items: center; z-index: 10;
-    background-size: cover; background-position: center;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    z-index: 10;
+    background-size: cover; 
+    background-position: center;
 }
+
 .hidden { display: none !important; }
 
 /* --- ФОНЫ ЭКРАНОВ --- */
@@ -18,85 +32,188 @@ body {
 
 /* --- МЕНЮ --- */
 .welcome-text {
-    margin-top: 20px; font-size: 24px; font-weight: 900;
+    margin-top: 20px; 
+    font-size: 24px; 
+    font-weight: 900;
     text-shadow: 2px 2px 10px black, 0 0 20px #ff4fd8;
-    color: white; z-index: 20;
+    color: white; 
+    z-index: 20;
 }
+
 .menu-stats-container { display: flex; gap: 15px; margin-top: 20px; }
+
 .balance-info, .record-info {
-    font-size: 18px; color: #fff; font-weight: 900;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-    padding: 10px 20px; border-radius: 15px; border: 2px solid #ff4fd8;
+    font-size: 18px; 
+    color: #fff; 
+    font-weight: 900;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(5px);
+    padding: 10px 20px; 
+    border-radius: 15px; 
+    border: 2px solid #ff4fd8;
 }
+
 .mini-ice { width: 22px; vertical-align: middle; margin-bottom: 4px; }
 
 .menu-controls { 
-    margin-top: auto; margin-bottom: 60px; 
-    display: flex; flex-direction: column; gap: 15px; 
-    width: 85%; max-width: 320px; 
+    margin-top: auto; 
+    margin-bottom: 60px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    width: 85%; 
+    max-width: 320px; 
 }
+
 #menu button, #menu select, #menu input {
     background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px); border: 2px solid rgba(255, 79, 216, 0.6) !important;
-    color: white !important; padding: 20px !important; border-radius: 25px;
-    font-size: 20px; font-weight: 800; text-transform: uppercase;
+    backdrop-filter: blur(15px); 
+    border: 2px solid rgba(255, 79, 216, 0.6) !important;
+    color: white !important; 
+    padding: 20px !important; 
+    border-radius: 25px;
+    font-size: 20px; 
+    font-weight: 800; 
+    text-transform: uppercase;
 }
 
 /* --- ИГРОВОЙ ИНТЕРФЕЙС (HUD) --- */
 #hud {
-    position: absolute; top: 30px; left: 20px;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-    padding: 12px 20px; border-radius: 20px;
-    border: 2px solid #ff4fd8; color: white; z-index: 100;
+    position: absolute; 
+    top: 30px; 
+    left: 20px;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(10px);
+    padding: 12px 20px; 
+    border-radius: 20px;
+    border: 2px solid #ff4fd8; 
+    color: white; 
+    z-index: 100;
 }
-.hud-coins { font-size: 28px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+
+.hud-coins { 
+    font-size: 28px; 
+    font-weight: 900; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
 .hud-ice { width: 30px; filter: drop-shadow(0 0 5px #ff4fd8); }
 .hud-best { font-size: 14px; opacity: 0.8; margin-top: 2px; }
 
 #backBtn {
-    position: absolute; top: 15px; right: 15px;
-    background: rgba(255,255,255,0.2); border: 2px solid white;
-    border-radius: 50%; width: 50px; height: 50px; font-size: 25px; z-index: 110;
+    position: absolute; 
+    top: 15px; 
+    right: 15px;
+    background: rgba(255,255,255,0.2); 
+    border: 2px solid white;
+    border-radius: 50%; 
+    width: 50px; 
+    height: 50px; 
+    font-size: 25px; 
+    z-index: 110;
 }
+
 #bonus-panel {
-    position: absolute; top: 85px; right: 15px;
-    display: flex; flex-direction: column; gap: 12px; z-index: 100;
+    position: absolute; 
+    top: 85px; 
+    right: 15px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    z-index: 100;
 }
+
 .bonus-btn {
-    background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 12px;
-    border: 1px solid #ff4fd8; color: white; font-weight: bold;
+    background: rgba(0,0,0,0.7); 
+    padding: 8px 12px; 
+    border-radius: 12px;
+    border: 1px solid #ff4fd8; 
+    color: white; 
+    font-weight: bold;
 }
 
 /* --- ПЕРСОНАЖ И ОБЪЕКТЫ --- */
 #player {
-    position: absolute; bottom: 18%; left: 50%; width: 100px; height: 100px;
-    transform: translateX(-50%); transition: left 0.2s ease-out, transform 0.1s;
-    background-image: url('assets/berry.png') !important; background-size: contain;
-    background-repeat: no-repeat; z-index: 99;
+    position: absolute; 
+    bottom: 18%; 
+    left: 50%; 
+    width: 100px; 
+    height: 100px;
+    transform: translateX(-50%); 
+    transition: left 0.2s ease-out, transform 0.1s; 
+    background-image: url('assets/berry.png') !important; 
+    background-size: contain;
+    background-repeat: no-repeat; 
+    z-index: 99;
 }
+
 #obstacle {
-    position: absolute; width: 75px; height: 75px;
-    background-size: contain; background-repeat: no-repeat;
+    position: absolute; 
+    width: 75px; 
+    height: 75px;
+    background-size: contain; 
+    background-repeat: no-repeat;
     z-index: 80;
+    /* transition удален для плавности магнита */
 }
-.shield-aura { filter: drop-shadow(0 0 20px #00eaff) brightness(1.3); }
+
+/* Эффекты Бонусов */
+.shield-aura { 
+    filter: drop-shadow(0 0 20px #00eaff) brightness(1.2);
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px #00eaff;
+}
+
+.magnet-aura {
+    filter: drop-shadow(0 0 20px #ff00ff);
+    animation: pulse-magnet 1s infinite;
+}
+
+@keyframes pulse-magnet {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 30px #ff00ff; }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
 #combo-ui {
-    position: absolute; top: 25%; font-size: 70px; font-weight: 900;
-    color: #ffeb3b; text-shadow: 0 0 25px orange; z-index: 100;
+    position: absolute; 
+    top: 25%; 
+    font-size: 70px; 
+    font-weight: 900;
+    color: #ffeb3b; 
+    text-shadow: 0 0 25px orange; 
+    z-index: 100;
 }
 
 /* --- МАГАЗИН И ЭФФЕКТЫ --- */
 .shop-overlay {
-    position: absolute; width: 100%; height: 100%;
-    background-image: url('assets/icecream.png'); background-size: 50px;
-    opacity: 0.1; animation: fall 10s linear infinite;
+    position: absolute; 
+    width: 100%; 
+    height: 100%;
+    background-image: url('assets/icecream.png'); 
+    background-size: 50px;
+    opacity: 0.1; 
+    animation: fall 10s linear infinite;
 }
+
 @keyframes fall {
     0% { background-position: 0 0; }
     100% { background-position: 0 1000px; }
 }
+
 .shop-item {
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-    margin: 10px; padding: 20px; border-radius: 20px; border: 1px solid #ff4fd8;
-    width: 80%; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 5;
+    background: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(10px);
+    margin: 10px; 
+    padding: 20px; 
+    border-radius: 20px; 
+    border: 1px solid #ff4fd8;
+    width: 80%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    color: white; 
+    z-index: 5;
 }
