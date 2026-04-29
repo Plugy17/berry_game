@@ -119,8 +119,10 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
+
     obstacleY += speed;
     speed += difficulty;
+    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     
@@ -128,57 +130,87 @@ function update() {
         obstacleLane = targetLane;
         obs.style.left = lanes[obstacleLane] + "%";
     }
+    
     obs.style.top = obstacleY + "px";
 
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
+    // Проверка столкновения
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
             comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
+            
             if(comboMultiplier > 1) {
                 const ui = document.getElementById("combo-ui");
                 ui.innerText = "x" + comboMultiplier;
                 ui.classList.remove("hidden");
             }
+            
             coins += comboMultiplier;
             updateScore();
             spawnObstacle();
         } else {
+            // ВОТ ТУТ БЫЛА ОШИБКА:
             gameOver();
             return;
         }
     }
 
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { comboCount = 0; comboMultiplier = 1; document.getElementById("combo-ui").classList.add("hidden"); }
+        if (obs.dataset.type === "good") { 
+            comboCount = 0; 
+            comboMultiplier = 1; 
+            document.getElementById("combo-ui").classList.add("hidden"); 
+        }
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
 }
 
-function updateScore() {
-    document.getElementById("hud").innerHTML = `
-        <div class="hud-coins"><img src="assets/icecream.png" class="hud-ice"> ${coins}</div>
-        <div class="hud-best">Best: ${best}</div>
-    `;
-}
-
 function gameOver() {
     if (shieldActive) {
         shieldActive = false;
-        document.getElementById("player").classList.remove("shield-aura");
-        spawnObstacle(); return;
+        const p = document.getElementById("player");
+        p.classList.remove("shield-aura");
+        
+        // ФИКС: Сбрасываем позицию текущего препятствия, чтобы оно "исчезло" и пошло новое
+        obstacleY = -150; 
+        spawnObstacle(); 
+        return; 
     }
+    
     gameRunning = false;
     totalCoins += coins;
     if (coins > best) best = coins;
     
-    saveUserData(); // Сохранение в Firebase
-    alert("Игра окончена! Собрано: " + coins);
+    saveUserData();
+    alert("Берри врезался! Собрано: " + coins);
     backToMenu();
 }
+
+let startX = 0;
+document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
+document.addEventListener("touchend", e => {
+    if (!gameRunning) return;
+    let diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) < 30) return;
+    
+    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
+    else targetLane = Math.max(0, targetLane - 1);
+    
+    const p = document.getElementById("player");
+    p.style.left = lanes[targetLane] + "%";
+    
+    // Имитация движения (наклон и прыжок)
+    let rot = diff > 0 ? 15 : -15;
+    p.style.transform = `translateX(-50%) rotate(${rot}deg) scale(1.1)`;
+    
+    setTimeout(() => {
+        p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
+    }, 150);
+});
 
 function backToMenu() {
     gameRunning = false;
