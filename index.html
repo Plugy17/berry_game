@@ -9,8 +9,6 @@
 <body>
 
 <div id="menu" class="screen">
-    <h1 class="game-title">BERRY RUNNER</h1>
-    
     <div id="welcome" class="welcome-text"></div>
     
     <div class="menu-stats-container">
@@ -31,8 +29,9 @@
 </div>
 
 <div id="game" class="screen hidden">
+    <button id="backBtn" class="corner-home" onclick="backToMenu()">🏠</button>
+    
     <div id="hud"></div> 
-    <button id="backBtn" onclick="backToMenu()">🏠</button>
 
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
@@ -43,6 +42,8 @@
         </div>
     </div>
 
+    <div id="combo-ui" class="hidden">x2</div>
+
     <div id="track">
         <div id="player"></div> 
         <div id="obstacle"></div> 
@@ -50,19 +51,24 @@
 </div>
 
 <div id="shop" class="screen hidden">
-    <h2>🛒 МАГАЗИН</h2>
-    <div id="shop-balance" class="shop-balance-info">Balance: 0</div>
-    
-    <div class="shop-item">
-        <span>🛡️ ЩИТ (300 BERRY)</span>
-        <button onclick="buyItem('shield')">КУПИТЬ</button>
+    <div class="shop-overlay"></div>
+    <div class="shop-content">
+        <h2>🛒 МАГАЗИН</h2>
+        <div id="shop-balance" class="shop-balance-info">Balance: 0</div>
+        
+        <div class="shop-items-container">
+            <div class="shop-item">
+                <span>🛡️ ЩИТ (300 BERRY)</span>
+                <button onclick="buyItem('shield')">КУПИТЬ</button>
+            </div>
+            <div class="shop-item">
+                <span>🧲 МАГНИТ (500 BERRY)</span>
+                <button onclick="buyItem('magnet')">КУПИТЬ</button>
+            </div>
+        </div>
+        
+        <button onclick="closeShop()" class="back-from-shop">Назад</button>
     </div>
-    <div class="shop-item">
-        <span>🧲 МАГНИТ (500 BERRY)</span>
-        <button onclick="buyItem('magnet')">КУПИТЬ</button>
-    </div>
-    
-    <button onclick="closeShop()" class="back-from-shop">Назад</button>
 </div>
 
 <script src="game.js"></script>
