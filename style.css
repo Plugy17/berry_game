@@ -37,7 +37,7 @@ body {
 
 #game { background: url('assets/game_bg.jpg') no-repeat; }
 
-/* --- ЗАГОЛОВОК (Возвращаем свечение и анимацию) --- */
+/* --- ЗАГОЛОВОК (Свечение и пульсация) --- */
 .game-title {
     font-size: 50px;
     font-family: 'Arial Black', sans-serif;
@@ -86,7 +86,7 @@ body {
     50%, 100% { left: 150%; }
 }
 
-/* --- КОНТЕЙНЕР ДЛЯ СЧЕТА И РЕКОРДА В МЕНЮ (Рядом) --- */
+/* --- СТАТИСТИКА В МЕНЮ --- */
 .menu-stats-container {
     display: flex;
     gap: 15px;
@@ -111,7 +111,7 @@ body {
 
 .balance-info { color: #ffd1f3; }
 
-/* --- HUD В ИГРЕ (Крупный счет) --- */
+/* --- ИГРОВОЙ ИНТЕРФЕЙС (HUD) --- */
 #hud {
     position: absolute;
     top: 20px;
@@ -149,7 +149,7 @@ body {
     font-weight: bold;
 }
 
-/* --- КНОПКА ДОМ (В углу, четкая) --- */
+/* --- КНОПКА ДОМ --- */
 #backBtn {
     position: absolute;
     top: 20px;
@@ -172,7 +172,42 @@ body {
 
 #backBtn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.2); }
 
-/* --- КНОПКИ И ИГРОК --- */
+/* --- ГЕЙМПЛЕЙНЫЕ ОБЪЕКТЫ (ФИКС ВИДИМОСТИ) --- */
+#track {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    z-index: 1; /* Базовый слой для трассы */
+}
+
+#player {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    width: 85px;
+    height: 85px;
+    transform: translateX(-50%);
+    background: url('assets/berry.png') no-repeat center center;
+    background-size: contain;
+    transition: left 0.15s ease-out, transform 0.2s;
+    z-index: 5; /* Выше фона */
+}
+
+#obstacle {
+    position: absolute;
+    top: -100px;
+    width: 60px;
+    height: 60px;
+    background-color: transparent;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 5; /* Выше фона */
+    /* Добавляем легкое свечение, чтобы объекты не терялись в космосе */
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+}
+
+/* --- КНОПКИ И ЭФФЕКТЫ --- */
 #nick, .custom-select, button {
     width: 260px; padding: 14px; border-radius: 25px; border: none;
     font-size: 16px; font-weight: bold; text-align: center;
@@ -183,13 +218,6 @@ body {
     background: linear-gradient(45deg, rgba(255, 79, 216, 0.8), rgba(176, 48, 176, 0.8));
     color: white; border: 2px solid rgba(255, 255, 255, 0.3);
     font-size: 22px; height: 60px;
-}
-
-#player {
-    position: absolute; bottom: 80px; left: 50%;
-    width: 85px; height: 85px; transform: translateX(-50%);
-    background: url('assets/berry.png') no-repeat center center;
-    background-size: contain; transition: left 0.15s ease-out, transform 0.2s;
 }
 
 .score-bump { animation: scoreBumpAnim 0.2s ease-out; }
