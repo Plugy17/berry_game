@@ -70,27 +70,46 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.2);
 }
 
-/* --- МЕНЮ (КНОПКИ НИЖЕ) --- */
+/* --- МЕНЮ (НОВАЯ СТРУКТУРА: ВЕРХ И НИЗ) --- */
 #menu { 
-    justify-content: flex-end; 
-    padding: 20px 20px 80px 20px; 
+    justify-content: flex-start; /* Начинаем сверху */
+    padding: 60px 20px; /* Отступы для системной строки */
+}
+
+/* Контейнер для верхних элементов */
+.top-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: auto; /* Толкает всё остальное вниз */
 }
 
 .welcome-text {
-    margin-bottom: 20px;
     font-size: 28px; 
     font-weight: 900;
     text-shadow: 0 0 15px #ff4fd8;
     color: white; 
     text-align: center;
+    margin: 0;
 }
 
 .menu-stats-container { 
     display: flex; 
     gap: 10px; 
-    margin-bottom: 20px; 
     width: 100%;
     max-width: 320px;
+}
+
+/* Контейнер для кнопок внизу */
+.menu-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 40px; /* Чтобы кнопки лежали на дорожке */
+    z-index: 20;
 }
 
 /* КРАСИВЫЙ СЧЕТ В МЕНЮ */
@@ -184,10 +203,10 @@ button:active { transform: scale(0.95); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
 }
 
-/* --- МАГАЗИН (СЧЕТ В УГЛУ ПО СТРЕЛКЕ) --- */
+/* --- МАГАЗИН --- */
 #shop .shop-balance-container {
     position: absolute;
-    top: 25px; /* Перемещено выше по твоей правке */
+    top: 25px; 
     right: 25px;
     background: rgba(0,0,0,0.6);
     padding: 8px 18px;
