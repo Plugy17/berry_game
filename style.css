@@ -10,8 +10,7 @@ body {
 
 .screen {
     position: fixed;
-    width: 100vw;
-    height: 100vh;
+    inset: 0; /* Растягиваем на всё окно */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,7 +19,7 @@ body {
     transition: opacity 0.4s ease-in-out;
 }
 
-.hidden { display: none !important; opacity: 0; }
+.hidden { display: none !important; }
 
 /* --- ФОНЫ --- */
 #menu, #game, #shop {
@@ -28,146 +27,113 @@ body {
     background-size: cover !important;
 }
 
-#menu {
-    background: url('assets/bg.jpg') no-repeat;
-    color: white;
-    justify-content: space-evenly; 
-    padding: 20px 0;
-}
-
-#game { 
-    background: url('assets/game_bg.jpg') no-repeat center center !important;
-    background-size: cover !important;
-}
-
-#shop { background: #000; }
+#menu { background: url('assets/bg.jpg') no-repeat; }
+#game { background: url('assets/game_bg.jpg') no-repeat; }
+#shop { background: #000; overflow-y: auto; }
 
 /* --- ЗАГОЛОВОК --- */
 .game-title {
-    font-size: 50px;
+    font-size: clamp(30px, 8vw, 50px); /* Адаптивный размер шрифта */
     font-family: 'Arial Black', sans-serif;
     color: #fff;
-    text-shadow: 0 0 20px #ff4fd8, 0 0 40px #ff4fd8, 0 5px 0 #b030b0; 
-    letter-spacing: 2px;
-    margin: 0;
+    text-shadow: 0 0 20px #ff4fd8;
     text-align: center;
+    margin: 0;
     z-index: 2;
-    animation: titlePulse 2.5s ease-in-out infinite;
 }
 
-@keyframes titlePulse {
-    0%, 100% { transform: scale(1); text-shadow: 0 0 20px #ff4fd8; }
-    50% { transform: scale(1.05); text-shadow: 0 0 40px #ff4fd8, 0 0 60px #ff00ff; }
-}
-
-/* --- ПРИВЕТСТВИЕ И ИНПУТЫ --- */
-.welcome-text {
-    font-size: 18px; color: #fff; font-style: italic;
-    background: rgba(0, 0, 0, 0.8) !important;
-    padding: 10px 25px; border-radius: 20px;
-    backdrop-filter: blur(5px); border: 2px solid #ff4fd8 !important;
-    position: relative; overflow: hidden;
-    font-weight: bold;
-}
-
+/* --- КНОПКИ МЕНЮ (Исправлено для узких окон) --- */
 #menu button, #menu select, #menu input {
-    background: rgba(0, 0, 0, 0.75) !important;
-    border: 1px solid rgba(255, 79, 216, 0.5) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 2px solid #ff4fd8 !important;
     color: white !important;
-    width: 280px; padding: 14px; border-radius: 25px;
-    font-size: 16px; font-weight: bold;
+    width: 85% !important; /* Вместо фиксированных пикселей */
+    max-width: 300px;
+    padding: 12px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    box-sizing: border-box;
 }
 
-/* --- КРАСИВЫЙ МАГАЗИН --- */
-#shop h2 {
-    font-size: 32px;
-    color: #ff4fd8;
-    text-shadow: 0 0 10px #ff4fd8;
-    margin-bottom: 20px;
+.welcome-text {
+    background: rgba(255, 79, 216, 0.2);
+    padding: 8px 20px;
+    border-radius: 15px;
+    border: 1px solid #ff4fd8;
+    font-size: 14px;
 }
 
+/* --- МАГАЗИН --- */
 .shop-item {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 20px;
+    padding: 15px;
     border-radius: 20px;
-    width: 300px;
+    width: 90%;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .shop-item button {
-    width: 100% !important;
     background: linear-gradient(45deg, #ff4fd8, #b030b0);
-    color: white; border: none; padding: 12px !important;
-    border-radius: 15px; cursor: pointer; font-size: 16px;
+    border: none; color: white; padding: 10px;
+    border-radius: 12px; width: 100%;
 }
 
-#shop button[onclick="closeShop()"] {
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    border-radius: 15px !important;
-    color: white !important;
-    width: 180px !important;
-}
-
-/* --- ИГРОВОЙ ИНТЕРФЕЙС И ФИКС ОБЪЕКТОВ --- */
+/* --- ИГРА (ФИКС МОРОЖЕНОГО) --- */
 #track {
-    width: 100vw; height: 100vh;
-    position: relative; overflow: hidden;
-    background: transparent !important; /* Убираем заливку, чтобы видеть фон игры */
-}
-
-#hud {
-    position: absolute; top: 20px; left: 20px; padding: 15px 25px;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px);
-    border-radius: 25px; border: 2px solid #ff4fd8; z-index: 10;
-}
-
-#bonus-panel {
-    position: absolute; 
-    bottom: 50px !important;
-    right: 25px !important; 
-    display: flex; flex-direction: column; gap: 15px; z-index: 100;
-}
-
-.bonus-btn {
-    width: 65px !important; height: 65px !important;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid #ff4fd8; border-radius: 50%; color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px; position: relative;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    overflow: hidden;
+    z-index: 1;
 }
 
 #player {
-    position: absolute; bottom: 100px; left: 50%; 
-    width: 80px !important; height: 80px !important; /* Жесткий размер */
-    transform: translateX(-50%); 
-    background: url('assets/berry.png') no-repeat center center !important;
-    background-size: contain !important;
-    transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s;
-    z-index: 5;
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    width: 70px !important; 
+    height: 70px !important;
+    transform: translateX(-50%);
+    background: url('assets/berry.png') no-repeat center !important;
+    background-size: contain !important; /* ПРИНУДИТЕЛЬНО */
+    z-index: 10;
 }
 
 #obstacle {
-    position: absolute; 
-    top: -150px; 
-    width: 65px !important;  /* Жесткий размер для препятствий */
-    height: 65px !important; 
-    background-size: contain !important; /* Не дает картинке вылазить за 65px */
+    position: absolute;
+    z-index: 5;
+    /* УБИРАЕМ BACKGROUND ТУТ, если ты создаешь его через JS как img */
+    /* ЕСЛИ ЖЕ ОНО ЧЕРЕЗ CSS, ТО: */
+    width: 50px !important;
+    height: 50px !important;
+    background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    z-index: 5;
-    margin: 0; padding: 0;
 }
 
-#backBtn {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 15px !important;
-    width: 55px !important; height: 55px !important;
+/* --- ИНТЕРФЕЙС ИГРЫ --- */
+#hud {
+    position: absolute; top: 10px; left: 10px;
+    padding: 8px 15px; background: rgba(0,0,0,0.7);
+    border: 1px solid #ff4fd8; border-radius: 15px;
+    color: white; z-index: 20; font-size: 14px;
+}
+
+#bonus-panel {
+    position: absolute; bottom: 20px; right: 10px;
+    display: flex; flex-direction: column; gap: 10px; z-index: 20;
+}
+
+.bonus-btn {
+    width: 50px; height: 50px;
+    border-radius: 50%; border: 2px solid #ff4fd8;
+    background: rgba(0,0,0,0.8); color: white;
 }
