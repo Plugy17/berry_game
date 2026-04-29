@@ -1,3 +1,4 @@
+let difficultyMode = "medium";
 let lane = 1;
 let targetLane = 1;
 let gameRunning = false;
@@ -40,12 +41,24 @@ function startGame() {
     localStorage.setItem("nick", nick);
   }
 
+  difficultyMode = document.getElementById("difficulty").value;
+
+  if (difficultyMode === "easy") {
+    speed = 4;
+    difficulty = 0.001;
+  } else if (difficultyMode === "medium") {
+    speed = 6;
+    difficulty = 0.002;
+  } else {
+    speed = 8;
+    difficulty = 0.003;
+  }
+
   document.getElementById("menu").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
   resetGame();
 }
-
 /* RESET */
 function resetGame() {
   lane = 1;
@@ -61,9 +74,48 @@ function resetGame() {
 /* BACK */
 function backToMenu() {
   gameRunning = false;
+
   document.getElementById("game").classList.add("hidden");
   document.getElementById("menu").classList.remove("hidden");
 }
+
+function openShop() {
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("shop").classList.remove("hidden");
+}
+
+function closeShop() {
+  document.getElementById("shop").classList.add("hidden");
+  document.getElementById("menu").classList.remove("hidden");
+}
+
+function loadMenuLeaderboard() {
+  if (!window.db) return;
+
+  const q = window.query(
+    window.ref(window.db, "scores"),
+    window.orderByChild("score"),
+    window.limitToLast(5)
+  );
+
+  window.onValue(q, (snapshot) => {
+    let data = snapshot.val();
+    if (!data) return;
+
+    let arr = Object.values(data);
+    arr.sort((a, b) => b.score - a.score);
+
+    let html = "🏆 ТОП ИГРОКОВ:<br>";
+
+    arr.forEach(p => {
+      html += p.name + ": " + p.score + "<br>";
+    });
+
+    document.getElementById("menuLeaderboard").innerHTML = html;
+  });
+}
+
+loadMenuLeaderboard();
 
 /* SWIPE */
 let startX = 0;
