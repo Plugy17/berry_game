@@ -1,4 +1,3 @@
-// Оставляем переменные как есть
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
@@ -22,10 +21,11 @@ let magnetActive = false;
 let comboCount = 0;
 let comboMultiplier = 1;
 
+// ИСПРАВЛЕННЫЕ ПУТИ
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// --- FIREBASE ---
+// --- FIREBASE (БЕЗ ИЗМЕНЕНИЙ) ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -110,7 +110,11 @@ function update() {
         handleCollision(obs, document.getElementById("player"));
     }
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { comboCount = 0; comboMultiplier = 1; document.getElementById("combo-ui").classList.add("hidden"); }
+        if (obs.dataset.type === "good") { 
+            comboCount = 0; 
+            comboMultiplier = 1; 
+            document.getElementById("combo-ui").classList.add("hidden"); 
+        }
         spawnObstacle();
     }
     if (gameRunning) loopId = requestAnimationFrame(update);
@@ -161,7 +165,7 @@ document.addEventListener("touchend", e => {
     document.getElementById("player").style.left = lanes[targetLane] + "%";
 });
 
-// МАГАЗИН
+// МАГАЗИН И БОНУСЫ
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
@@ -194,7 +198,7 @@ function createFallingEffects() {
         ice.className = "falling-ice";
         ice.style.left = Math.random() * 100 + "vw";
         ice.style.animationDuration = (Math.random() * 3 + 2) + "s";
-        ice.style.backgroundImage = imgIceCream;
+        ice.style.backgroundImage = imgIceCream; // Будет assets/icecream.png
         ice.style.backgroundSize = "contain";
         ice.style.height = "25px";
         shopScreen.appendChild(ice);
