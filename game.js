@@ -1,200 +1,127 @@
 let lane = 1;
 let targetLane = 1;
 let gameRunning = false;
-
 let obstacleLane = 0;
-let obstacleY = 0;
+let obstacleY = -100;
+let loopId = null;
 
 let nick = localStorage.getItem("nick");
-let coins = parseInt(localStorage.getItem("coins")) || 0;
+let coins = 0; // Очки за текущий забег
 let best = parseInt(localStorage.getItem("best")) || 0;
 
 let speed = 6;
+const baseSpeed = 6;
 let difficulty = 0.002;
 
-const good = "🍦";
-const bad = ["🍩","🍫","🧱"];
-let currentType = good;
+// Пути к картинкам
+const imgIceCream = "url('assets/icecream.png')";
+const imgBad = "url('assets/obstacle.png')"; // Замени на кирпич или донат
 
-/* CONTROL FLAG (ФИКС ЦИКЛА) */
-let loopId = null;
-
-/* START SCREEN */
-window.onload = () => {
-  if (nick) {
-    document.getElementById("welcome").innerText =
-      "👋 С возвращением, " + nick;
-    document.getElementById("nick").style.display = "none";
-  }
-
-  document.getElementById("score").innerText = coins + " 🍦";
-};
-
-/* START */
 function startGame() {
-  if (!nick) {
-    const input = document.getElementById("nick").value;
-    if (!input) return;
-
-    nick = input;
-    localStorage.setItem("nick", nick);
-  }
-
-  let mode = document.getElementById("difficulty").value;
-
-  speed = mode === "easy" ? 4 : mode === "hard" ? 8 : 6;
-  difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
-  resetGame();
-}
-
-/* RESET (ФИКС СТАРТА) */
-function resetGame() {
-  lane = 1;
-  targetLane = 1;
-  obstacleY = -120; // ближе к игроку (визуально лучше)
-  gameRunning = true;
-
-  spawnObstacle();
-
-  cancelAnimationFrame(loopId);
-  loopId = requestAnimationFrame(update);
-}
-
-/* MENU FIX (СТОП ЦИКЛА) */
-function backToMenu() {
-  gameRunning = false;
-
-  // стоп игры
-  if (loopId) cancelAnimationFrame(loopId);
-
-  document.getElementById("game").classList.add("hidden");
-  document.getElementById("menu").classList.remove("hidden");
-
-  obstacleY = -200;
-}
-
-/* SHOP */
-function openShop() {
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("shop").classList.remove("hidden");
-}
-
-function closeShop() {
-  document.getElementById("shop").classList.add("hidden");
-  document.getElementById("menu").classList.remove("hidden");
-}
-
-/* SWIPE */
-let startX = 0;
-
-document.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-  if (!gameRunning) return;
-
-  let diff = e.changedTouches[0].clientX - startX;
-
-  if (Math.abs(diff) < 40) return;
-
-  if (diff > 0) targetLane = Math.min(2, targetLane + 1);
-  else targetLane = Math.max(0, targetLane - 1);
-});
-
-/* SMOOTH MOVE */
-function smoothMove() {
-  lane += (targetLane - lane) * 0.15;
-
-  document.getElementById("player").style.left =
-    [15,50,85][Math.round(lane)] + "%";
-
-  requestAnimationFrame(smoothMove);
-}
-smoothMove();
-
-/* SPAWN (ФИКС БАГА С ЗАСТРЕВАНИЕМ) */
-function spawnObstacle() {
-  obstacleLane = Math.floor(Math.random() * 3);
-
-  obstacleY = -100; // БЛИЖЕ К ИГРОКУ (ВАЖНО)
-
-  const obs = document.getElementById("obstacle");
-
-  currentType = Math.random() < 0.6
-    ? bad[Math.floor(Math.random() * bad.length)]
-    : good;
-
-  obs.innerText = currentType;
-  obs.style.left = [15,50,85][obstacleLane] + "%";
-  obs.style.opacity = "1";
-}
-
-/* LOOP (СТАБИЛЬНЫЙ) */
-function update() {
-  if (!gameRunning) return;
-
-  speed += difficulty;
-  obstacleY += speed;
-
-  const obs = document.getElementById("obstacle");
-
-  let playerLane = Math.round(lane);
-  let hitZone = obstacleY > window.innerHeight - 280;
-
-  obs.style.top = obstacleY + "px";
-
-  /* COLLISION FIX */
-  if (hitZone && obstacleLane === playerLane) {
-
-    if (currentType === good) {
-      coins++;
-      localStorage.setItem("coins", coins);
-      document.getElementById("score").innerText = coins + " 🍦";
-
-      spawnObstacle(); // 🔥 НЕ ЛОМАЕТ ПОТОК
-    } else {
-      gameOver();
-      return;
+    if (!nick) {
+        const input = document.getElementById("nick").value;
+        if (!input) { alert("Введите ник!"); return; }
+        nick = input;
+        localStorage.setItem("nick", nick);
     }
-  }
 
-  /* RESPAWN */
-  if (obstacleY > window.innerHeight) {
+    let mode = document.getElementById("difficulty").value;
+    speed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
+    
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+
+    resetGame();
+}
+
+function resetGame() {
+    coins = 0;
+    updateScore();
+    lane = 1;
+    targetLane = 1;
+    gameRunning = true;
     spawnObstacle();
-  }
-
-  loopId = requestAnimationFrame(update);
+    if (loopId) cancelAnimationFrame(loopId);
+    update();
 }
 
-/* GAME OVER */
+function spawnObstacle() {
+    obstacleLane = Math.floor(Math.random() * 3);
+    obstacleY = -100;
+    const obs = document.getElementById("obstacle");
+    
+    // 60% шанс на мороженое, 40% на препятствие
+    const isGood = Math.random() < 0.6;
+    obs.dataset.type = isGood ? "good" : "bad";
+    obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
+    obs.style.left = [15, 50, 85][obstacleLane] + "%";
+}
+
+function update() {
+    if (!gameRunning) return;
+
+    obstacleY += speed;
+    speed += difficulty; // Постепенное ускорение
+
+    const obs = document.getElementById("obstacle");
+    obs.style.top = obstacleY + "px";
+
+    // Проверка столкновения
+    if (obstacleY > window.innerHeight - 180 && obstacleY < window.innerHeight - 80) {
+        if (obstacleLane === targetLane) {
+            if (obs.dataset.type === "good") {
+                coins++;
+                updateScore();
+                spawnObstacle();
+            } else {
+                gameOver();
+                return;
+            }
+        }
+    }
+
+    // Если пролетел мимо
+    if (obstacleY > window.innerHeight) {
+        spawnObstacle();
+    }
+
+    loopId = requestAnimationFrame(update);
+}
+
+function updateScore() {
+    document.getElementById("score").innerText = coins;
+}
+
 function gameOver() {
-  gameRunning = false;
+    gameRunning = false;
+    cancelAnimationFrame(loopId);
 
-  if (coins > best) {
-    best = coins;
-    localStorage.setItem("best", best);
-  }
+    if (coins > best) {
+        best = coins;
+        localStorage.setItem("best", best);
+        // Тут можно добавить сохранение в Firebase
+    }
 
-  alert("💥 GAME OVER\n🍦 " + coins + "\n🏆 " + best);
-
-  location.reload();
+    alert(`Игра окончена!\nСобрано мороженого: ${coins}\nВаш рекорд: ${best}`);
+    backToMenu();
 }
 
-setInterval(() => {
-  if (gameRunning) return;
+function backToMenu() {
+    gameRunning = false;
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
+}
 
-  const el = document.getElementById("leaderboard");
-  if (!el) return;
-
-  if (coins === undefined) return;
-
-  el.innerHTML =
-    "🏆 BEST:<br>" +
-    "You: " + coins + "<br>" +
-    "Record: " + best;
-}, 1000);
+// Управление свайпами
+let startX = 0;
+document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
+document.addEventListener("touchend", e => {
+    if (!gameRunning) return;
+    let diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) < 30) return;
+    if (diff > 0) targetLane = Math.min(2, targetLane + 1);
+    else targetLane = Math.max(0, targetLane - 1);
+    
+    // Визуальное перемещение
+    document.getElementById("player").style.left = [15, 50, 85][targetLane] + "%";
+});
