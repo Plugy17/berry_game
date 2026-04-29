@@ -8,7 +8,7 @@ let loopId = null;
 let nick = localStorage.getItem("nick");
 let coins = 0;
 let best = parseInt(localStorage.getItem("best")) || 0;
-// Добавляем общий баланс
+// Общий баланс игрока
 let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
 
 let speed = 6;
@@ -110,7 +110,6 @@ function gameOver() {
     gameRunning = false;
     cancelAnimationFrame(loopId);
 
-    // Сохраняем общий баланс
     totalCoins += coins;
     localStorage.setItem("totalCoins", totalCoins);
 
@@ -128,19 +127,35 @@ function backToMenu() {
     if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    updateMenuInfo(); // Обновляем данные без перезагрузки страницы
+    updateMenuInfo();
 }
 
-// Управление свайпами
+// Управление свайпами и оживление Берри
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
+    
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
-    if (diff > 0) targetLane = Math.min(2, targetLane + 1);
-    else targetLane = Math.max(0, targetLane - 1);
-    document.getElementById("player").style.left = [15, 50, 85][targetLane] + "%";
+
+    const playerImg = document.getElementById("player");
+    
+    if (diff > 0) {
+        targetLane = Math.min(2, targetLane + 1);
+        playerImg.style.transform = "translateX(-50%) rotate(15deg)"; // Наклон вправо
+    } else {
+        targetLane = Math.max(0, targetLane - 1);
+        playerImg.style.transform = "translateX(-50%) rotate(-15deg)"; // Наклон влево
+    }
+    
+    // Перемещаем игрока на нужную дорожку
+    playerImg.style.left = [15, 50, 85][targetLane] + "%";
+
+    // Возвращаем персонажа в ровное положение через 200мс
+    setTimeout(() => {
+        playerImg.style.transform = "translateX(-50%) rotate(0deg)";
+    }, 200);
 });
 
 function openShop() {
