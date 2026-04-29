@@ -70,7 +70,7 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.2);
 }
 
-/* --- МЕНЮ (СТРУКТУРА: ВЕРХ И НИЗ) --- */
+/* --- МЕНЮ (ОБНОВЛЕННАЯ ЦЕНТРОВКА) --- */
 #menu { 
     justify-content: flex-start; 
     padding: 60px 20px; 
@@ -84,6 +84,7 @@ button:active { transform: scale(0.95); }
     z-index: 1;
 }
 
+/* ПРАВКА: ВЕРХНЯЯ ПАНЕЛЬ ТЕПЕРЬ СМЕЩЕНА ТАК ЖЕ, КАК КНОПКИ */
 .top-bar-container {
     display: flex;
     flex-direction: column;
@@ -91,11 +92,12 @@ button:active { transform: scale(0.95); }
     width: 100%;
     gap: 15px;
     margin-bottom: auto; 
+    margin-right: 40px; /* Сдвиг влево для выравнивания с кнопками */
     z-index: 5;
 }
 
 .welcome-text {
-    font-size: 32px; /* Чуть увеличил для солидности */
+    font-size: 32px; 
     font-weight: 900;
     text-shadow: 0 0 15px #ff4fd8;
     color: white; 
@@ -103,18 +105,17 @@ button:active { transform: scale(0.95); }
     margin: 0;
 }
 
-/* ПРАВКА: УБРАЛИ РЕКОРД, ЦЕНТРИРУЕМ СЧЕТ */
 .menu-stats-container { 
     display: flex; 
-    justify-content: center; /* Центрируем счет */
+    justify-content: center; 
     width: 100%;
     max-width: 320px;
 }
 
-.record-info { display: none !important; } /* УБРАНО */
+.record-info { display: none !important; }
 
 .balance-info {
-    flex: 0 1 auto; /* Больше не растягивается на пол-экрана */
+    flex: 0 1 auto; 
     font-size: 22px !important; 
     color: #fff; 
     font-weight: 900;
@@ -129,7 +130,7 @@ button:active { transform: scale(0.95); }
     justify-content: center;
     gap: 10px;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
-    animation: scorePulse 2s infinite alternate; /* Эффектный пульс */
+    animation: scorePulse 2s infinite alternate;
 }
 
 @keyframes scorePulse {
@@ -137,14 +138,13 @@ button:active { transform: scale(0.95); }
     to { box-shadow: 0 0 25px rgba(0, 234, 255, 0.6); border-color: #00eaff; }
 }
 
-/* ПРАВКА: СДВИГАЕМ КНОПКИ ВЛЕВО */
 .menu-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     margin-bottom: 120px; 
-    margin-right: 40px; /* Сдвиг всего блока влево */
+    margin-right: 40px; /* Сдвиг кнопок */
     z-index: 20;
 }
 
