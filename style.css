@@ -1,3 +1,4 @@
+/* --- БАЗОВЫЕ НАСТРОЙКИ --- */
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
@@ -21,7 +22,6 @@ body {
 .hidden { display: none !important; }
 
 /* --- ФОНЫ --- */
-
 #menu, #game {
     background-position: center !important;
     background-size: cover !important;
@@ -31,6 +31,9 @@ body {
 #menu {
     background: url('assets/bg.jpg') no-repeat;
     color: white;
+    /* Улучшенное распределение элементов */
+    justify-content: space-evenly; 
+    padding: 20px 0;
 }
 
 #game {
@@ -38,16 +41,17 @@ body {
 }
 
 /* --- ЗАГОЛОВОК И ТЕКСТ --- */
-
 .game-title {
-    font-size: 50px; /* Увеличено */
+    font-size: 45px;
     font-family: 'Arial Black', sans-serif;
     color: #fff;
-    text-shadow: 0 0 20px #ff4fd8, 0 0 40px #ff4fd8;
+    /* Объемный неоновый текст */
+    text-shadow: 0 0 15px #ff4fd8, 0 5px 0 #b030b0; 
     letter-spacing: 2px;
-    margin-bottom: 10px;
+    margin: 0;
     transition: 0.5s;
     text-align: center;
+    z-index: 2;
 }
 
 /* Пульсация заголовка */
@@ -61,26 +65,32 @@ body {
 }
 
 .welcome-text {
-    font-size: 20px;
-    color: #ffd1f3;
+    font-size: 18px;
+    color: #fff;
     font-style: italic;
-    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
 }
 
 .balance-info {
-    color: white;
+    font-size: 16px;
+    color: #ffd1f3;
+    font-weight: bold;
     background: rgba(255, 255, 255, 0.1);
     padding: 5px 15px;
     border-radius: 15px;
-    font-size: 14px;
-    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* --- КНОПКИ И ПОЛЯ --- */
-
+/* --- КНОПКИ И ПОЛЯ (Стеклянный стиль) --- */
 #nick, .custom-select, button {
-    width: 220px;
+    width: 260px; /* Оптимальная ширина для мобилок */
     padding: 14px;
     border-radius: 25px;
     border: none;
@@ -88,6 +98,8 @@ body {
     font-weight: bold;
     text-align: center;
     outline: none;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 #nick {
@@ -96,20 +108,24 @@ body {
 }
 
 .play-btn {
-    background: linear-gradient(45deg, #ff4fd8, #b030b0);
+    background: linear-gradient(45deg, rgba(255, 79, 216, 0.8), rgba(176, 48, 176, 0.8));
     color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 5px 20px rgba(255, 79, 216, 0.5);
-    font-size: 20px;
+    font-size: 22px;
+    height: 60px;
 }
 
 .shop-btn {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(5px);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Анимация плавания кнопок */
+button:active {
+    transform: scale(0.95);
+}
+
 .floating {
     animation: floatAnim 3s ease-in-out infinite;
 }
@@ -120,7 +136,6 @@ body {
 }
 
 /* --- ГЕЙМПЛЕЙ --- */
-
 #track {
     width: 100vw;
     height: 100vh;
@@ -137,7 +152,7 @@ body {
     background: url('assets/berry.png') no-repeat center center;
     background-size: contain;
     transition: left 0.15s ease-out;
-    /* Эффект живого Берри */
+    /* Оживляем Берри */
     animation: berryLive 1.5s ease-in-out infinite;
 }
 
@@ -182,5 +197,20 @@ body {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     cursor: pointer;
-    z-index: 1001; /* Поверх всего */
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* РЕКОРД В МЕНЮ */
+#menuLeaderboard {
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
