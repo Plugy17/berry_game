@@ -35,9 +35,12 @@ body {
     padding: 20px 0;
 }
 
-#game { background: url('assets/game_bg.jpg') no-repeat; }
+#game { 
+    background: url('assets/game_bg.jpg') no-repeat center center !important;
+    background-size: cover !important;
+}
 
-#shop { background: #000; } /* Фон магазина черный для контраста с карточками */
+#shop { background: #000; }
 
 /* --- ЗАГОЛОВОК --- */
 .game-title {
@@ -57,10 +60,10 @@ body {
     50% { transform: scale(1.05); text-shadow: 0 0 40px #ff4fd8, 0 0 60px #ff00ff; }
 }
 
-/* --- ПРИВЕТСТВИЕ И ИНПУТЫ (Правки для мобилы) --- */
+/* --- ПРИВЕТСТВИЕ И ИНПУТЫ --- */
 .welcome-text {
     font-size: 18px; color: #fff; font-style: italic;
-    background: rgba(0, 0, 0, 0.8) !important; /* Плотный фон */
+    background: rgba(0, 0, 0, 0.8) !important;
     padding: 10px 25px; border-radius: 20px;
     backdrop-filter: blur(5px); border: 2px solid #ff4fd8 !important;
     position: relative; overflow: hidden;
@@ -74,14 +77,6 @@ body {
     width: 280px; padding: 14px; border-radius: 25px;
     font-size: 16px; font-weight: bold;
 }
-
-.welcome-text::after {
-    content: ""; position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    animation: flashSwipe 3s infinite;
-}
-
-@keyframes flashSwipe { 0% { left: -150%; } 50%, 100% { left: 150%; } }
 
 /* --- КРАСИВЫЙ МАГАЗИН --- */
 #shop h2 {
@@ -103,7 +98,6 @@ body {
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
-    transition: 0.3s;
 }
 
 .shop-item button {
@@ -111,10 +105,8 @@ body {
     background: linear-gradient(45deg, #ff4fd8, #b030b0);
     color: white; border: none; padding: 12px !important;
     border-radius: 15px; cursor: pointer; font-size: 16px;
-    box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
 }
 
-/* Кнопка "Назад" в магазине (Исправлено) */
 #shop button[onclick="closeShop()"] {
     margin-top: 20px;
     background: rgba(255, 255, 255, 0.1) !important;
@@ -122,16 +114,13 @@ body {
     border-radius: 15px !important;
     color: white !important;
     width: 180px !important;
-    padding: 10px !important;
-    font-size: 14px;
-    text-transform: uppercase;
 }
 
-/* --- ИГРОВОЙ ИНТЕРФЕЙС --- */
+/* --- ИГРОВОЙ ИНТЕРФЕЙС И ФИКС ОБЪЕКТОВ --- */
 #track {
     width: 100vw; height: 100vh;
     position: relative; overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent !important; /* Убираем заливку, чтобы видеть фон игры */
 }
 
 #hud {
@@ -142,39 +131,41 @@ body {
 
 #bonus-panel {
     position: absolute; 
-    bottom: 50px !important; /* Чуть выше от края */
+    bottom: 50px !important;
     right: 25px !important; 
     display: flex; flex-direction: column; gap: 15px; z-index: 100;
 }
 
 .bonus-btn {
-    width: 65px; height: 65px; /* Немного крупнее для пальцев */
+    width: 65px !important; height: 65px !important;
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid #ff4fd8; border-radius: 50%; color: white;
     display: flex; align-items: center; justify-content: center;
     font-size: 26px; position: relative;
-    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
-}
-
-.bonus-btn span {
-    position: absolute; bottom: -2px; right: -2px; background: #ff4fd8;
-    color: white; font-size: 14px; padding: 2px 8px; border-radius: 10px;
-    border: 1px solid white;
 }
 
 #player {
-    position: absolute; bottom: 80px; left: 50%; width: 85px; height: 85px;
-    transform: translateX(-50%); background: url('assets/berry.png') no-repeat center;
-    background-size: contain; transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s;
+    position: absolute; bottom: 100px; left: 50%; 
+    width: 80px !important; height: 80px !important; /* Жесткий размер */
+    transform: translateX(-50%); 
+    background: url('assets/berry.png') no-repeat center center !important;
+    background-size: contain !important;
+    transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s;
     z-index: 5;
 }
 
 #obstacle {
-    position: absolute; top: -100px; width: 60px; height: 60px;
-    background-size: contain; background-repeat: no-repeat; z-index: 5;
+    position: absolute; 
+    top: -150px; 
+    width: 65px !important;  /* Жесткий размер для препятствий */
+    height: 65px !important; 
+    background-size: contain !important; /* Не дает картинке вылазить за 65px */
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    z-index: 5;
+    margin: 0; padding: 0;
 }
 
-/* Кнопка домой в игре */
 #backBtn {
     background: rgba(255, 255, 255, 0.1) !important;
     border-radius: 15px !important;
