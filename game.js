@@ -92,6 +92,7 @@ function resetGame() {
 
 function spawnObstacle() {
     const obs = document.getElementById("obstacle");
+    if (!obs) return;
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
     const isGood = Math.random() < 0.6;
@@ -129,11 +130,12 @@ function update() {
             if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
             coins += comboMultiplier; updateScore(); spawnObstacle();
         } else {
-            gameOver(); return; 
+            gameOver(); 
+            return; // Прерываем кадр, чтобы не сработал код ниже
         }
     }
 
-    // ЛОГИКА ВЫХОДА ЗА ЭКРАН (И ПЕРЕЗАПУСКА)
+    // ЛОГИКА ВЫХОДА ЗА ЭКРАН
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
             comboCount = 0; 
@@ -154,17 +156,22 @@ function gameOver() {
         shieldActive = false;
         const p = document.getElementById("player");
         const obs = document.getElementById("obstacle");
+        
+        // Визуальный фидбек
         p.classList.remove("shield-aura");
+        p.style.filter = "brightness(2)";
+        setTimeout(() => p.style.filter = "none", 150);
         
         if (obs) {
             obs.dataset.type = "none";
             obs.style.display = "none";
-            obs.style.left = "-1000px"; // Полное удаление из зоны видимости
-            obstacleY = window.innerHeight + 500; // Пробрасываем вниз для триггера spawnObstacle
+            obs.style.left = "-2000px"; 
+            obstacleY = 2000; 
             obstacleLane = -1;
         }
         
-        // Форсированный перезапуск через цикл update
+        // МГНОВЕННЫЙ спавн нового объекта
+        spawnObstacle();
         return; 
     }
     
