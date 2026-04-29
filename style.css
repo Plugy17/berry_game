@@ -1,9 +1,4 @@
-//* --- БАЗОВЫЕ НАСТРОЙКИ (Core) --- */
-:root {
-    --neon-pink: #ff4fd8;
-    --neon-glow: 0 0 15px rgba(255, 79, 216, 0.6);
-}
-
+/* --- БАЗОВЫЕ НАСТРОЙКИ (Core) --- */
 body {
     margin: 0; 
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -14,7 +9,7 @@ body {
     background-color: #000;
 }
 
-/* ФИКС ЧЕРНОГО ЭКРАНА: Жестко управляем видимостью */
+/* ФИКС ЧЕРНОГО ЭКРАНА */
 .screen {
     position: fixed; 
     inset: 0; 
@@ -23,124 +18,112 @@ body {
     align-items: center; 
     justify-content: center; 
     z-index: 10;
-    transition: opacity 0.3s ease;
+    background-size: cover !important;
+    background-position: center !important;
+    opacity: 1;
 }
 
 .screen.hidden { 
     display: none !important; 
     pointer-events: none;
-    opacity: 0;
 }
 
+/* Плавный вход без глюков рендеринга */
 .screen:not(.hidden) {
-    display: flex !important;
-    opacity: 1;
-    animation: screenFadeIn 0.4s ease-out;
+    animation: simpleFade 0.3s ease-out;
 }
 
-@keyframes screenFadeIn {
-    from { opacity: 0; transform: scale(1.02); }
-    to { opacity: 1; transform: scale(1); }
+@keyframes simpleFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* --- ФОНЫ --- */
-#menu { background: url('assets/bg.jpg') center/cover no-repeat; }
-#game { background: url('assets/game_bg.jpg') center/cover no-repeat; background-color: #1a0033; }
+#menu { background-image: url('assets/bg.jpg'); }
+#game { background-image: url('assets/game_bg.jpg'); background-color: #1a0033; }
 #shop { background: radial-gradient(circle at center, #1a0033 0%, #000 100%); overflow-y: auto; }
 
-/* --- ИНТЕРФЕЙС МЕНЮ (Счет и Лидерборд) --- */
+/* --- ИНТЕРФЕЙС МЕНЮ (СЧЕТ И ЛИДЕРБОРД) --- */
 .game-title {
-    width: 90%;
-    font-size: clamp(32px, 12vw, 55px); 
+    font-size: clamp(34px, 12vw, 55px); 
     font-family: 'Arial Black', sans-serif;
     color: #fff; 
-    text-shadow: 0 0 15px var(--neon-pink), 0 0 30px #ff00ff;
+    text-shadow: 0 0 15px #ff4fd8, 0 0 30px #ff00ff;
     text-align: center; 
     margin-bottom: 25px;
 }
 
-/* [НОВОЕ] Сияющий блок счета в меню */
 .menu-stats-container {
     display: flex; 
-    gap: 12px; 
+    gap: 15px; 
+    justify-content: center; 
     margin-bottom: 25px;
+    z-index: 20;
 }
 
 .balance-info, .record-info {
-    font-size: 18px; 
+    font-size: 18px; /* Увеличил */
+    color: #fff; 
     font-weight: 900;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.8); 
+    background: rgba(0, 0, 0, 0.85); 
     padding: 12px 20px; 
     border-radius: 20px;
-    border: 2px solid var(--neon-pink);
+    border: 2px solid #ff4fd8;
     display: flex; 
     align-items: center; 
     gap: 10px;
-    box-shadow: var(--neon-glow);
-    text-shadow: 0 0 8px var(--neon-pink); /* Тот самый эффект свечения */
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.6); /* Мощное свечение */
+    text-shadow: 0 0 10px #ff4fd8; /* Сияние текста */
 }
 
-/* Кнопки меню */
-#menu button, #menu select {
-    background: linear-gradient(180deg, #333, #000) !important;
-    border: 2px solid var(--neon-pink) !important; 
-    color: #fff !important;
+/* КНОПКИ МЕНЮ */
+#menu button, #menu select, #menu input {
+    background: linear-gradient(180deg, #333, #111) !important;
+    border: 2px solid #ff4fd8 !important; 
+    color: white !important;
     width: 260px !important; 
     padding: 16px;
     border-radius: 30px; 
     font-size: 16px; 
     font-weight: 800;
-    text-transform: uppercase; 
-    margin: 8px 0;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    cursor: pointer;
+    margin: 10px 0; 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
 }
 
-/* --- МАГАЗИН (Улучшенные кнопки и эффекты) --- */
+/* --- МАГАЗИН (КРАСИВО И РОВНО) --- */
 .shop-item {
     background: rgba(255, 255, 255, 0.08); 
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 2px solid rgba(255, 79, 216, 0.4);
     padding: 20px; 
     border-radius: 25px;
     width: 85%; 
-    max-width: 320px;
-    margin-bottom: 15px;
+    max-width: 300px;
+    margin: 0 auto 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
 }
 
-.shop-item span {
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 0 0 10px var(--neon-pink);
-}
-
 .shop-item button {
     background: linear-gradient(45deg, #ff4fd8, #9d269d); 
-    border: none; 
-    color: white; 
-    padding: 14px;
-    border-radius: 20px; 
-    width: 100%; 
-    font-weight: 900;
-    font-size: 16px;
-    box-shadow: 0 4px 15px rgba(255, 79, 216, 0.4);
+    border: none; color: white; padding: 14px;
+    border-radius: 20px; width: 100%; font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255, 79, 216, 0.4);
 }
 
 /* --- ИГРОВОЙ ЭКРАН --- */
 #hud {
     position: absolute; 
-    top: env(safe-area-inset-top, 20px); /* Фикс для iPhone */
+    top: 50px; /* Сдвинул ниже для челок iPhone */
     left: 20px; 
     padding: 12px 25px;
-    background: rgba(0, 0, 0, 0.85); 
-    border-radius: 20px;
-    border: 2px solid var(--neon-pink);
+    background: rgba(0, 0, 0, 0.8); 
+    border-radius: 20px; 
+    border: 2px solid #ff4fd8; 
     z-index: 100;
 }
 
@@ -151,27 +134,23 @@ body {
     height: 90px !important;
     transform: translateX(-50%); 
     z-index: 5;
-    filter: drop-shadow(0 0 15px var(--neon-pink));
 }
 
 #backBtn {
     position: absolute; 
-    top: env(safe-area-inset-top, 20px); 
+    top: 50px; 
     right: 20px;
-    width: 50px; 
-    height: 50px; 
+    width: 50px; height: 50px; 
     z-index: 100;
-    background: rgba(0,0,0,0.7);
-    border: 2px solid #fff;
-    border-radius: 15px;
-    color: #fff;
-    font-size: 24px;
+    background: rgba(0,0,0,0.6); 
+    border-radius: 12px; 
+    border: 1px solid #fff;
 }
 
-/* Панель бонусов и счетчики */
+/* БОНУСЫ И СЧЕТЧИКИ */
 #bonus-panel {
     position: absolute; 
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 30px); 
+    bottom: 40px; 
     right: 20px;
     display: flex; 
     flex-direction: column; 
@@ -180,28 +159,27 @@ body {
 }
 
 .bonus-btn {
-    width: 75px; 
-    height: 75px;
+    width: 70px; 
+    height: 70px;
     border-radius: 50%; 
-    border: 3px solid var(--neon-pink);
+    border: 3px solid #ff4fd8;
     background: #000;
     position: relative;
-    display: flex;
-    align-items: center;
+    display: flex; 
+    align-items: center; 
     justify-content: center;
-    font-size: 32px;
-    box-shadow: var(--neon-glow);
+    font-size: 28px;
 }
 
 .bonus-btn span {
     position: absolute; 
-    bottom: -2px; 
-    right: -2px; 
-    background: var(--neon-pink);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 900;
-    border: 2px solid #fff;
+    bottom: -5px; 
+    right: -5px; 
+    background: #ff4fd8;
+    color: white; 
+    font-size: 14px; 
+    font-weight: bold;
+    padding: 3px 10px; 
+    border-radius: 12px; 
+    border: 2px solid white;
 }
