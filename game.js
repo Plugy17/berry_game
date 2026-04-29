@@ -5,23 +5,24 @@ let gameRunning = false;
 let obstacleLane = 0;
 let obstacleY = 0;
 
-// ---------- LOAD ----------
-let nick = localStorage.getItem("nick");
+// 💾 LOAD DATA
+let nick = localStorage.getItem("nick") || "";
 let coins = parseInt(localStorage.getItem("coins")) || 0;
 
-// ---------- WELCOME ----------
+// 👋 WELCOME TEXT
 if (nick) {
-  document.getElementById("welcomeText").innerText =
+  document.getElementById("welcome").innerText =
     "👋 С возвращением, " + nick;
 }
 
-// ---------- START ----------
+// 🎮 START GAME
 function startGame() {
-  nick = document.getElementById("nick").value || nick;
+  const input = document.getElementById("nick").value;
 
-  if (!nick) return;
-
-  localStorage.setItem("nick", nick);
+  if (input) {
+    nick = input;
+    localStorage.setItem("nick", nick);
+  }
 
   document.getElementById("menu").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
@@ -34,7 +35,15 @@ function startGame() {
   update();
 }
 
-// ---------- TOUCH SWIPE ----------
+// 🏠 BACK MENU
+function backToMenu() {
+  gameRunning = false;
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("menu").classList.remove("hidden");
+}
+
+// 🎮 SWIPE CONTROL (УЛУЧШЕННЫЙ)
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
@@ -42,12 +51,15 @@ document.addEventListener("touchstart", e => {
 });
 
 document.addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-
   if (!gameRunning) return;
 
-  if (startX - endX > 50) moveLeft();
-  if (endX - startX > 50) moveRight();
+  let endX = e.changedTouches[0].clientX;
+  let diff = endX - startX;
+
+  if (Math.abs(diff) < 40) return;
+
+  if (diff > 0) moveRight();
+  else moveLeft();
 });
 
 function moveLeft() {
@@ -60,13 +72,13 @@ function moveRight() {
   updatePlayer();
 }
 
-// ---------- PLAYER ----------
+// 🧍 PLAYER POSITION
 function updatePlayer() {
   document.getElementById("player").style.left =
     (lane * 33 + 33) + "%";
 }
 
-// ---------- OBSTACLE ----------
+// 🍦 OBSTACLE
 function spawnObstacle() {
   obstacleLane = Math.floor(Math.random() * 3);
   obstacleY = 0;
@@ -75,6 +87,7 @@ function spawnObstacle() {
     (obstacleLane * 33 + 33) + "%";
 }
 
+// 🔄 GAME LOOP
 function update() {
   if (!gameRunning) return;
 
@@ -94,9 +107,9 @@ function update() {
     score++;
     coins++;
 
-    document.getElementById("score").innerText = coins + " 🍦";
-
     localStorage.setItem("coins", coins);
+
+    document.getElementById("score").innerText = coins + " 🍦";
 
     spawnObstacle();
   }
@@ -104,13 +117,13 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// ---------- GAME OVER ----------
+// 💥 GAME OVER
 function gameOver() {
   gameRunning = false;
 
   localStorage.setItem("coins", coins);
 
-  alert("💥 GAME OVER\n🍦: " + coins);
+  alert("💥 GAME OVER\n🍦 " + coins);
 
   location.reload();
 }
