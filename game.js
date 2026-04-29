@@ -4,7 +4,7 @@ let lanes = [12.5, 37.5, 62.5, 87.5];
 let targetLane = 1;
 let gameRunning = false;
 let obstacleLane = 0;
-let obstacleY = -100;
+let obstacleY = -150; // Начинаем чуть выше
 let loopId = null;
 
 let nick = localStorage.getItem("nick");
@@ -46,9 +46,10 @@ function updateMenuInfo() {
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
     const balanceHTML = `${totalCoins} <img src="assets/icecream.png" style="width:22px; vertical-align:middle;">`;
     document.getElementById("total-balance").innerHTML = balanceHTML;
-    if(document.getElementById("shop-balance")) {
-        document.getElementById("shop-balance").innerHTML = balanceHTML;
-    }
+    
+    let shopBal = document.getElementById("shop-balance");
+    if(shopBal) shopBal.innerHTML = balanceHTML;
+    
     updateBonusUI();
 }
 
@@ -112,7 +113,6 @@ function resetGame() {
     document.getElementById("player").style.boxShadow = "none";
     speed = baseSpeed;
     targetLane = 1;
-    obstacleY = -100;
     gameRunning = true;
     updateScore();
     spawnObstacle();
@@ -122,7 +122,7 @@ function resetGame() {
 
 function spawnObstacle() {
     obstacleLane = Math.floor(Math.random() * laneCount);
-    obstacleY = -100;
+    obstacleY = -150;
     const obs = document.getElementById("obstacle");
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
@@ -132,35 +132,50 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
+    
     obstacleY += speed;
     speed += difficulty;
+    
     const obs = document.getElementById("obstacle");
+    const player = document.getElementById("player");
+    
+    // Магнит
     if (magnetActive && obs.dataset.type === "good" && obstacleY > 0) {
         obstacleLane = targetLane;
         obs.style.left = lanes[obstacleLane] + "%";
     }
+    
     obs.style.top = obstacleY + "px";
-    if (obstacleY > window.innerHeight - 180 && obstacleY < window.innerHeight - 80) {
-        if (obstacleLane === targetLane) {
-            if (obs.dataset.type === "good") {
-                handleCollect();
-                spawnObstacle();
-            } else {
-                gameOver();
-                return;
-            }
+
+    // ПРОВЕРКА СТОЛКНОВЕНИЙ ПО ГЕОМЕТРИИ
+    let pRect = player.getBoundingClientRect();
+    let oRect = obs.getBoundingClientRect();
+
+    if (
+        oRect.bottom > pRect.top + 15 && 
+        oRect.top < pRect.bottom - 15 && 
+        obstacleLane === targetLane
+    ) {
+        if (obs.dataset.type === "good") {
+            handleCollect();
+            spawnObstacle();
+        } else {
+            gameOver();
+            return;
         }
     }
+
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { comboCount = 0; updateScore(); }
         spawnObstacle();
     }
+    
     loopId = requestAnimationFrame(update);
 }
 
 function handleCollect() {
     coins += isRainbowMode ? 2 : 1;
-    if (coins % 10 === 0) speed *= 1.1;
+    if (coins % 10 === 0) speed *= 1.05;
     if (!isRainbowMode) {
         comboCount++;
         if (comboCount >= 5) activateRainbowMode();
@@ -187,7 +202,7 @@ function updateScore() {
     const hud = document.getElementById("hud");
     const scoreDisplay = isRainbowMode ? `<span class="rainbow-text">X2</span> ${coins}` : coins;
     hud.innerHTML = `
-        <div class="score-main">${scoreDisplay} <img src="assets/icecream.png" class="hud-icon"></div>
+        <div class="score-main">${scoreDisplay} <img src="assets/icecream.png" class="hud-icon" style="width:20px;"></div>
         <div class="score-record">Best: ${best}</div>
         ${comboCount > 0 && !isRainbowMode ? `<div class="combo-badge">Combo: ${comboCount}</div>` : ''}
     `;
@@ -210,6 +225,7 @@ function gameOver() {
 
 function backToMenu() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
@@ -218,7 +234,6 @@ function backToMenu() {
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 
-// ОБНОВЛЕННОЕ УПРАВЛЕНИЕ С ПОВОРОТОМ И 4 ПОЛОСАМИ
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
@@ -226,7 +241,7 @@ document.addEventListener("touchend", e => {
 
     const playerImg = document.getElementById("player");
     if (diff > 0) {
-        targetLane = Math.min(3, targetLane + 1); // Теперь до 3 (четвертая полоса)
+        targetLane = Math.min(3, targetLane + 1);
         playerImg.style.transform = "translateX(-50%) rotate(15deg)";
     } else {
         targetLane = Math.max(0, targetLane - 1);
