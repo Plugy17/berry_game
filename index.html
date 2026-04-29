@@ -59,20 +59,27 @@
 </div>
 
 <script>
-  // КОНФИГУРАЦИЯ FIREBASE
+  // ТВОЙ АКТУАЛЬНЫЙ КОНФИГ (ИСПРАВЛЕННЫЙ)
   const firebaseConfig = {
-    apiKey: "AFLHXTRPDUYCKHQAAAAK3LZB6CDSHFCR5QIDYJEEJXJBMTK427YRDAFDQ2IFSKAZEAQK6ZY", 
+    apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
-    databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
+    databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com",
     projectId: "berry-game-4fa9b",
-    storageBucket: "berry-game-4fa9b.appspot.com",
-    messagingSenderId: "123456789012", // Тут будет твое число
-    appId: "1:123456789012:web:abcdef123456" // Тут будет твоя длинная строка
+    storageBucket: "berry-game-4fa9b.firebasestorage.app",
+    messagingSenderId: "736707445306",
+    appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
+    measurementId: "G-LLJ9L848G0"
   };
 
-  // Инициализация
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  // Инициализация базы данных
+  try {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+    console.log("✅ Firebase успешно подключен!");
+  } catch (e) {
+    console.error("❌ Ошибка инициализации:", e);
+    window.db = null;
+  }
 </script>
 
 <script src="game.js"></script>
