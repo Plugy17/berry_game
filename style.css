@@ -3,40 +3,50 @@ body {
   font-family: Arial;
   overflow: hidden;
   height: 100vh;
+  touch-action: none;
 }
 
-/* ================= MENU BACKGROUND ================= */
-#menu {
+/* 🌈 ЭКРАНЫ */
+.screen {
+  position: fixed;
+  width: 100vw;
   height: 100vh;
+}
+
+/* ❌ скрытие экранов */
+.hidden {
+  display: none !important;
+}
+
+/* ================= MENU ================= */
+#menu {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
   background: radial-gradient(circle at top, #ff4fd8, #2b0f3a);
-  animation: menuGlow 6s infinite alternate;
+  animation: glow 6s infinite alternate;
 }
 
-@keyframes menuGlow {
+@keyframes glow {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(40deg); }
 }
 
-/* INPUT BEAUTY */
+/* INPUT */
 input {
   padding: 12px;
   border-radius: 12px;
   border: none;
-  outline: none;
-  margin-top: 10px;
   font-size: 18px;
   text-align: center;
 }
 
 /* BUTTON */
 button {
-  padding: 12px 18px;
   margin-top: 10px;
+  padding: 12px 18px;
   border-radius: 12px;
   border: none;
   background: #ff4fd8;
@@ -44,9 +54,8 @@ button {
   font-size: 18px;
 }
 
-/* ================= GAME BACKGROUND ================= */
+/* ================= GAME ================= */
 #game {
-  height: 100vh;
   background: radial-gradient(circle at bottom, #111, #000);
 }
 
@@ -58,7 +67,7 @@ button {
   overflow: hidden;
 }
 
-/* PLAYER FIXED POSITION SYSTEM */
+/* PLAYER */
 #player {
   position: absolute;
   bottom: 100px;
@@ -75,7 +84,7 @@ button {
   font-size: 40px;
 }
 
-/* HUD (PINK SCORE) */
+/* HUD */
 #hud {
   position: absolute;
   top: 20px;
@@ -86,15 +95,10 @@ button {
   text-shadow: 0 0 10px #ff4fd8;
 }
 
-/* BACK BUTTON */
+/* BACK */
 #backBtn {
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 10;
   background: #222;
-}
-
-.hidden {
-  display: none;
 }
