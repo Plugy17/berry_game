@@ -12,9 +12,7 @@
 <!-- 🌈 MENU -->
 <div id="menu" class="screen">
   <h1>🍦 BERRY RUNNER</h1>
-
   <div id="welcome"></div>
-
   <input id="nick" placeholder="Введите ник..." />
   <button onclick="startGame()">Играть</button>
 </div>
@@ -23,15 +21,42 @@
 <div id="game" class="screen hidden">
 
   <div id="hud">🍦 <span id="score">0</span></div>
-
   <button id="backBtn" onclick="backToMenu()">🏠</button>
 
   <div id="track">
-    <div id="player">🧍</div>
+    <div id="player">🦄</div>
     <div id="obstacle">🍦</div>
   </div>
 
+  <!-- 🏆 LEADERBOARD -->
+  <div id="leaderboard"></div>
+
 </div>
+
+<!-- 🔥 FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } 
+from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AFLHXTRPDUYCKHQAAAAK3LZB6CDSHFCR5QIDYJEEJXJBMTK427YRDAFDQ2IFSKAZEAQK6ZY",
+  authDomain: "berry-game-4fa9b.firebaseapp.com",
+  databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
+  projectId: "berry-game-4fa9b",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.db = db;
+window.ref = ref;
+window.set = set;
+window.onValue = onValue;
+window.query = query;
+window.orderByChild = orderByChild;
+window.limitToLast = limitToLast;
+</script>
 
 <script src="game.js"></script>
 </body>
