@@ -75,35 +75,36 @@ function updateBonusUI() {
 function startGame() {
     const nickInput = document.getElementById("nick");
     
+    // Если ника нет, берем из инпута
     if (!nick) {
         const val = nickInput.value.trim();
-        if (val.length < 2) return alert("Введи ник (минимум 2 символа)!");
+        if (val.length < 2) return alert("Введи имя!");
         nick = val;
         localStorage.setItem("nick", nick);
-        
-        // Показываем, что идет загрузка
-        const btn = document.querySelector(".play-btn") || document.querySelector("button");
-        if(btn) btn.innerText = "Загрузка...";
-
-        // Пытаемся загрузить данные из Firebase
-        db.ref('players/' + nick).once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                best = data.best || 0;
-                totalCoins = data.totalCoins || 0;
-                inventory.shield = data.inventory?.shield || 0;
-                inventory.magnet = data.inventory?.magnet || 0;
-            } else {
-                saveUserData(); // Новый игрок
-            }
-            proceedToGame(); // Запускаем после загрузки
-        }).catch((error) => {
-            console.error("Ошибка Firebase:", error);
-            proceedToGame(); // Если база упала, все равно пускаем играть
-        });
-    } else {
-        proceedToGame();
     }
+
+    // СРАЗУ показываем экран игры, не дожидаясь базы
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+
+    // Пытаемся подгрузить данные в фоне
+    if (typeof db !== 'undefined') {
+        db.ref('players/' + nick).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    best = data.best || 0;
+                    totalCoins = data.totalCoins || 0;
+                    inventory.shield = data.inventory?.shield || 0;
+                    inventory.magnet = data.inventory?.magnet || 0;
+                    updateScore();
+                    updateBonusUI();
+                }
+            })
+            .catch(e => console.log("Firebase Offline, играем локально"));
+    }
+
+    resetGame();
 }
 
 // Отдельная функция для запуска, чтобы не дублировать код
