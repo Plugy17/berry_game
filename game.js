@@ -8,6 +8,8 @@ let loopId = null;
 let nick = localStorage.getItem("nick");
 let coins = 0;
 let best = parseInt(localStorage.getItem("best")) || 0;
+// Добавляем общий баланс
+let totalCoins = parseInt(localStorage.getItem("totalCoins")) || 0;
 
 let speed = 6;
 let difficulty = 0.002;
@@ -17,15 +19,19 @@ const imgBad = "url('assets/obstacle.png')";
 
 // Инициализация при загрузке
 window.onload = () => {
+    updateMenuInfo();
+};
+
+function updateMenuInfo() {
     if (nick) {
-        document.getElementById("welcome").innerText = "👋 Привет, " + nick;
+        document.getElementById("welcome").innerHTML = `✨ Герой <b>${nick}</b> готов к забегу! ✨`;
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 Рекорд: " + best;
-};
+    document.getElementById("total-balance").innerText = "У тебя всего: " + totalCoins + " 🍦";
+}
 
 function startGame() {
-    // Если ника нет, сохраняем его
     if (!nick) {
         const input = document.getElementById("nick").value.trim();
         if (input.length < 2) {
@@ -78,7 +84,6 @@ function update() {
     const obs = document.getElementById("obstacle");
     obs.style.top = obstacleY + "px";
 
-    // Проверка столкновения
     if (obstacleY > window.innerHeight - 180 && obstacleY < window.innerHeight - 80) {
         if (obstacleLane === targetLane) {
             if (obs.dataset.type === "good") {
@@ -105,21 +110,25 @@ function gameOver() {
     gameRunning = false;
     cancelAnimationFrame(loopId);
 
+    // Сохраняем общий баланс
+    totalCoins += coins;
+    localStorage.setItem("totalCoins", totalCoins);
+
     if (coins > best) {
         best = coins;
         localStorage.setItem("best", best);
-        // Тут можно добавить window.set(...) для Firebase
     }
 
-    alert(`Берри врезался! 💥\nСобрано мороженого: ${coins}\nРекорд: ${best}`);
+    alert(`Берри врезался! 💥\nСобрано сейчас: ${coins} 🍦\nВсего в копилке: ${totalCoins}`);
     backToMenu();
 }
 
 function backToMenu() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    location.reload(); // Перезагружаем для обновления рекордов в меню
+    updateMenuInfo(); // Обновляем данные без перезагрузки страницы
 }
 
 // Управление свайпами
