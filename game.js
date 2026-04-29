@@ -27,27 +27,27 @@ const imgBad = "url('assets/obstacle.png')";
 // --- РАБОТА С FIREBASE ---
 
 function loadUserData(playerNick) {
-    if (typeof db === 'undefined') return updateMenuInfo();
+    if (typeof db === 'undefined' || !db) return updateMenuInfo();
     
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
-            inventory.shield = data.inventory?.shield || 0;
-            inventory.magnet = data.inventory?.magnet || 0;
+            inventory.shield = (data.inventory && data.inventory.shield) || 0;
+            inventory.magnet = (data.inventory && data.inventory.magnet) || 0;
         } else {
             saveUserData(); 
         }
         updateMenuInfo();
     }).catch(e => {
-        console.log("Firebase error, using local data");
+        console.log("Firebase error:", e);
         updateMenuInfo();
     });
 }
 
 function saveUserData() {
-    if (!nick || typeof db === 'undefined') return;
+    if (!nick || typeof db === 'undefined' || !db) return;
     db.ref('players/' + nick).set({
         best: best,
         totalCoins: totalCoins,
@@ -58,11 +58,8 @@ function saveUserData() {
 // --- ЛОГИКА ИГРЫ ---
 
 window.onload = () => { 
-    if(nick) {
-        loadUserData(nick);
-    } else {
-        updateMenuInfo();
-    }
+    if(nick) loadUserData(nick);
+    else updateMenuInfo();
 };
 
 function updateMenuInfo() {
@@ -87,7 +84,6 @@ function updateBonusUI() {
 
 function startGame() {
     const nickInput = document.getElementById("nick");
-    
     if (!nick) {
         const val = nickInput.value.trim();
         if (val.length < 2) return alert("Введи имя!");
@@ -95,7 +91,6 @@ function startGame() {
         localStorage.setItem("nick", nick);
     }
 
-    // Принудительно настраиваем скорость перед стартом
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
@@ -155,6 +150,7 @@ function update() {
     let pRect = p.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
+    // Проверка столкновения
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
             comboCount++;
@@ -170,8 +166,9 @@ function update() {
             updateScore();
             spawnObstacle();
         } else {
+            // Если врезались во врага — вызываем gameOver и ВЫХОДИМ из функции
             gameOver();
-            return;
+            return; 
         }
     }
 
@@ -199,9 +196,15 @@ function updateScore() {
 function gameOver() {
     if (shieldActive) {
         shieldActive = false;
-        document.getElementById("player").classList.remove("shield-aura");
-        obstacleY = -150; 
+        const p = document.getElementById("player");
+        if (p) p.classList.remove("shield-aura");
+        
+        // ФИКС: Сначала выкидываем объект далеко наверх, потом вызываем spawn
+        obstacleY = -500; 
         spawnObstacle(); 
+        
+        // Продолжаем цикл игры, так как мы вышли из update через return
+        loopId = requestAnimationFrame(update);
         return; 
     }
     
@@ -221,7 +224,7 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// УПРАВЛЕНИЕ (ОБЪЕДИНЕННОЕ)
+// УПРАВЛЕНИЕ
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
@@ -254,7 +257,8 @@ function buyItem(type) {
 
 function useShield() {
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
-        inventory.shield--; shieldActive = true;
+        inventory.shield--; 
+        shieldActive = true;
         document.getElementById("player").classList.add("shield-aura");
         saveUserData();
         updateBonusUI();
@@ -263,7 +267,8 @@ function useShield() {
 
 function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
-        inventory.magnet--; magnetActive = true;
+        inventory.magnet--; 
+        magnetActive = true;
         saveUserData();
         updateBonusUI();
         setTimeout(() => { magnetActive = false; }, 10000);
