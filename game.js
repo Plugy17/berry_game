@@ -57,7 +57,6 @@ function updateBonusUI() {
     document.getElementById("count-magnet").innerText = inventory.magnet;
 }
 
-// --- МАГАЗИН ---
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type];
@@ -71,7 +70,6 @@ function buyItem(type) {
     }
 }
 
-// --- ИСПОЛЬЗОВАНИЕ БОНУСОВ ---
 function useShield() {
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
         inventory.shield--;
@@ -88,11 +86,8 @@ function useMagnet() {
         localStorage.setItem("inv_magnet", inventory.magnet);
         magnetActive = true;
         updateBonusUI();
-        
         if (magnetTimer) clearTimeout(magnetTimer);
-        magnetTimer = setTimeout(() => {
-            magnetActive = false;
-        }, 10000); // 10 секунд
+        magnetTimer = setTimeout(() => { magnetActive = false; }, 10000);
     }
 }
 
@@ -106,7 +101,6 @@ function startGame() {
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     resetGame();
@@ -140,18 +134,12 @@ function update() {
     if (!gameRunning) return;
     obstacleY += speed;
     speed += difficulty;
-
     const obs = document.getElementById("obstacle");
-    
-    // ЛОГИКА МАГНИТА
     if (magnetActive && obs.dataset.type === "good" && obstacleY > 0) {
-        // Объект плавно перемещается на полосу игрока
         obstacleLane = targetLane;
         obs.style.left = lanes[obstacleLane] + "%";
     }
-
     obs.style.top = obstacleY + "px";
-
     if (obstacleY > window.innerHeight - 180 && obstacleY < window.innerHeight - 80) {
         if (obstacleLane === targetLane) {
             if (obs.dataset.type === "good") {
@@ -163,12 +151,8 @@ function update() {
             }
         }
     }
-
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") {
-            comboCount = 0;
-            updateScore();
-        }
+        if (obs.dataset.type === "good") { comboCount = 0; updateScore(); }
         spawnObstacle();
     }
     loopId = requestAnimationFrame(update);
@@ -219,10 +203,7 @@ function gameOver() {
     gameRunning = false;
     totalCoins += coins;
     localStorage.setItem("totalCoins", totalCoins);
-    if (coins > best) {
-        best = coins;
-        localStorage.setItem("best", best);
-    }
+    if (coins > best) { best = coins; localStorage.setItem("best", best); }
     alert(`Берри врезался! Собрано: ${coins}`);
     backToMenu();
 }
@@ -234,20 +215,29 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// --- УПРАВЛЕНИЕ (4 полосы) ---
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
+
+// ОБНОВЛЕННОЕ УПРАВЛЕНИЕ С ПОВОРОТОМ И 4 ПОЛОСАМИ
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
+
     const playerImg = document.getElementById("player");
     if (diff > 0) {
-        targetLane = Math.min(3, targetLane + 1); // Ограничение до 3 (4-я полоса)
+        targetLane = Math.min(3, targetLane + 1); // Теперь до 3 (четвертая полоса)
+        playerImg.style.transform = "translateX(-50%) rotate(15deg)";
     } else {
         targetLane = Math.max(0, targetLane - 1);
+        playerImg.style.transform = "translateX(-50%) rotate(-15deg)";
     }
+    
     playerImg.style.left = lanes[targetLane] + "%";
+    
+    setTimeout(() => {
+        playerImg.style.transform = "translateX(-50%) rotate(0deg)";
+    }, 200);
 });
 
 function openShop() {
