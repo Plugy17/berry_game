@@ -20,26 +20,65 @@ body {
 
 .hidden { display: none !important; }
 
-/* MENU - Космический фон */
+/* --- ФОНЫ --- */
+
+#menu, #game {
+    background-position: center !important;
+    background-size: cover !important;
+    background-attachment: fixed;
+}
+
 #menu {
-    background: url('assets/bg.jpg') no-repeat center center;
-    background-size: cover;
+    background: url('assets/bg.jpg') no-repeat;
     color: white;
 }
 
-.game-title {
-    font-size: 36px;
-    text-shadow: 0 0 15px #ff4fd8;
-    margin-bottom: 20px;
-}
-
-/* GAME - Игровой фон */
 #game {
-    background: url('assets/game_bg.jpg') no-repeat center center;
-    background-size: cover;
+    background: url('assets/game_bg.jpg') no-repeat;
 }
 
-/* КНОПКИ И ПОЛЯ */
+/* --- ЗАГОЛОВОК И ТЕКСТ --- */
+
+.game-title {
+    font-size: 50px; /* Увеличено */
+    font-family: 'Arial Black', sans-serif;
+    color: #fff;
+    text-shadow: 0 0 20px #ff4fd8, 0 0 40px #ff4fd8;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    transition: 0.5s;
+    text-align: center;
+}
+
+/* Пульсация заголовка */
+.active-title {
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 20px #ff4fd8; }
+    50% { transform: scale(1.05); text-shadow: 0 0 40px #ff4fd8, 0 0 60px #ff00ff; }
+}
+
+.welcome-text {
+    font-size: 20px;
+    color: #ffd1f3;
+    font-style: italic;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+}
+
+.balance-info {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* --- КНОПКИ И ПОЛЯ --- */
+
 #nick, .custom-select, button {
     width: 220px;
     padding: 14px;
@@ -70,7 +109,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* АНИМАЦИЯ ПЛАВАНИЯ */
+/* Анимация плавания кнопок */
 .floating {
     animation: floatAnim 3s ease-in-out infinite;
 }
@@ -80,7 +119,8 @@ body {
     50% { transform: translateY(-10px); }
 }
 
-/* ГЕЙМПЛЕЙ */
+/* --- ГЕЙМПЛЕЙ --- */
+
 #track {
     width: 100vw;
     height: 100vh;
@@ -97,20 +137,24 @@ body {
     background: url('assets/berry.png') no-repeat center center;
     background-size: contain;
     transition: left 0.15s ease-out;
+    /* Эффект живого Берри */
+    animation: berryLive 1.5s ease-in-out infinite;
 }
 
-/* Препятствие/Бонус (теперь мороженое) */
+@keyframes berryLive {
+    0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+    50% { transform: translateX(-50%) scale(1.08) rotate(2deg); filter: brightness(1.2); }
+}
+
 #obstacle {
     position: absolute;
     top: -100px;
-    width: 60px; /* Размер, который мы обсуждали */
+    width: 60px;
     height: 60px;
-    /* ПРАВИЛЬНЫЙ ФОН */
-    background-color: transparent; /* Гарантирует, что сам div прозрачный */
-    background-size: contain; /* Картинка вписывается в блок */
-    background-repeat: no-repeat; /* Не повторяется */
-    background-position: center; /* Центрируется */
-    /* Сама картинка придет из JS, но мы гарантируем, что фон div не мешает */
+    background-color: transparent;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #hud {
@@ -125,6 +169,7 @@ body {
     font-size: 24px;
     font-weight: bold;
     border: 1px solid #ff4fd8;
+    z-index: 10;
 }
 
 #backBtn {
@@ -136,4 +181,6 @@ body {
     border-radius: 15px;
     background: rgba(255, 255, 255, 0.1);
     color: white;
+    cursor: pointer;
+    z-index: 1001; /* Поверх всего */
 }
