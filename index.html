@@ -2,9 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BERRY RUNNER ONLINE</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -12,13 +12,13 @@
 <body>
 
 <div id="menu" class="screen">
-    <div id="welcome" class="welcome-text"></div>
+    <div id="welcome" class="welcome-text">БЕРРИ РАННЕР</div>
     <div class="menu-stats-container">
-        <div id="total-balance" class="balance-info">0</div>
+        <div id="total-balance" class="balance-info">0 🍦</div>
         <div id="menuLeaderboard" class="record-info">🏆 0</div>
     </div>
     <div class="menu-controls">
-        <input id="nick" placeholder="Имя героя..." maxlength="12" />
+        <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
         <select id="difficulty">
             <option value="easy">🟢 Легко</option>
             <option value="medium" selected>🟡 Средне</option>
@@ -37,16 +37,13 @@
         <div class="bonus-btn" onclick="useShield()">🛡️ <span id="count-shield">0</span></div>
         <div class="bonus-btn" onclick="useMagnet()">🧲 <span id="count-magnet">0</span></div>
     </div>
-    <div id="track">
-        <div id="player"></div> 
-        <div id="obstacle"></div> 
-    </div>
+    <div id="player"></div> 
+    <div id="obstacle" style="position: absolute; width: 60px; height: 60px; background-size: contain; background-repeat: no-repeat;"></div> 
 </div>
 
 <div id="shop" class="screen hidden">
-    <div class="shop-overlay"></div>
     <h2 style="color: white; margin-top: 50px; z-index: 5;">🛒 МАГАЗИН</h2>
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5;">0</div>
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; z-index: 5; width: 200px;">0 🍦</div>
     <div class="shop-item">
         <span>🛡️ ЩИТ (300)</span>
         <button onclick="buyItem('shield')">КУПИТЬ</button>
@@ -55,11 +52,10 @@
         <span>🧲 МАГНИТ (500)</span>
         <button onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
-    <button onclick="closeShop()" style="margin-top: 30px; padding: 10px 30px; border-radius: 15px; z-index: 5;">Назад</button>
+    <button onclick="closeShop()" style="width: 200px !important; margin-top: 30px;">Назад</button>
 </div>
 
 <script>
-  // ТВОЙ АКТУАЛЬНЫЙ КОНФИГ (ИСПРАВЛЕННЫЙ)
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
@@ -70,18 +66,11 @@
     appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
     measurementId: "G-LLJ9L848G0"
   };
-
-  // Инициализация базы данных
   try {
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
-    console.log("✅ Firebase успешно подключен!");
-  } catch (e) {
-    console.error("❌ Ошибка инициализации:", e);
-    window.db = null;
-  }
+  } catch (e) { window.db = null; }
 </script>
-
 <script src="game.js"></script>
 </body>
 </html>
