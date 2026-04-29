@@ -10,70 +10,56 @@
 
 <div id="menu" class="screen">
     <h1 class="game-title active-title">BERRY RUNNER</h1>
-    
     <div id="welcome" class="welcome-text"></div>
-
     <div class="menu-stats-container">
         <div id="total-balance" class="balance-info">0 🍦</div>
         <div id="menuLeaderboard" class="record-info">🏆 0</div>
     </div>
-
     <input id="nick" placeholder="Введите ник..." maxlength="12" />
-
     <select id="difficulty" class="custom-select">
         <option value="easy">🟢 Легко</option>
         <option value="medium" selected>🟡 Средне</option>
         <option value="hard">🔴 Сложно</option>
     </select>
-
-    <button class="play-btn floating" onclick="startGame()">ИГРАТЬ</button>
+    <button class="play-btn" onclick="startGame()">ИГРАТЬ</button>
     <button class="shop-btn" onclick="openShop()">🛒 Магазин</button>
 </div>
 
 <div id="game" class="screen hidden">
     <div id="hud"></div> 
-    
     <button id="backBtn" onclick="backToMenu()">🏠</button>
+
+    <div id="bonus-panel">
+        <div class="bonus-btn" onclick="useShield()">
+            🛡️ <span id="count-shield">0</span>
+        </div>
+        <div class="bonus-btn" onclick="useMagnet()">
+            🧲 <span id="count-magnet">0</span>
+        </div>
+    </div>
 
     <div id="track">
         <div id="player"></div> 
         <div id="obstacle"></div> 
     </div>
-
-    <div id="leaderboard"></div>
 </div>
 
 <div id="shop" class="screen hidden">
-    <h2>🛒 Магазин</h2>
-    <p>Скоро новые скины 🦄</p>
-    <button onclick="closeShop()">Назад</button>
+    <h2>🛒 МАГАЗИН</h2>
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px;">0 🍦</div>
+    
+    <div class="shop-item">
+        <span>🛡️ ЩИТ (300 BERRY)</span>
+        <button onclick="buyItem('shield')">КУПИТЬ</button>
+    </div>
+    <div class="shop-item" style="margin-top: 10px;">
+        <span>🧲 МАГНИТ (500 BERRY)</span>
+        <button onclick="buyItem('magnet')">КУПИТЬ</button>
+    </div>
+    
+    <button onclick="closeShop()" style="margin-top: 30px; background: #555;">Назад</button>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } 
-    from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AFLHXTRPDUYCKHQAAAAK3LZB6CDSHFCR5QIDYJEEJXJBMTK427YRDAFDQ2IFSKAZEAQK6ZY",
-        authDomain: "berry-game-4fa9b.firebaseapp.com",
-        databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com/",
-        projectId: "berry-game-4fa9b",
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    window.db = db;
-    window.ref = ref;
-    window.set = set;
-    window.onValue = onValue;
-    window.query = query;
-    window.orderByChild = orderByChild;
-    window.limitToLast = limitToLast;
-</script>
-
 <script src="game.js"></script>
-
 </body>
 </html>
