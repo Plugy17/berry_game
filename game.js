@@ -148,15 +148,27 @@ function gameOver() {
     if (shieldActive) {
         shieldActive = false;
         const p = document.getElementById("player");
-        p.classList.remove("shield-aura");
-        p.style.filter = "brightness(3)"; // Вспышка при ударе
-        setTimeout(() => p.style.filter = "none", 150);
+        const obs = document.getElementById("obstacle");
+
+        // Визуальный эффект: Берри вспыхивает
+        p.style.filter = "brightness(4) drop-shadow(0 0 30px #00eaff)";
+        setTimeout(() => p.style.filter = "none", 200);
         
-        obstacleY = -500; // Мгновенный фикс бага: выкидываем врага
-        document.getElementById("obstacle").style.display = "none";
-        setTimeout(spawnObstacle, 100);
+        // КРИТИЧЕСКИЙ ФИКС: Делаем объект "призраком" и убираем
+        if (obs) {
+            obs.dataset.type = "none"; // Меняем тип, чтобы столкновение больше не срабатывало
+            obs.style.display = "none";
+            obstacleY = -1000; // Выбрасываем максимально далеко
+        }
+
+        setTimeout(() => {
+            if (gameRunning) spawnObstacle();
+        }, 150);
+
+        console.log("Щит спас Берри!");
         return; 
     }
+    
     gameRunning = false;
     totalCoins += coins;
     if (coins > best) best = coins;
