@@ -77,8 +77,36 @@ button {
   position: absolute;
   top: 20px;
   left: 20px;
+
+  padding: 10px 16px;
+  border-radius: 14px;
+
+  background: rgba(255, 79, 216, 0.15);
+  backdrop-filter: blur(8px);
+
   color: #ff4fd8;
   font-size: 22px;
+  font-weight: bold;
+
+  box-shadow: 0 0 15px rgba(255,79,216,0.4);
+}
+
+#shop {
+  background: radial-gradient(circle at top, #1a1a1a, #000);
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+}
+
+#shop button {
+  background: #ff4fd8;
+  padding: 12px 20px;
+  border-radius: 12px;
 }
 
 #backBtn {
