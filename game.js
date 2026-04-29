@@ -82,7 +82,7 @@ function resetGame() {
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     const p = document.getElementById("player");
-    p.className = ""; // Очистка всех аур
+    p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
     p.style.filter = "none";
     updateScore(); spawnObstacle();
@@ -109,11 +109,10 @@ function update() {
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     
-    // МАГНИТ: Эффект поглощения
     if (magnetActive && obs.dataset.type === "good") {
         let currentLeft = parseFloat(obs.style.left);
         let targetLeft = lanes[targetLane];
-        obs.style.left = (currentLeft + (targetLeft - currentLeft) * 0.2) + "%"; // Плавное всасывание
+        obs.style.left = (currentLeft + (targetLeft - currentLeft) * 0.2) + "%"; 
         if (Math.abs(currentLeft - targetLeft) < 5) obstacleLane = targetLane;
     }
 
@@ -146,42 +145,21 @@ function updateScore() {
 
 function gameOver() {
     if (shieldActive) {
-        shieldActive = false; // Выключаем щит
+        shieldActive = false;
         const p = document.getElementById("player");
         const obs = document.getElementById("obstacle");
-
-        // 1. Визуальный фидбек: Берри мигает
         p.classList.remove("shield-aura");
-        p.style.filter = "brightness(3) contrast(1.2)";
-        setTimeout(() => p.style.filter = "none", 200);
-
-        // 2. ГЛАВНЫЙ ФИКС: Убиваем логику столкновения для текущего объекта
+        
         if (obs) {
-            obstacleLane = -1; // Уводим "логическую" линию объекта в небытие
-            obs.dataset.type = "none"; // Чтобы update() игнорировал этот объект
+            obstacleLane = -1; // Критично: убираем линию
+            obs.dataset.type = "none";
             obs.style.display = "none";
-            obstacleY = 2000; // Мгновенно прокидываем его вниз за экран
+            obstacleY = 2000; // Улетает вниз
         }
-
-        // 3. Спавним новое через паузу
-        setTimeout(() => {
-            if (gameRunning) {
-                spawnObstacle();
-            }
-        }, 300);
-
-        console.log("Щит поглотил урон!");
+        
+        setTimeout(() => { if (gameRunning) spawnObstacle(); }, 300);
         return; 
     }
-    
-    // Если щита нет — обычный проигрыш
-    gameRunning = false;
-    totalCoins += coins;
-    if (coins > best) best = coins;
-    saveUserData();
-    alert("Берри врезался! Собрано: " + coins);
-    backToMenu();
-}
     
     gameRunning = false;
     totalCoins += coins;
@@ -232,12 +210,12 @@ function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
         inventory.magnet--; magnetActive = true;
         const p = document.getElementById("player");
-        p.classList.add("magnet-aura"); // Новая анимация
+        p.classList.add("magnet-aura");
         updateBonusUI();
         setTimeout(() => { 
             magnetActive = false; 
             p.classList.remove("magnet-aura");
-        }, 10000); // Ровно 10 секунд
+        }, 10000);
     }
 }
 
