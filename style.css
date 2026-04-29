@@ -72,18 +72,27 @@ button:active { transform: scale(0.95); }
 
 /* --- МЕНЮ (НОВАЯ СТРУКТУРА: ВЕРХ И НИЗ) --- */
 #menu { 
-    justify-content: flex-start; /* Начинаем сверху */
-    padding: 60px 20px; /* Отступы для системной строки */
+    justify-content: flex-start; 
+    padding: 60px 20px; 
 }
 
-/* Контейнер для верхних элементов */
+/* Слой для падающих мороженок в меню */
+#menu-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .top-bar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     gap: 15px;
-    margin-bottom: auto; /* Толкает всё остальное вниз */
+    margin-bottom: auto; 
+    z-index: 5;
 }
 
 .welcome-text {
@@ -102,13 +111,12 @@ button:active { transform: scale(0.95); }
     max-width: 320px;
 }
 
-/* Контейнер для кнопок внизу */
 .menu-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 40px; /* Чтобы кнопки лежали на дорожке */
+    margin-bottom: 40px; 
     z-index: 20;
 }
 
@@ -142,7 +150,6 @@ button:active { transform: scale(0.95); }
     gap: 8px;
 }
 
-/* ИКОНКА МОРОЖЕНОГО (С ЭФФЕКТОМ ПОКАЧИВАНИЯ) */
 .ice-icon {
     width: 26px;
     height: 26px;
@@ -158,37 +165,16 @@ button:active { transform: scale(0.95); }
     50% { transform: rotate(8deg); }
 }
 
-/* --- БАФФЫ (ВНИЗУ) --- */
-#bonus-panel {
-    position: absolute; 
-    top: auto !important; 
-    bottom: 30px; 
-    right: 20px;
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-    z-index: 100;
-    pointer-events: auto;
+/* --- КОМБО И УВЕДОМЛЕНИЯ (НОВОЕ) --- */
+#combo-container {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 110;
 }
 
-.bonus-btn {
-    width: 60px !important; 
-    height: 60px !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 2px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 50% !important;
-    display: flex; justify-content: center; align-items: center;
-    padding: 0 !important;
-    transition: 0.2s all ease;
-}
-
-.bonus-btn:active {
-    transform: scale(1.2); 
-    border-color: #ff4fd8 !important;
-    box-shadow: 0 0 20px #ff4fd8;
-}
-
-/* --- КОМБО ЭФФЕКТЫ --- */
 #combo-ui {
     font-size: 48px;
     font-weight: 900;
@@ -197,10 +183,25 @@ button:active { transform: scale(0.95); }
     animation: comboFlash 0.4s ease-out;
 }
 
+#combo-msg {
+    font-size: 18px;
+    font-weight: 800;
+    color: #00eaff;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px #00eaff;
+    margin-top: -10px;
+    animation: msgPop 0.3s ease-out;
+}
+
+@keyframes msgPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 @keyframes comboFlash {
-    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; filter: brightness(2); }
-    50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
 }
 
 /* --- МАГАЗИН --- */
@@ -232,9 +233,8 @@ button:active { transform: scale(0.95); }
     color: white; z-index: 5;
     font-weight: 700;
 }
-.shop-item button { width: auto !important; padding: 10px 20px !important; font-size: 14px !important; }
 
-/* --- ПЕРСОНАЖ БЕРРИ --- */
+/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
 #player {
     position: absolute; 
     bottom: 18%; 
@@ -248,14 +248,12 @@ button:active { transform: scale(0.95); }
     transition: transform 0.2s ease-out, left 0.3s ease-out;
 }
 
-/* УСИЛЕННЫЕ ЭФФЕКТЫ */
 .shield-aura { 
     filter: drop-shadow(0 0 15px #00eaff) brightness(1.2) !important; 
     outline: 3px solid #00eaff; 
     border-radius: 50%; 
 }
 
-/* МАГНИТ С ЭФФЕКТОМ ПУЛЬСАЦИИ */
 .magnet-aura { 
     filter: drop-shadow(0 0 25px #ff00ff) !important; 
     animation: magnetPulse 1s infinite alternate;
@@ -266,28 +264,32 @@ button:active { transform: scale(0.95); }
     to { filter: drop-shadow(0 0 35px #ff00ff) brightness(1.2); }
 }
 
-/* ПАДАЮЩИЕ МОРОЖЕНКИ В МЕНЮ */
-.menu-falling-ice {
+/* --- ПАДАЮЩИЕ ОБЪЕКТЫ --- */
+.menu-falling-ice, .falling-ice {
     position: absolute;
-    width: 25px;
-    height: 25px;
-    background-size: contain !important;
+    width: 30px;
+    height: 30px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.6;
-}
-
-/* ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНОК В ИГРЕ */
-.falling-ice { 
-    position: absolute; 
-    width: 30px; 
-    z-index: 1; 
-    animation: fall linear infinite; 
-    pointer-events: none; 
+    animation: fall linear infinite;
 }
 
 @keyframes fall {
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-    20% { opacity: 1; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* Остальные стили (бонусы, баффы) сохраняются автоматически */
+#bonus-panel {
+    position: absolute; 
+    bottom: 30px; 
+    right: 20px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    z-index: 100;
 }
