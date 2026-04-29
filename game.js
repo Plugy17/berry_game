@@ -25,7 +25,7 @@ let comboMultiplier = 1;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// Функция для создания HTML иконки мороженого (чтобы не дублировать код)
+// Функция для создания HTML иконки мороженого (анимированная "падающая" иконка)
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
 // --- FIREBASE ---
@@ -48,7 +48,26 @@ function saveUserData() {
     db.ref('players/' + nick).set({ best, totalCoins, inventory });
 }
 
-window.onload = () => { if(nick) loadUserData(nick); else updateMenuInfo(); };
+// ДОБАВЛЕНО: Эффект падающего мороженого в главном меню
+function initMenuEffects() {
+    const menu = document.getElementById("menu");
+    if (!menu) return;
+    for (let i = 0; i < 12; i++) {
+        const ice = document.createElement("div");
+        ice.className = "menu-falling-ice";
+        ice.style.left = Math.random() * 100 + "vw";
+        ice.style.animationDuration = (Math.random() * 3 + 4) + "s";
+        ice.style.animationDelay = Math.random() * 5 + "s";
+        ice.style.backgroundImage = imgIceCream;
+        menu.appendChild(ice);
+    }
+}
+
+window.onload = () => { 
+    if(nick) loadUserData(nick); 
+    else updateMenuInfo();
+    initMenuEffects(); // Запуск эффектов при загрузке
+};
 
 function updateMenuInfo() {
     if (nick) {
@@ -56,9 +75,9 @@ function updateMenuInfo() {
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
-    // Используем красивую иконку мороженого в меню
+    // Баланс в меню
     document.getElementById("total-balance").innerHTML = `${totalCoins} ${getIceIcon()}`;
-    // В магазине убираем текст и оставляем только красивый счет в углу (если есть элемент shop-balance)
+    // Баланс в магазине (перемещен в угол через CSS класс shop-balance-container)
     const shopBal = document.getElementById("shop-balance");
     if(shopBal) shopBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
@@ -111,14 +130,40 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
+    
     obstacleY += speed;
     speed += difficulty;
+
     const obs = document.getElementById("obstacle");
+    const p = document.getElementById("player");
+
+    // --- УСИЛЕННЫЙ МАГНИТ: ПЛАВНОЕ ПРИТЯЖЕНИЕ ---
+    if (magnetActive && obs.dataset.type === "good") {
+        const playerRect = p.getBoundingClientRect();
+        const obsRect = obs.getBoundingClientRect();
+        
+        let playerX = playerRect.left + playerRect.width / 2;
+        let obsX = obsRect.left + obsRect.width / 2;
+        let distY = playerRect.top - obsRect.top;
+
+        // Если мороженое в зоне досягаемости магнита
+        if (distY < 400 && distY > -50) {
+            let diffX = (playerX - obsX) * 0.15; // Плавность притяжения
+            let currentLeft = parseFloat(obs.style.left);
+            // Смещаем мороженое в сторону игрока
+            obs.style.left = `calc(${obs.style.left} + ${diffX}px)`;
+            obstacleY += 3; // Слегка ускоряем "поглощение"
+        }
+    }
+
     obs.style.top = obstacleY + "px";
     const playerTop = window.innerHeight * 0.75; 
+
+    // Проверка столкновения
     if (obstacleLane === targetLane && obstacleY > playerTop - 40 && obstacleY < playerTop + 40) {
-        handleCollision(obs, document.getElementById("player"));
+        handleCollision(obs, p);
     }
+
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
             comboCount = 0; 
@@ -130,7 +175,6 @@ function update() {
     if (gameRunning) loopId = requestAnimationFrame(update);
 }
 
-// НОВАЯ ФУНКЦИЯ ДЛЯ ВСПЫШКИ ПРИ КОМБО
 function triggerComboFlash(mult) {
     const flash = document.createElement("div");
     flash.style.cssText = `
@@ -145,8 +189,6 @@ function triggerComboFlash(mult) {
 function handleCollision(obs, p) {
     if (obs.dataset.type === "good") {
         comboCount++;
-        
-        // НОВАЯ ЛОГИКА: x2 (3шт), x3 (6шт), x4 (8шт)
         let oldMult = comboMultiplier;
         if (comboCount >= 8) comboMultiplier = 4;
         else if (comboCount >= 6) comboMultiplier = 3;
@@ -157,13 +199,7 @@ function handleCollision(obs, p) {
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
-            
-            // Если множитель вырос — делаем вспышку
-            if (comboMultiplier > oldMult) {
-                triggerComboFlash(comboMultiplier);
-            }
-            
-            // Сброс и запуск анимации текста
+            if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = null;
@@ -184,7 +220,6 @@ function handleCollision(obs, p) {
 }
 
 function updateScore() {
-    // В игре тоже используем красивую иконку
     document.getElementById("hud").innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
 }
 
@@ -227,7 +262,6 @@ document.addEventListener("touchend", e => {
     }, 200);
 });
 
-// МАГАЗИН И БОНУСЫ
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
