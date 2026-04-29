@@ -7,17 +7,30 @@ let obstacleY = 0;
 
 let nick = localStorage.getItem("nick");
 let coins = parseInt(localStorage.getItem("coins")) || 0;
+let best = parseInt(localStorage.getItem("best")) || 0;
 
-/* 👋 AUTO LOGIN */
+/* 🎮 СЛОЖНОСТЬ */
+let speed = 6;
+let difficulty = 0.002;
+
+/* 🍬 ТИПЫ */
+const good = "🍦";
+const bad = ["🍩","🍫","🧱"];
+
+let currentType = good;
+
+/* 👋 LOGIN */
 window.onload = () => {
   if (nick) {
     document.getElementById("welcome").innerText =
       "👋 С возвращением, " + nick;
     document.getElementById("nick").style.display = "none";
   }
+
+  document.getElementById("score").innerText = coins + " 🍦";
 };
 
-/* 🎮 START */
+/* START */
 function startGame() {
   if (!nick) {
     const input = document.getElementById("nick").value;
@@ -39,6 +52,7 @@ function resetGame() {
   targetLane = 1;
   obstacleY = -200;
   gameRunning = true;
+  speed = 6;
 
   spawnObstacle();
   update();
@@ -51,7 +65,7 @@ function backToMenu() {
   document.getElementById("menu").classList.remove("hidden");
 }
 
-/* 📱 SWIPE */
+/* SWIPE */
 let startX = 0;
 
 document.addEventListener("touchstart", e => {
@@ -69,7 +83,7 @@ document.addEventListener("touchend", e => {
   else targetLane = Math.max(0, targetLane - 1);
 });
 
-/* 🧠 SMOOTH */
+/* SMOOTH */
 function smoothMove() {
   lane += (targetLane - lane) * 0.15;
 
@@ -80,17 +94,25 @@ function smoothMove() {
 }
 smoothMove();
 
-/* 🍦 OBSTACLE */
+/* 🍦 SPAWN */
 function spawnObstacle() {
   obstacleLane = Math.floor(Math.random()*3);
   obstacleY = -200;
 
-  let obs = document.getElementById("obstacle");
+  const obs = document.getElementById("obstacle");
+
+  // шанс 60% плохих
+  if (Math.random() < 0.6) {
+    currentType = bad[Math.floor(Math.random()*bad.length)];
+  } else {
+    currentType = good;
+  }
+
+  obs.innerText = currentType;
   obs.style.left = [15,50,85][obstacleLane] + "%";
-  obs.style.fontSize = "20px";
 }
 
-/* 🏆 SAVE SCORE */
+/* 🏆 SAVE */
 function saveScore() {
   if (!nick || !window.db) return;
 
@@ -100,42 +122,14 @@ function saveScore() {
   });
 }
 
-/* 📊 LEADERBOARD */
-function loadLeaderboard() {
-  if (!window.db) return;
-
-  const q = window.query(
-    window.ref(window.db, "scores"),
-    window.orderByChild("score"),
-    window.limitToLast(5)
-  );
-
-  window.onValue(q, (snapshot) => {
-    let data = snapshot.val();
-    if (!data) return;
-
-    let arr = Object.values(data);
-    arr.sort((a, b) => b.score - a.score);
-
-    let html = "🏆 ТОП:<br>";
-
-    arr.forEach(p => {
-      html += p.name + ": " + p.score + "<br>";
-    });
-
-    document.getElementById("leaderboard").innerHTML = html;
-  });
-}
-
-loadLeaderboard();
-
-/* 🎮 LOOP */
+/* LOOP */
 function update() {
   if (!gameRunning) return;
 
-  obstacleY += 6;
+  speed += difficulty;
+  obstacleY += speed;
 
-  let obs = document.getElementById("obstacle");
+  const obs = document.getElementById("obstacle");
 
   let progress = obstacleY / window.innerHeight;
   let scale = 0.3 + progress * 1.7;
@@ -143,16 +137,25 @@ function update() {
   obs.style.transform = `scale(${scale})`;
   obs.style.top = obstacleY + "px";
 
+  /* 💥 СТОЛКНОВЕНИЕ */
   if (obstacleY > window.innerHeight - 250 &&
       obstacleLane === Math.round(lane)) {
-    gameOver();
-    return;
+
+    if (currentType === good) {
+      // 🍦 СОБРАЛ
+      coins++;
+      localStorage.setItem("coins", coins);
+      document.getElementById("score").innerText = coins + " 🍦";
+      spawnObstacle();
+      return;
+    } else {
+      // 💀 УМЕР
+      gameOver();
+      return;
+    }
   }
 
   if (obstacleY > window.innerHeight) {
-    coins++;
-    localStorage.setItem("coins", coins);
-    document.getElementById("score").innerText = coins + " 🍦";
     spawnObstacle();
   }
 
@@ -165,10 +168,20 @@ function gameOver() {
 
   saveScore();
 
+  if (coins > best) {
+    best = coins;
+    localStorage.setItem("best", best);
+  }
+
   document.body.classList.add("hit");
+  document.body.classList.add("flash");
 
   setTimeout(() => {
-    alert("💥 GAME OVER\n🍦 " + coins);
+    alert(
+      "💥 GAME OVER\n" +
+      "🍦 " + coins +
+      "\n🏆 Рекорд: " + best
+    );
     location.reload();
   }, 300);
 }
