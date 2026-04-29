@@ -159,9 +159,6 @@ body {
     align-items: center;
     gap: 10px;
 }
-
-/* ... (весь твой предыдущий CSS остается без изменений) ... */
-
 /* --- ПРАВКИ ДЛЯ БОНУСОВ --- */
 #bonus-panel {
     position: absolute;
