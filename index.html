@@ -10,6 +10,33 @@
 <body>
 
 <!-- 🌈 MENU -->
+  <div id="menu" class="screen">
+  <h1>🍦 BERRY RUNNER</h1>
+
+  <div id="welcome"></div>
+
+  <input id="nick" placeholder="Введите ник..." />
+
+  <!-- 🎮 СЛОЖНОСТЬ -->
+  <select id="difficulty">
+    <option value="easy">🟢 Легко</option>
+    <option value="medium" selected>🟡 Средне</option>
+    <option value="hard">🔴 Сложно</option>
+  </select>
+
+  <button onclick="startGame()">Играть</button>
+  <button onclick="openShop()">🛒 Магазин</button>
+
+  <!-- 🏆 ЛИДЕРБОРД -->
+  <div id="menuLeaderboard"></div>
+</div>
+
+<!-- 🛒 SHOP -->
+<div id="shop" class="screen hidden">
+  <h2>🛒 Магазин</h2>
+  <p>Скоро тут будут скины 😎</p>
+  <button onclick="closeShop()">Назад</button>
+</div>
 <div id="menu" class="screen">
   <h1>🍦 BERRY RUNNER</h1>
   <div id="welcome"></div>
