@@ -22,101 +22,107 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- МЕНЮ (СМЕЩЕНИЕ КНОПОК ВНИЗ) --- */
-#menu { 
-    background-image: url('assets/bg.jpg'); 
-    justify-content: flex-start;
+/* 2) Читаемая надпись приветствия */
+.welcome-text {
+    margin-top: 100px;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 10px rgba(0,0,0,1), 0 0 20px #ff4fd8;
+    z-index: 15;
 }
 
-/* ФОН ИГРЫ ИЗ ТВОИХ ПРАВОК */
-#game {
-    background-image: url('assets/game_bg.jpg') !important;
-}
+#menu { background-image: url('assets/bg.jpg'); }
+#game { background-image: url('assets/game_bg.jpg') !important; }
 
-.game-title {
-    margin-top: 60px;
-    font-size: clamp(34px, 12vw, 55px); 
-    color: #fff; 
-    text-shadow: 0 0 20px #ff4fd8, 0 0 40px #ff00ff;
-    text-align: center;
-}
-
-.menu-stats-container {
-    display: flex; 
-    gap: 15px; 
-    margin-top: 20px;
-}
-
-.balance-info, .record-info {
-    font-size: 18px; color: #fff; font-weight: 900;
-    background: rgba(0, 0, 0, 0.6); 
-    backdrop-filter: blur(5px);
-    padding: 10px 20px; 
-    border-radius: 15px; 
-    border: 2px solid #ff4fd8;
-}
-
-/* КОНТЕЙНЕР КНОПОК ВНИЗУ */
-.menu-controls {
-    margin-top: auto; 
-    margin-bottom: 60px; 
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 85%;
-    max-width: 320px;
-}
-
-/* СТИЛЬ КНОПОК (ПРОЗРАЧНОЕ СТЕКЛО) */
-#menu button, #menu select, #menu input {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 79, 216, 0.6) !important;
-    color: white !important;
-    padding: 20px !important; 
-    border-radius: 25px;
+/* 4) Кнопка домика в углу */
+.corner-home {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid white;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
     font-size: 20px;
-    font-weight: 800;
-    text-transform: uppercase;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+    z-index: 110;
+    cursor: pointer;
 }
 
-/* --- ИГРОК (БЕРРИ) --- */
+/* 3) Панель баффов */
+#bonus-panel {
+    position: absolute;
+    top: 70px;
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+}
+.bonus-btn {
+    background: rgba(0,0,0,0.5);
+    padding: 5px 15px;
+    border-radius: 15px;
+    border: 1px solid #ff4fd8;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 8) Эффекты движения Берри (наклон при свайпе в JS) */
 #player {
     position: absolute;
     bottom: 18%;
-    left: 50%;
-    width: 100px !important; 
-    height: 100px !important;
-    transform: translateX(-50%);
-    background-image: url('assets/berry.png') !important; 
+    width: 100px; 
+    height: 100px;
+    transition: left 0.2s ease-out, transform 0.2s;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     z-index: 99;
 }
 
-#obstacle {
-    position: absolute;
-    width: 70px; height: 70px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    z-index: 80;
+/* 6) Визуальный эффект щита */
+.shield-aura {
+    filter: drop-shadow(0 0 15px #00eaff);
+    border: 2px solid #00eaff;
+    border-radius: 50%;
 }
 
-#track { position: relative; width: 100%; height: 100%; z-index: 5; }
-
-/* ХАД (СЧЕТ) */
-#hud {
+/* 5) Магазин и падающее мороженое */
+#shop { background: #0b0214; }
+.shop-overlay {
     position: absolute;
-    top: 50px;
-    left: 20px;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(10px);
-    padding: 15px 25px;
+    width: 100%; height: 100%;
+    background-image: url('assets/icecream.png');
+    background-size: 30px;
+    opacity: 0.2;
+    animation: snow 10s linear infinite;
+}
+@keyframes snow {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 1000px; }
+}
+
+.shop-content { position: relative; z-index: 2; color: white; text-align: center; width: 100%; }
+
+/* Комбо UI */
+#combo-ui {
+    position: absolute;
+    top: 150px;
+    font-size: 40px;
+    font-weight: 900;
+    color: #ffeb3b;
+    text-shadow: 0 0 10px gold;
+}
+
+/* Кнопки меню */
+.menu-controls { margin-top: auto; margin-bottom: 60px; display: flex; flex-direction: column; gap: 15px; width: 85%; max-width: 320px; }
+#menu button, #menu select, #menu input {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 79, 216, 0.6) !important;
+    color: white !important;
+    padding: 15px !important; 
     border-radius: 20px;
-    border: 2px solid #ff4fd8;
-    color: white;
-    z-index: 100;
+    font-weight: 800;
 }
