@@ -6,14 +6,13 @@ body {
   touch-action: none;
 }
 
-/* 🌈 ЭКРАНЫ */
+/* SCREEN */
 .screen {
   position: fixed;
   width: 100vw;
   height: 100vh;
 }
 
-/* ❌ скрытие экранов */
 .hidden {
   display: none !important;
 }
@@ -56,7 +55,7 @@ button {
 
 /* ================= GAME ================= */
 #game {
-  background: radial-gradient(circle at bottom, #111, #000);
+  background: radial-gradient(circle at bottom, #050505, #000);
 }
 
 /* TRACK */
@@ -65,23 +64,26 @@ button {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  perspective: 800px;
 }
 
-/* PLAYER */
+/* 🦄 PLAYER */
 #player {
   position: absolute;
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 55px;
+  font-size: 60px;
 }
 
-/* OBSTACLE */
+/* 🍦 OBSTACLE */
 #obstacle {
   position: absolute;
   top: 0;
   left: 50%;
-  font-size: 40px;
+  font-size: 30px;
+  opacity: 0.5;
+  transform-origin: center;
 }
 
 /* HUD */
