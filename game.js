@@ -25,7 +25,10 @@ let comboMultiplier = 1;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// --- FIREBASE (БЕЗ ИЗМЕНЕНИЙ) ---
+// Функция для создания HTML иконки мороженого (чтобы не дублировать код)
+const getIceIcon = () => `<span class="ice-icon"></span>`;
+
+// --- FIREBASE ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -53,8 +56,12 @@ function updateMenuInfo() {
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
-    document.getElementById("total-balance").innerHTML = `${totalCoins} 🍦`;
-    document.getElementById("shop-balance").innerText = totalCoins + " 🍦";
+    // Используем красивую иконку мороженого в меню
+    document.getElementById("total-balance").innerHTML = `${totalCoins} ${getIceIcon()}`;
+    // В магазине убираем текст и оставляем только красивый счет в углу (если есть элемент shop-balance)
+    const shopBal = document.getElementById("shop-balance");
+    if(shopBal) shopBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
+    
     updateBonusUI();
 }
 
@@ -83,11 +90,10 @@ function resetGame() {
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     const p = document.getElementById("player");
     p.className = ""; p.style.left = lanes[targetLane] + "%";
-    // ДОБАВЛЕНО: сброс поворота при рестарте
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
     updateScore(); 
     spawnObstacle();
-    updateBonusUI(); // ДОБАВЛЕНО: возврат баффов на экран игры
+    updateBonusUI();
     if (loopId) cancelAnimationFrame(loopId);
     update();
 }
@@ -124,24 +130,62 @@ function update() {
     if (gameRunning) loopId = requestAnimationFrame(update);
 }
 
+// НОВАЯ ФУНКЦИЯ ДЛЯ ВСПЫШКИ ПРИ КОМБО
+function triggerComboFlash(mult) {
+    const flash = document.createElement("div");
+    flash.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: ${mult >= 4 ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 79, 216, 0.2)'};
+        pointer-events: none; z-index: 1000; animation: fadeOut 0.3s forwards;
+    `;
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 300);
+}
+
 function handleCollision(obs, p) {
     if (obs.dataset.type === "good") {
         comboCount++;
-        comboMultiplier = comboCount >= 6 ? 3 : (comboCount >= 3 ? 2 : 1);
+        
+        // НОВАЯ ЛОГИКА: x2 (3шт), x3 (6шт), x4 (8шт)
+        let oldMult = comboMultiplier;
+        if (comboCount >= 8) comboMultiplier = 4;
+        else if (comboCount >= 6) comboMultiplier = 3;
+        else if (comboCount >= 3) comboMultiplier = 2;
+        else comboMultiplier = 1;
+
         const ui = document.getElementById("combo-ui");
-        if(comboMultiplier > 1) { ui.innerText = "x" + comboMultiplier; ui.classList.remove("hidden"); }
-        coins += comboMultiplier; updateScore(); spawnObstacle();
+        if(comboMultiplier > 1) { 
+            ui.innerText = "x" + comboMultiplier; 
+            ui.classList.remove("hidden");
+            
+            // Если множитель вырос — делаем вспышку
+            if (comboMultiplier > oldMult) {
+                triggerComboFlash(comboMultiplier);
+            }
+            
+            // Сброс и запуск анимации текста
+            ui.style.animation = 'none';
+            ui.offsetHeight; 
+            ui.style.animation = null;
+        }
+
+        coins += comboMultiplier; 
+        updateScore(); 
+        spawnObstacle();
     } else if (obs.dataset.type === "bad") {
         if (shieldActive) {
-            shieldActive = false; p.classList.remove("shield-aura");
-            obstacleY = window.innerHeight + 500; spawnObstacle();
-            updateBonusUI(); // ДОБАВЛЕНО: обновление иконок баффов
+            shieldActive = false; 
+            p.classList.remove("shield-aura");
+            obstacleY = window.innerHeight + 500; 
+            spawnObstacle();
+            updateBonusUI();
         } else gameOver();
     }
 }
 
 function updateScore() {
-    document.getElementById("hud").innerHTML = `🍦 ${coins} | 🏆 ${best}`;
+    // В игре тоже используем красивую иконку
+    document.getElementById("hud").innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
 }
 
 function gameOver() {
@@ -159,7 +203,7 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// УПРАВЛЕНИЕ (ДОБАВЛЕН ЖИВОЙ БЕРРИ - ПОВОРОТЫ)
+// УПРАВЛЕНИЕ
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
@@ -170,15 +214,14 @@ document.addEventListener("touchend", e => {
     const p = document.getElementById("player");
     if (diff > 0) {
         targetLane = Math.min(3, targetLane + 1);
-        p.style.transform = "translateX(-50%) rotate(15deg)"; // Наклон вправо
+        p.style.transform = "translateX(-50%) rotate(15deg)";
     } else {
         targetLane = Math.max(0, targetLane - 1);
-        p.style.transform = "translateX(-50%) rotate(-15deg)"; // Наклон влево
+        p.style.transform = "translateX(-50%) rotate(-15deg)";
     }
     
     p.style.left = lanes[targetLane] + "%";
     
-    // Возвращаем в прямое положение через 200мс
     setTimeout(() => {
         p.style.transform = "translateX(-50%) rotate(0deg)";
     }, 200);
@@ -205,7 +248,11 @@ function useMagnet() {
         inventory.magnet--; magnetActive = true;
         document.getElementById("player").classList.add("magnet-aura");
         updateBonusUI();
-        setTimeout(() => { magnetActive = false; document.getElementById("player").classList.remove("magnet-aura"); }, 10000);
+        setTimeout(() => { 
+            magnetActive = false; 
+            document.getElementById("player").classList.remove("magnet-aura"); 
+            updateBonusUI();
+        }, 10000);
     }
 }
 
