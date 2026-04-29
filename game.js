@@ -26,8 +26,8 @@ let magnetActive = false;
 let magnetTimer = null;
 let comboCount = 0;
 let isRainbowMode = false;
+let comboMultiplier = 1; // Новое для x2/x3
 
-// ПРОВЕРЬ ЭТИ ПУТИ К ФАЙЛАМ
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
@@ -83,7 +83,7 @@ function startGame() {
 }
 
 function resetGame() {
-    coins = 0; comboCount = 0; isRainbowMode = false;
+    coins = 0; comboCount = 0; isRainbowMode = false; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1;
     speed = baseSpeed;
@@ -93,13 +93,12 @@ function resetGame() {
     if(player) {
         player.classList.remove("shield-aura");
         player.style.left = lanes[targetLane] + "%";
-        // ПРАВКА ПЕРСОНАЖА
         player.style.backgroundImage = "url('assets/berry.png')"; 
         player.style.display = "block";
     }
 
-    // Принудительно ставим фон игры
     document.getElementById("game").style.backgroundImage = "url('assets/game_bg.jpg')";
+    if(document.getElementById("combo-ui")) document.getElementById("combo-ui").classList.add("hidden");
 
     updateScore();
     spawnObstacle();
@@ -116,8 +115,6 @@ function spawnObstacle() {
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
-    // Резервный цвет, если картинки нет
-    obs.style.backgroundColor = isGood ? "transparent" : "transparent"; 
 }
 
 function update() {
@@ -141,9 +138,19 @@ function update() {
 
     if (oRect.bottom > pRect.top + 20 && oRect.top < pRect.bottom - 20 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
-            coins += isRainbowMode ? 2 : 1;
-            comboCount = isRainbowMode ? 0 : comboCount + 1;
-            if(comboCount >= 5) activateRainbow();
+            // ЛОГИКА КОМБО x2 и x3
+            comboCount++;
+            if (comboCount >= 6) {
+                comboMultiplier = 3;
+                showComboEffect("x3");
+            } else if (comboCount >= 3) {
+                comboMultiplier = 2;
+                showComboEffect("x2");
+            }
+
+            coins += isRainbowMode ? (comboMultiplier * 2) : comboMultiplier;
+            if(comboCount >= 10 && !isRainbowMode) activateRainbow(); // Радужный режим за длинное комбо
+            
             updateScore();
             spawnObstacle();
         } else {
@@ -153,7 +160,11 @@ function update() {
     }
 
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") comboCount = 0;
+        if (obs.dataset.type === "good") {
+            comboCount = 0;
+            comboMultiplier = 1;
+            if(document.getElementById("combo-ui")) document.getElementById("combo-ui").classList.add("hidden");
+        }
         spawnObstacle();
         updateScore();
     }
@@ -161,8 +172,16 @@ function update() {
     loopId = requestAnimationFrame(update);
 }
 
+function showComboEffect(txt) {
+    const ui = document.getElementById("combo-ui");
+    if(ui) {
+        ui.innerText = txt;
+        ui.classList.remove("hidden");
+    }
+}
+
 function activateRainbow() {
-    isRainbowMode = true; comboCount = 0;
+    isRainbowMode = true;
     document.getElementById("game").classList.add("rainbow-active");
     setTimeout(() => {
         isRainbowMode = false;
@@ -198,16 +217,24 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// Управление
+// Управление с эффектом наклона (как раньше)
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
+    
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
-    document.getElementById("player").style.left = lanes[targetLane] + "%";
+    
+    const p = document.getElementById("player");
+    p.style.left = lanes[targetLane] + "%";
+    
+    // Эффект движения (наклон)
+    let tilt = diff > 0 ? 15 : -15;
+    p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
+    setTimeout(() => { p.style.transform = "translateX(-50%) rotate(0deg)"; }, 150);
 });
 
 function openShop() {
@@ -235,6 +262,9 @@ function useShield() {
         inventory.shield--;
         shieldActive = true;
         document.getElementById("player").classList.add("shield-aura");
+        // Эффект вспышки при активации
+        document.getElementById("player").style.filter = "brightness(2) drop-shadow(0 0 20px white)";
+        setTimeout(() => { document.getElementById("player").style.filter = ""; }, 300);
         updateBonusUI();
     }
 }
@@ -244,6 +274,11 @@ function useMagnet() {
         inventory.magnet--;
         magnetActive = true;
         updateBonusUI();
-        setTimeout(() => { magnetActive = false; }, 10000);
+        // Эффект свечения экрана при магните
+        document.getElementById("game").style.boxShadow = "inset 0 0 50px rgba(255,255,255,0.2)";
+        setTimeout(() => { 
+            magnetActive = false; 
+            document.getElementById("game").style.boxShadow = "none";
+        }, 10000);
     }
 }
