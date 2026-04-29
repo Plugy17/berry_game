@@ -15,64 +15,121 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 15px;
 }
 
 .hidden { display: none !important; }
 
-/* MENU */
+/* MENU - Космический фон */
 #menu {
-    background: radial-gradient(circle at top, #ff4fd8, #2b0f3a);
+    background: url('assets/bg.jpg') no-repeat center center;
+    background-size: cover;
     color: white;
 }
 
-/* GAME BACKGROUND */
+.game-title {
+    font-size: 36px;
+    text-shadow: 0 0 15px #ff4fd8;
+    margin-bottom: 20px;
+}
+
+/* GAME - Игровой фон */
 #game {
-    /* Вставляем твой фон */
-    background: url('assets/bg.jpg') no-repeat center center;
+    background: url('assets/game_bg.jpg') no-repeat center center;
     background-size: cover;
 }
 
+/* КНОПКИ И ПОЛЯ */
+#nick, .custom-select, button {
+    width: 220px;
+    padding: 14px;
+    border-radius: 25px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    outline: none;
+}
+
+#nick {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.play-btn {
+    background: linear-gradient(45deg, #ff4fd8, #b030b0);
+    color: white;
+    box-shadow: 0 5px 20px rgba(255, 79, 216, 0.5);
+    font-size: 20px;
+}
+
+.shop-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* АНИМАЦИЯ ПЛАВАНИЯ */
+.floating {
+    animation: floatAnim 3s ease-in-out infinite;
+}
+
+@keyframes floatAnim {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ГЕЙМПЛЕЙ */
 #track {
     width: 100vw;
     height: 100vh;
     position: relative;
 }
 
-/* Персонаж теперь картинка */
 #player {
     position: absolute;
     bottom: 80px;
     left: 50%;
-    width: 80px; /* Размер Берри */
-    height: 80px;
+    width: 85px;
+    height: 85px;
     transform: translateX(-50%);
     background: url('assets/berry.png') no-repeat center center;
     background-size: contain;
     transition: left 0.15s ease-out;
 }
 
-/* Препятствие/Бонус теперь картинка */
 #obstacle {
     position: absolute;
     top: -100px;
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-/* Стили для текста */
 #hud {
     position: absolute;
     top: 20px;
     left: 20px;
     padding: 10px 20px;
-    background: rgba(255, 79, 216, 0.3);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
     border-radius: 20px;
-    color: white;
+    color: #ff4fd8;
     font-size: 24px;
     font-weight: bold;
-    border: 2px solid #ff4fd8;
+    border: 1px solid #ff4fd8;
+}
+
+#backBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
