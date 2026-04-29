@@ -1,4 +1,3 @@
-//* --- БАЗОВЫЕ НАСТРОЙКИ --- */
 /* --- БАЗОВЫЕ НАСТРОЙКИ --- */
 body {
     margin: 0; 
@@ -23,10 +22,15 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- МЕНЮ (СМЕЩЕНИЕ ВНИЗ) --- */
+/* --- МЕНЮ (СМЕЩЕНИЕ КНОПОК ВНИЗ) --- */
 #menu { 
     background-image: url('assets/bg.jpg'); 
-    justify-content: flex-start; /* Начинаем сверху */
+    justify-content: flex-start;
+}
+
+/* ФОН ИГРЫ ИЗ ТВОИХ ПРАВОК */
+#game {
+    background-image: url('assets/game_bg.jpg') !important;
 }
 
 .game-title {
@@ -54,8 +58,8 @@ body {
 
 /* КОНТЕЙНЕР КНОПОК ВНИЗУ */
 .menu-controls {
-    margin-top: auto; /* Это магия — толкает блок в самый низ */
-    margin-bottom: 50px; /* Отступ от края экрана */
+    margin-top: auto; 
+    margin-bottom: 60px; 
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -63,16 +67,16 @@ body {
     max-width: 320px;
 }
 
-/* СТИЛЬ КНОПОК (СТЕКЛО) */
+/* СТИЛЬ КНОПОК (ПРОЗРАЧНОЕ СТЕКЛО) */
 #menu button, #menu select, #menu input {
     background: rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 2px solid rgba(255, 79, 216, 0.6) !important;
     color: white !important;
-    padding: 20px !important; /* Большие кнопки */
+    padding: 20px !important; 
     border-radius: 25px;
-    font-size: 20px; /* Крупный текст */
+    font-size: 20px;
     font-weight: 800;
     text-transform: uppercase;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
@@ -83,19 +87,27 @@ body {
     position: absolute;
     bottom: 18%;
     left: 50%;
-    width: 100px !important; /* Сделал чуть больше */
+    width: 100px !important; 
     height: 100px !important;
     transform: translateX(-50%);
-    background-image: url('assets/berry.png') !important; /* ИСПРАВЛЕНО ИМЯ */
+    background-image: url('assets/berry.png') !important; 
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     z-index: 99;
 }
 
+#obstacle {
+    position: absolute;
+    width: 70px; height: 70px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 80;
+}
+
 #track { position: relative; width: 100%; height: 100%; z-index: 5; }
 
-/* ХАД (СЧЕТ ВО ВРЕМЯ ИГРЫ) */
+/* ХАД (СЧЕТ) */
 #hud {
     position: absolute;
     top: 50px;
