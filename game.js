@@ -83,7 +83,11 @@ function resetGame() {
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     const p = document.getElementById("player");
     p.className = ""; p.style.left = lanes[targetLane] + "%";
-    updateScore(); spawnObstacle();
+    // ДОБАВЛЕНО: сброс поворота при рестарте
+    p.style.transform = "translateX(-50%) rotate(0deg)"; 
+    updateScore(); 
+    spawnObstacle();
+    updateBonusUI(); // ДОБАВЛЕНО: возврат баффов на экран игры
     if (loopId) cancelAnimationFrame(loopId);
     update();
 }
@@ -131,6 +135,7 @@ function handleCollision(obs, p) {
         if (shieldActive) {
             shieldActive = false; p.classList.remove("shield-aura");
             obstacleY = window.innerHeight + 500; spawnObstacle();
+            updateBonusUI(); // ДОБАВЛЕНО: обновление иконок баффов
         } else gameOver();
     }
 }
@@ -154,15 +159,29 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// УПРАВЛЕНИЕ
+// УПРАВЛЕНИЕ (ДОБАВЛЕН ЖИВОЙ БЕРРИ - ПОВОРОТЫ)
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
-    targetLane = diff > 0 ? Math.min(3, targetLane + 1) : Math.max(0, targetLane - 1);
-    document.getElementById("player").style.left = lanes[targetLane] + "%";
+
+    const p = document.getElementById("player");
+    if (diff > 0) {
+        targetLane = Math.min(3, targetLane + 1);
+        p.style.transform = "translateX(-50%) rotate(15deg)"; // Наклон вправо
+    } else {
+        targetLane = Math.max(0, targetLane - 1);
+        p.style.transform = "translateX(-50%) rotate(-15deg)"; // Наклон влево
+    }
+    
+    p.style.left = lanes[targetLane] + "%";
+    
+    // Возвращаем в прямое положение через 200мс
+    setTimeout(() => {
+        p.style.transform = "translateX(-50%) rotate(0deg)";
+    }, 200);
 });
 
 // МАГАЗИН И БОНУСЫ
@@ -198,7 +217,7 @@ function createFallingEffects() {
         ice.className = "falling-ice";
         ice.style.left = Math.random() * 100 + "vw";
         ice.style.animationDuration = (Math.random() * 3 + 2) + "s";
-        ice.style.backgroundImage = imgIceCream; // Будет assets/icecream.png
+        ice.style.backgroundImage = imgIceCream; 
         ice.style.backgroundSize = "contain";
         ice.style.height = "25px";
         shopScreen.appendChild(ice);
