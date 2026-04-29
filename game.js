@@ -1,4 +1,3 @@
-// --- КОНФИГУРАЦИЯ ПОЛОС (4 полосы) ---
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
@@ -16,7 +15,6 @@ let speed = 6;
 let baseSpeed = 6;
 let difficulty = 0.002;
 
-// --- ИНВЕНТАРЬ И БОНУСЫ ---
 let inventory = {
     magnet: parseInt(localStorage.getItem("inv_magnet")) || 0,
     shield: parseInt(localStorage.getItem("inv_shield")) || 0
@@ -26,10 +24,8 @@ const PRICES = { magnet: 500, shield: 300 };
 let shieldActive = false;
 let magnetActive = false;
 let magnetTimer = null;
-
 let comboCount = 0;
 let isRainbowMode = false;
-let rainbowTimer = null;
 
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
@@ -39,81 +35,47 @@ window.onload = () => {
 };
 
 function updateMenuInfo() {
-    if (nick) {
-        const welcomeElem = document.getElementById("welcome");
-        if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b> готов!`;
-        const nickInput = document.getElementById("nick");
+    const welcome = document.getElementById("welcome");
+    const nickInput = document.getElementById("nick");
+    if (nick && welcome) {
+        welcome.innerHTML = `Герой <b>${nick}</b> готов!`;
         if(nickInput) nickInput.style.display = "none";
     }
-    document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
-    const balanceHTML = `${totalCoins} <img src="assets/icecream.png" style="width:22px; vertical-align:middle;">`;
-    document.getElementById("total-balance").innerHTML = balanceHTML;
     
-    let shopBal = document.getElementById("shop-balance");
-    if(shopBal) shopBal.innerHTML = balanceHTML;
+    const leader = document.getElementById("menuLeaderboard");
+    if(leader) leader.innerText = "🏆 " + best;
+
+    const balanceHTML = `${totalCoins} <img src="assets/icecream.png" style="width:20px;">`;
+    const totalBal = document.getElementById("total-balance");
+    const shopBal = document.getElementById("shop-balance");
+    
+    if(totalBal) totalBal.innerHTML = balanceHTML;
+    if(shopBal) shopBal.innerHTML = "Баланс: " + totalCoins;
     
     updateBonusUI();
 }
 
 function updateBonusUI() {
-    document.getElementById("count-shield").innerText = inventory.shield;
-    document.getElementById("count-magnet").innerText = inventory.magnet;
-}
-
-function buyItem(type) {
-    if (totalCoins >= PRICES[type]) {
-        totalCoins -= PRICES[type];
-        inventory[type]++;
-        localStorage.setItem("totalCoins", totalCoins);
-        localStorage.setItem("inv_" + type, inventory[type]);
-        updateMenuInfo();
-        alert("Успешно куплено!");
-    } else {
-        alert("Недостаточно BERRY!");
-    }
-}
-
-function useShield() {
-    if (inventory.shield > 0 && !shieldActive && gameRunning) {
-        inventory.shield--;
-        localStorage.setItem("inv_shield", inventory.shield);
-        shieldActive = true;
-        
-        // ДОБАВЛЯЕМ КЛАСС ДЛЯ МОЩНОГО СВЕЧЕНИЯ
-        document.getElementById("player").classList.add("shield-aura");
-        updateBonusUI();
-    }
-}
-
-function useMagnet() {
-    if (inventory.magnet > 0 && !magnetActive && gameRunning) {
-        inventory.magnet--;
-        localStorage.setItem("inv_magnet", inventory.magnet);
-        magnetActive = true;
-        
-        // ДОБАВЛЯЕМ КЛАСС ДЛЯ МОЩНОГО СВЕЧЕНИЯ
-        document.getElementById("player").classList.add("shield-aura");
-        
-        updateBonusUI();
-        if (magnetTimer) clearTimeout(magnetTimer);
-        magnetTimer = setTimeout(() => { 
-            magnetActive = false; 
-            // УБИРАЕМ СВЕЧЕНИЕ (Если щит тоже не активен)
-            if(!shieldActive) document.getElementById("player").classList.remove("shield-aura");
-        }, 10000);
-    }
+    const cs = document.getElementById("count-shield");
+    const cm = document.getElementById("count-magnet");
+    if(cs) cs.innerText = inventory.shield;
+    if(cm) cm.innerText = inventory.magnet;
 }
 
 function startGame() {
-    if (!nick) {
-        const input = document.getElementById("nick").value.trim();
-        if (input.length < 2) return alert("Введи ник!");
-        nick = input;
+    const nickInput = document.getElementById("nick");
+    if (!nick && nickInput) {
+        const val = nickInput.value.trim();
+        if (val.length < 2) return alert("Введи ник!");
+        nick = val;
         localStorage.setItem("nick", nick);
     }
-    const mode = document.getElementById("difficulty").value;
+    
+    const diff = document.getElementById("difficulty");
+    const mode = diff ? diff.value : "medium";
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
+
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     resetGame();
@@ -122,17 +84,17 @@ function startGame() {
 function resetGame() {
     coins = 0; comboCount = 0; isRainbowMode = false;
     shieldActive = false; magnetActive = false;
-    
-    const player = document.getElementById("player");
-    player.classList.remove("shield-aura"); // УБИРАЕМ АУРУ ПРИ СТАРТЕ
-    player.style.left = lanes[targetLane] + "%";
-    
-    const gameScreen = document.getElementById("game");
-    gameScreen.classList.remove("rainbow-active"); // СБРОС РАДУГИ
-
-    speed = baseSpeed;
     targetLane = 1;
+    speed = baseSpeed;
     gameRunning = true;
+
+    const player = document.getElementById("player");
+    if(player) {
+        player.classList.remove("shield-aura");
+        player.style.left = lanes[targetLane] + "%";
+        player.style.backgroundImage = "url('assets/player.png')"; // Убедись, что путь верный
+    }
+
     updateScore();
     spawnObstacle();
     if (loopId) cancelAnimationFrame(loopId);
@@ -143,6 +105,7 @@ function spawnObstacle() {
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150;
     const obs = document.getElementById("obstacle");
+    if(!obs) return;
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
@@ -158,25 +121,22 @@ function update() {
     const obs = document.getElementById("obstacle");
     const player = document.getElementById("player");
     
-    // Магнит
     if (magnetActive && obs.dataset.type === "good" && obstacleY > 0) {
         obstacleLane = targetLane;
         obs.style.left = lanes[obstacleLane] + "%";
     }
     
-    obs.style.top = obstacleY + "px";
+    if(obs) obs.style.top = obstacleY + "px";
 
-    // ПРОВЕРКА СТОЛКНОВЕНИЙ ПО ГЕОМЕТРИИ
     let pRect = player.getBoundingClientRect();
     let oRect = obs.getBoundingClientRect();
 
-    if (
-        oRect.bottom > pRect.top + 10 && // Меньший отступ для точности
-        oRect.top < pRect.bottom - 10 && 
-        obstacleLane === targetLane
-    ) {
+    if (oRect.bottom > pRect.top + 10 && oRect.top < pRect.bottom - 10 && obstacleLane === targetLane) {
         if (obs.dataset.type === "good") {
-            handleCollect();
+            coins += isRainbowMode ? 2 : 1;
+            comboCount = isRainbowMode ? 0 : comboCount + 1;
+            if(comboCount >= 5) activateRainbow();
+            updateScore();
             spawnObstacle();
         } else {
             gameOver();
@@ -185,57 +145,27 @@ function update() {
     }
 
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { 
-            comboCount = 0; 
-            updateScore(); 
-        }
+        if (obs.dataset.type === "good") comboCount = 0;
         spawnObstacle();
+        updateScore();
     }
     
     loopId = requestAnimationFrame(update);
 }
 
-function handleCollect() {
-    coins += isRainbowMode ? 2 : 1;
-    if (coins % 10 === 0) speed *= 1.05;
-    
-    if (!isRainbowMode) {
-        comboCount++;
-        if (comboCount >= 5) activateRainbowMode();
-    }
-    
-    updateScore(); // Обновляем счет после сбора
-    
-    const hud = document.getElementById("hud");
-    hud.classList.add("score-bump");
-    setTimeout(() => hud.classList.remove("score-bump"), 200);
-}
-
-function activateRainbowMode() {
-    isRainbowMode = true; 
-    comboCount = 0;
-    
-    // ВЕШАЕМ КЛАСС НА ВЕСЬ ЭКРАН ИГРЫ
-    const gameScreen = document.getElementById("game");
-    gameScreen.classList.add("rainbow-active");
-    
-    if (rainbowTimer) clearTimeout(rainbowTimer);
-    rainbowTimer = setTimeout(() => {
+function activateRainbow() {
+    isRainbowMode = true; comboCount = 0;
+    document.getElementById("game").classList.add("rainbow-active");
+    setTimeout(() => {
         isRainbowMode = false;
-        // УБИРАЕМ КЛАСС
-        gameScreen.classList.remove("rainbow-active");
-        updateScore();
+        document.getElementById("game").classList.remove("rainbow-active");
     }, 5000);
 }
 
 function updateScore() {
     const hud = document.getElementById("hud");
-    const scoreDisplay = isRainbowMode ? `<span class="rainbow-text">X2</span> ${coins}` : coins;
-    hud.innerHTML = `
-        <div class="score-main">${scoreDisplay} <img src="assets/icecream.png" class="hud-icon" style="width:20px;"></div>
-        <div class="score-record">Best: ${best}</div>
-        ${comboCount > 0 && !isRainbowMode ? `<div class="combo-badge">Combo: ${comboCount}</div>` : ''}
-    `;
+    if(!hud) return;
+    hud.innerHTML = `<div>🍦 ${coins}</div><div style="font-size:12px">Best: ${best}</div>`;
 }
 
 function gameOver() {
@@ -249,48 +179,27 @@ function gameOver() {
     totalCoins += coins;
     localStorage.setItem("totalCoins", totalCoins);
     if (coins > best) { best = coins; localStorage.setItem("best", best); }
-    alert(`Берри врезался! Собрано: ${coins}`);
+    alert("Берри врезался! Собрано: " + coins);
     backToMenu();
 }
 
 function backToMenu() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId);
-    
-    // Очистка эффектов при выходе
-    const player = document.getElementById("player");
-    player.classList.remove("shield-aura");
-    const gameScreen = document.getElementById("game");
-    gameScreen.classList.remove("rainbow-active");
-
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
 }
 
-// --- УПРАВЛЕНИЕ ---
+// Управление свайпами
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
-
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 30) return;
-
-    const playerImg = document.getElementById("player");
-    if (diff > 0) {
-        targetLane = Math.min(3, targetLane + 1);
-        playerImg.style.transform = "translateX(-50%) rotate(15deg)";
-    } else {
-        targetLane = Math.max(0, targetLane - 1);
-        playerImg.style.transform = "translateX(-50%) rotate(-15deg)";
-    }
-    
-    playerImg.style.left = lanes[targetLane] + "%";
-    
-    setTimeout(() => {
-        playerImg.style.transform = "translateX(-50%) rotate(0deg)";
-    }, 200);
+    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
+    else targetLane = Math.max(0, targetLane - 1);
+    document.getElementById("player").style.left = lanes[targetLane] + "%";
 });
 
 function openShop() {
@@ -298,8 +207,35 @@ function openShop() {
     document.getElementById("shop").classList.remove("hidden");
     updateMenuInfo();
 }
-
 function closeShop() {
     document.getElementById("shop").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
+}
+
+function buyItem(type) {
+    if (totalCoins >= PRICES[type]) {
+        totalCoins -= PRICES[type];
+        inventory[type]++;
+        localStorage.setItem("totalCoins", totalCoins);
+        localStorage.setItem("inv_" + type, inventory[type]);
+        updateMenuInfo();
+    } else alert("Мало BERRY!");
+}
+
+function useShield() {
+    if (inventory.shield > 0 && !shieldActive && gameRunning) {
+        inventory.shield--;
+        shieldActive = true;
+        document.getElementById("player").classList.add("shield-aura");
+        updateBonusUI();
+    }
+}
+
+function useMagnet() {
+    if (inventory.magnet > 0 && !magnetActive && gameRunning) {
+        inventory.magnet--;
+        magnetActive = true;
+        updateBonusUI();
+        setTimeout(() => { magnetActive = false; }, 10000);
+    }
 }
