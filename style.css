@@ -32,6 +32,25 @@ body {
 
 #menuLeaderboard { display: none !important; }
 
+/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ (ВОЗВРАЩЕНО) --- */
+.ice-drop {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    z-index: 1;
+    pointer-events: none;
+    animation: iceFall linear infinite;
+}
+
+@keyframes iceFall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.6; }
+    85% { opacity: 0.6; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
 /* --- КНОПКИ --- */
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
@@ -76,8 +95,8 @@ button:active { transform: scale(0.95); }
     justify-content: flex-start !important; 
     padding: 100px 20px 60px 20px !important;
     box-sizing: border-box;
-    overflow-y: scroll !important; /* Исправлено для телефона */
-    touch-action: pan-y !important; /* Разрешает свайп пальцем */
+    overflow-y: scroll !important; 
+    touch-action: pan-y !important; 
     -webkit-overflow-scrolling: touch;
 }
 
@@ -93,7 +112,7 @@ button:active { transform: scale(0.95); }
 }
 
 .shop-item {
-    background: none !important; /* Объект без ячейки */
+    background: none !important; 
     border: none !important;
     padding: 10px;
     width: 90%;
@@ -112,30 +131,21 @@ button:active { transform: scale(0.95); }
     animation: objectAlive 6s ease-in-out infinite;
 }
 
+/* КРАСИВЫЕ ЦИФРЫ В МАГАЗИНЕ */
+.buy-button span {
+    font-size: 20px !important;
+    font-weight: 900;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+/* Убираем лишнее мороженое в магазине */
+.shop-item .ice-icon:nth-of-type(n+2) {
+    display: none !important;
+}
+
 @keyframes objectAlive {
     0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
     50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
-}
-
-.item-title {
-    font-size: 26px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 15px #ff4fd8;
-    margin-bottom: 15px;
-}
-
-.buy-button {
-    background: linear-gradient(45deg, #ff4fd8, #ba55d3) !important;
-    border: none !important;
-    border-radius: 20px !important;
-    width: 100% !important;
-    padding: 14px !important;
-    box-shadow: 0 8px 20px rgba(255, 79, 216, 0.4) !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
 }
 
 #shop #backBtn {
@@ -176,7 +186,7 @@ button:active { transform: scale(0.95); }
 }
 
 .balance-info {
-    font-size: 22px !important; 
+    font-size: 24px !important; 
     color: #fff; 
     font-weight: 900;
     background: rgba(0, 0, 0, 0.7) !important; 
@@ -187,13 +197,21 @@ button:active { transform: scale(0.95); }
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto !important; /* Центр */
+    gap: 10px; /* Отступ между иконкой и цифрами */
+    margin: 0 auto !important;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     animation: scorePulse 2s infinite alternate;
 }
 
-/* Чистый счет без лишних иконок */
-.balance-info .ice-icon, .balance-info img { display: none !important; }
+/* ВОЗВРАЩАЕМ ОДНУ КРАСИВУЮ ИКОНКУ В МЕНЮ */
+.balance-info .ice-icon {
+    display: inline-block !important;
+    width: 28px;
+    height: 28px;
+}
+
+/* Скрываем только лишние картинки, если они дублируются */
+.balance-info img { display: none !important; }
 
 @keyframes scorePulse {
     from { box-shadow: 0 0 10px rgba(255, 79, 216, 0.4); border-color: #ff4fd8; }
