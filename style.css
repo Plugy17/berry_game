@@ -271,6 +271,18 @@ button:active { transform: scale(0.95); }
     width: auto !important;
 }
 
+/* ПРАВКА: Скрываем рекорд именно в главном меню через CSS */
+#menu .record-info {
+    display: none !important;
+}
+
+.record-info {
+    font-weight: 800;
+    color: #ffd700;
+    text-shadow: 1px 1px 2px #000;
+    font-size: 14px;
+}
+
 .currency-row {
     display: flex;
     align-items: center;
@@ -391,11 +403,18 @@ button:active { transform: scale(0.95); }
 
 /* ФИКС: Огромные падающие объекты и магнит */
 #obstacle, .ice-drop, .golden-drop, .falling-ice-anim {
-    width: 45px !important; 
-    height: 45px !important;
-    max-width: 50px !important;
+    width: 60px !important;  /* Сделал чуть больше 45px для баланса, но жестко ограничил */
+    height: 60px !important;
+    max-width: 60px !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
+    background-position: center !important; /* Центрируем картинку внутри */
+}
+
+/* ПРАВКА: ЩИТ в игровом процессе (чтобы не был гигантским) */
+#game #obstacle {
+    width: 70px !important; /* Размер для щита-препятствия */
+    height: 70px !important;
 }
 
 /* Принудительный размер для магнита и других бонусов */
