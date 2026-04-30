@@ -48,8 +48,14 @@
         <div id="combo-msg"></div> </div>
 
     <div id="bonus-panel">
-        <div class="bonus-btn" onclick="useShield()">🛡️ <span id="count-shield">0</span></div>
-        <div class="bonus-btn" onclick="useMagnet()">🧲 <span id="count-magnet">0</span></div>
+        <div class="bonus-btn" onclick="useShield()">
+            <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
+            <span id="count-shield">0</span>
+        </div>
+        <div class="bonus-btn" onclick="useMagnet()">
+            <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
+            <span id="count-magnet">0</span>
+        </div>
     </div>
     
     <div id="player"></div> 
@@ -64,13 +70,15 @@
     <h2 style="color: white; margin-top: 80px; z-index: 5; text-shadow: 0 0 15px #ff4fd8; text-transform: uppercase;">🛒 МАГАЗИН</h2>
     
     <div class="shop-item">
-        <div class="item-title">🛡️ ЩИТ</div>
+        <img src="assets/shield_icon.png" class="shop-item-img" alt="Shield">
+        <div class="item-title">ЩИТ</div>
         <div class="item-price">300 <span class="ice-icon"></span></div>
         <button class="buy-button" onclick="buyItem('shield')">КУПИТЬ</button>
     </div>
 
     <div class="shop-item">
-        <div class="item-title">🧲 МАГНИТ</div>
+        <img src="assets/magnet_icon.png" class="shop-item-img" alt="Magnet">
+        <div class="item-title">МАГНИТ</div>
         <div class="item-price">500 <span class="ice-icon"></span></div>
         <button class="buy-button" onclick="buyItem('magnet')">КУПИТЬ</button>
     </div>
