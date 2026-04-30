@@ -279,15 +279,7 @@ button:active { transform: scale(0.95); }
     width: auto !important;
 }
 
-#menu .record-info { display: none !important; }
-
-.record-info {
-    font-weight: 800;
-    color: #ffd700;
-    text-shadow: 1px 1px 2px #000;
-    font-size: 14px;
-}
-
+/* ПРАВКА: Отображение нескольких валют в колонку */
 .currency-row {
     display: flex;
     align-items: center;
@@ -296,6 +288,11 @@ button:active { transform: scale(0.95); }
     font-weight: 900;
     color: white;
     white-space: nowrap;
+}
+
+/* ФИКС: Чтобы текст внутри валют не накладывался на иконки */
+.currency-row span {
+    margin-right: 2px;
 }
 
 .ice-icon, .golden-ice-icon-small, .diamond-icon-small {
@@ -379,35 +376,29 @@ button:active { transform: scale(0.95); }
     margin-top: 10px;
 }
 
-.difficulty-label {
-    color: #ffd700 !important; 
-    font-weight: 800; 
-    font-size: 14px; 
-    margin: 10px 0 5px 0;
+.welcome-text {
+    font-size: 32px !important; 
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 15px #ff4fd8, 0 0 5px #000, 2px 2px 5px #000 !important; 
+    margin-bottom: 15px;
     text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-/* ПРАВКА: МАГАЗИН */
-.vip-btn {
-    border-color: #ffd700 !important;
-    color: #ffd700 !important;
-    text-shadow: 0 0 5px #ffd700;
-}
-
-/* --- ПРАВКА: РАЗДЕЛЬНЫЕ КНОПКИ БАФФОВ В ИГРЕ --- */
+/* --- КНОПКИ БАФФОВ В ИГРЕ --- */
 #bonus-panel { 
     position: fixed !important; 
     bottom: 30px !important; 
     left: 50% !important; 
     transform: translateX(-50%) !important; 
     display: flex !important; 
-    gap: 30px !important; /* Увеличенный зазор для разделения */
+    gap: 30px !important; 
     z-index: 1000 !important; 
-    background: none !important; /* Удаляем общий фон-полосу */
+    background: none !important; 
     border: none !important;
 }
 
-/* Стиль для каждой отдельной кнопки-круга */
 .bonus-btn-wrapper {
     position: relative;
     width: 70px;
@@ -424,7 +415,7 @@ button:active { transform: scale(0.95); }
 
 .bonus-btn-wrapper:active { transform: scale(0.9); }
 
-.lvl-badge, #count-shield, #count-magnet {
+#count-shield, #count-magnet {
     background: #00eaff;
     color: black;
     padding: 2px 8px;
@@ -432,30 +423,11 @@ button:active { transform: scale(0.95); }
     font-size: 14px;
     font-weight: 900;
     position: absolute;
-    top: -5px; /* Счетчик теперь сверху справа */
+    top: -5px; 
     right: -5px;
 }
 
-.welcome-text {
-    font-size: 32px !important; 
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 15px #ff4fd8, 0 0 5px #000, 2px 2px 5px #000 !important; 
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.menu-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-}
-
+/* --- ОБЪЕКТЫ --- */
 #obstacle {
     width: 75px !important; 
     height: 75px !important;
@@ -470,52 +442,20 @@ button:active { transform: scale(0.95); }
     position: absolute;
 }
 
-#nick { text-align: center; }
-#difficulty { text-align-last: center; }
-
-.menu-footer {
-    position: absolute;
-    bottom: 25px;
-    width: 100%;
-    text-align: center;
-    pointer-events: none;
+/* ДОБАВЛЕНО: Тряска при столкновении */
+.shake-anim {
+    animation: shake 0.3s ease-in-out;
 }
 
-.footer-logo {
-    font-size: 32px;
-    color: rgba(255, 255, 255, 0.2);
-    font-weight: 900;
-    margin: 0;
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-10px, 5px); }
+    40% { transform: translate(10px, -5px); }
+    60% { transform: translate(-10px, -5px); }
+    80% { transform: translate(10px, 5px); }
 }
 
-/* ФИКС ИКОНОК В БАФФАХ И МАГАЗИНЕ */
-#shop .shop-item img, 
-#bonus-panel img, 
-.shop-item img,
-.bonus-btn img {
-    width: 45px !important;
-    height: 45px !important;
-    max-width: 45px !important;
-    max-height: 45px !important;
-    min-width: 45px !important;
-    min-height: 45px !important;
-    object-fit: contain !important;
-    animation: rotateElement 4s linear infinite;
-    position: relative !important;
-}
-
-/* Удаление ауры внутри кнопок */
-#shop .shield-aura::after, 
-#bonus-panel .shield-aura::after,
-.shop-item .shield-aura::after {
-    display: none !important;
-}
-
-button img {
-    width: 25px !important;
-    height: 25px !important;
-}
-
+/* --- VIP МАГАЗИН И ОБМЕН --- */
 .vip-card {
     border: 2px solid #ffd700 !important;
 }
@@ -525,10 +465,12 @@ button img {
     border: 2px dashed #ffd700 !important;
     border-radius: 20px;
     padding: 10px;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 350px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
 }
 
 .buy-button.gold {
@@ -537,11 +479,18 @@ button img {
     border: 1px solid #fff !important;
 }
 
-.exchange-slot-beauty {
-    font-weight: 900;
-    color: #ffd700;
-    text-shadow: 0 0 10px #ffd700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* ПРАВКА: Фикс для иконок в магазине */
+#shop .shop-item img, 
+#bonus-panel img {
+    width: 45px !important;
+    height: 45px !important;
+    animation: rotateElement 4s linear infinite;
+}
+
+/* ДОБАВЛЕНО: Эффект для кнопки Возрождения */
+#revive-btn {
+    background: linear-gradient(180deg, #00eaff, #0077ff) !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 0 20px #00eaff !important;
+    margin-top: 15px;
 }
