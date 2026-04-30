@@ -17,7 +17,7 @@ let totalCoins = 0;
 
 // --- ВАЛЮТА И ПРОГРЕСС ---
 let goldenIce = 0; 
-let diamonds = 0; // ДОБАВЛЕНО: Новая валюта
+let diamonds = 0; 
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
 let usedReviveThisRun = false; 
@@ -29,7 +29,7 @@ const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50;
 
 let inventory = { magnet: 0, shield: 0 };
 const PRICES = { magnet: 500, shield: 300, goldenConvert: 5000 };
-const VIP_PRICES = { skin: 10, slot: 5, diamond: 50000 }; // ДОБАВЛЕНО: Цена алмаза
+const VIP_PRICES = { skin: 10, slot: 5, diamond: 50000 };
 
 let shieldActive = false;
 let magnetActive = false;
@@ -44,7 +44,7 @@ const imgBad = "url('assets/obstacle.png')";
 
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
-const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`; // ДОБАВЛЕНО: Иконка алмаза
+const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
 // --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ ---
 function createRainDrop(containerId) {
@@ -102,7 +102,6 @@ function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(!layer) return;
     
-    // ПРАВКА: Тряска экрана при взрыве
     const gameContainer = document.getElementById("game");
     if(gameContainer) {
         gameContainer.classList.add("shake-anim");
@@ -126,7 +125,7 @@ function loadUserData(playerNick) {
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
             goldenIce = data.goldenIce || 0;
-            diamonds = data.diamonds || 0; // ДОБАВЛЕНО: Загрузка алмазов
+            diamonds = data.diamonds || 0; 
             level = data.level || 1;
             xp = data.xp || 0;
             inventory.shield = (data.inventory && data.inventory.shield) || 0;
@@ -153,6 +152,10 @@ window.onload = () => {
 
 // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
+    // ПРАВКА: Переименование кнопки в Магазин
+    const shopBtn = document.getElementById("shop-btn-main");
+    if(shopBtn) shopBtn.innerHTML = `💎 МАГАЗИН`;
+
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
         if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b> [LVL ${level}]`;
@@ -180,17 +183,11 @@ function updateMenuInfo() {
 }
 
 function updateBonusUI() {
+    // ПРАВКА: Обновление текста на раздельных кнопках
     const sCount = document.getElementById("count-shield");
     const mCount = document.getElementById("count-magnet");
     if(sCount) sCount.innerText = inventory.shield;
     if(mCount) mCount.innerText = inventory.magnet;
-
-    // ПРАВКА: Логика отрисовки слотов (пустые/полные)
-    const bonusPanel = document.getElementById("bonus-panel");
-    if(bonusPanel) {
-        let maxSlots = 1 + extraShieldSlots;
-        // Здесь можно добавить динамическую отрисовку div.buff-slot.empty, если нужно визуально показать пустые места
-    }
 }
 
 // --- ИГРОВОЙ ПРОЦЕСС ---
@@ -240,7 +237,6 @@ function spawnObstacle() {
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
     
-    // ДОБАВЛЕНО: Сброс позиции X препятствия при спавне
     obs.style.left = lanes[obstacleLane] + "%";
 
     const modeSelect = document.getElementById("difficulty");
@@ -290,7 +286,6 @@ function update() {
     
     obs.style.top = obstacleY + "px";
     
-    // ПРАВКА: Более точная коллизия с учетом динамического положения X препятствия
     let obsX = parseFloat(obs.style.left);
     if (Math.abs(newX - obsX) < 10 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
@@ -353,7 +348,6 @@ function handleCollision(obs, p) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            // ДОБАВЛЕНО: Сброс фильтра после потери щита, если нет магнита
             if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
             spawnObstacle();
         } else {
@@ -396,7 +390,6 @@ function gameOver() {
     }
     
     const revBtn = document.getElementById("revive-btn");
-    // ПРАВКА: Возрождение теперь за АЛМАЗЫ
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && diamonds > 0) ? "block" : "none";
 }
 
@@ -430,7 +423,6 @@ function convertIceToGold() {
     } else alert("Нужно 5000 мороженого!");
 }
 
-// ДОБАВЛЕНО: Покупка алмазов
 function buyDiamond() {
     if (totalCoins >= VIP_PRICES.diamond) {
         totalCoins -= VIP_PRICES.diamond;
@@ -458,7 +450,7 @@ function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
-    } else alert("Недостаточно мороженого!"); // ДОБАВЛЕНО: Уведомление
+    } else alert("Недостаточно мороженого!"); 
 }
 
 function useShield() {
@@ -500,7 +492,7 @@ function openLeaderboard() {
     if(!lbScreen || !list) return;
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
-    list.innerHTML = "<div class='loading'>Загрузка уровней...</div>";
+    list.innerHTML = "<div class='loading'>Загрузка...</div>";
 
     if(window.db) {
         db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
@@ -536,7 +528,7 @@ function closeShop() {
 
 function backToMenu() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId); // ДОБАВЛЕНО: Остановка цикла
+    if (loopId) cancelAnimationFrame(loopId); 
     
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(layer) {
@@ -551,7 +543,7 @@ function backToMenu() {
     startIceRain("menu");
 }
 
-// УПРАВЛЕНИЕ
+/* УПРАВЛЕНИЕ */
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
@@ -562,7 +554,6 @@ document.addEventListener("touchend", e => {
     else targetLane = Math.max(0, targetLane - 1);
 });
 
-// УПРАВЛЕНИЕ КЛАВИАТУРОЙ
 document.addEventListener("keydown", e => {
     if (!gameRunning) return;
     if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
