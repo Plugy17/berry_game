@@ -20,7 +20,8 @@
         }
         /* ДОБАВЛЕНО: Стили для отображения иконок валют в HTML */
         .ice-icon::after { content: '🍦'; }
-        .gold-icon::after { content: '💎'; }
+        .golden-ice-icon-small::after { content: '⭐'; } /* Золотое мороженое */
+        .diamond-icon-small::after { content: '💎'; } /* Алмаз */
     </style>
 </head>
 <body>
@@ -35,9 +36,9 @@
         <div class="top-bar-container">
             <div id="welcome" class="welcome-text">ГЕРОЙ BERRY</div>
             <div id="total-balance" class="balance-info">
-                <!-- Сюда JS вставит валюту -->
+                <!-- Сюда JS вставит валюту: Мороженое, Золотое и Алмазы -->
             </div>
-            <!-- РЕКОРД УДАЛЕН ОТСЮДА (как ты и просил) -->
+            <div id="menuLeaderboard" class="best-score" style="color: #ffd700; font-size: 18px; margin-top: 5px;">🏆 РЕКОРД: 0</div>
         </div>
 
         <!-- 2. ЦЕНТРАЛЬНЫЙ БЛОК КНОПОК -->
@@ -55,7 +56,7 @@
             </div>
             
             <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
-            <!-- ПРАВКА: Добавлена функция openShop() для баффов -->
+            <!-- ПРАВКА: Добавлена функция openBuffs() для баффов -->
             <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
             <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
             <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
@@ -101,7 +102,8 @@
             <span id="final-score">0</span> <span class="ice-icon"></span>
         </div>
         <div class="menu-controls" style="width: 280px; position: relative; z-index: 1001;">
-            <button id="revive-btn" class="buy-button gold" onclick="tryRevive()">
+            <!-- ПРАВКА: Теперь вызываем revivePlayer() из твоего JS, который тратит алмазы -->
+            <button id="revive-btn" class="buy-button gold" onclick="revivePlayer()" style="display:none; width: 100%; margin-bottom: 10px;">
                 ✨ ВОСКРЕСНУТЬ (1 💎)
             </button>
             <button class="main-btn" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
@@ -112,8 +114,8 @@
 
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-    <!-- ПРАВКА: Добавлен ID для обновления баланса -->
-    <div id="shop-balance-ice" class="balance-info" style="margin-bottom: 20px;">0 🍦</div>
+    <!-- ПРАВКА: Единый баланс для магазина -->
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 ⭐ | 0 💎</div>
     <div class="shop-container">
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
@@ -126,29 +128,38 @@
             <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
         </div>
     </div>
-    <div class="shop-item exchange-card" style="width: 100%; max-width: 350px; margin-top: 15px;">
-        <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
-        <p style="color: white; margin: 5px 0;">5000 🍦 = 1 💎</p>
-        <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+    <div class="shop-container" style="margin-top: 15px;">
+        <div class="shop-item exchange-card" style="width: 100%;">
+            <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
+            <p style="color: white; margin: 5px 0;">5000 🍦 = 1 ⭐</p>
+            <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+        </div>
+        <!-- ДОБАВЛЕНО: Покупка алмаза за обычное мороженое -->
+        <div class="shop-item exchange-card" style="width: 100%; margin-top: 10px; border-color: #00eaff;">
+            <div class="item-title" style="color: #00eaff;">АЛМАЗНЫЙ ДИЛЕР</div>
+            <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 💎</p>
+            <button class="buy-button gold" style="background: #004e63;" onclick="buyDiamond()">КУПИТЬ 💎</button>
+        </div>
     </div>
-    <!-- ПРАВКА: Исправлена функция закрытия -->
     <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
 
 <div id="realShop" class="screen hidden">
     <h2 class="shop-title">VIP SHOP</h2>
-    <!-- ПРАВКА: Добавлено отображение баланса алмазов в VIP магазине -->
-    <div id="vip-balance-gold" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">0 💎</div>
+    <!-- Баланс в VIP магазине -->
+    <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">
+        Используйте ⭐ и 💎 для покупок
+    </div>
     <div class="shop-container">
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">GOLD СКИН</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит сильнее на 10%</p>
-            <button class="buy-button gold" onclick="buyVipItem('skin')">10 💎</button>
+            <button class="buy-button gold" onclick="buyVipItem('skin')">10 ⭐</button>
         </div>
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">+1 СЛОТ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Запас щитов</p>
-            <button class="buy-button gold" onclick="buyVipItem('slot')">5 💎</button>
+            <button class="buy-button gold" onclick="buyVipItem('slot')">5 ⭐</button>
         </div>
     </div>
     <button class="sub-btn" style="margin-top: 30px;" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
@@ -177,7 +188,7 @@
     window.db = firebase.database();
   } catch (e) { console.error("Firebase error", e); }
 
-  // ПРАВКА: Функция открытия обычного магазина баффов
+  // Эти функции теперь просто переключают экраны, вся логика баланса внутри game.js
   function openBuffs() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('shop').classList.remove('hidden');
@@ -187,30 +198,12 @@
   function openShop() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('realShop').classList.remove('hidden');
-      // Обновляем баланс при открытии
       if(typeof window.updateMenuInfo === 'function') window.updateMenuInfo();
   }
 
-  // ПРАВКА: Добавлена функция closeShop, если её нет в game.js
   function closeShop() {
       document.getElementById('shop').classList.add('hidden');
       document.getElementById('menu').classList.remove('hidden');
-  }
-
-  function tryRevive() {
-      // ПРАВКА: Проверка существования переменных
-      if (window.goldenIce >= 1 && !window.usedReviveThisRun) {
-          window.goldenIce -= 1;
-          window.usedReviveThisRun = true;
-          window.gameRunning = true;
-          window.obstacleY = -150;
-          document.getElementById("gameOverScreen").classList.add("hidden");
-          if(typeof window.saveUserData === 'function') window.saveUserData();
-          if(typeof window.updateScore === 'function') window.updateScore();
-          if(typeof window.update === 'function') window.update();
-      } else {
-          alert("Недостаточно алмазов или уже использовано!");
-      }
   }
 </script>
 <script src="game.js"></script>
