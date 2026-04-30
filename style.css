@@ -29,7 +29,8 @@ body {
 }
 
 .hidden { display: none !important; }
-#menuLeaderboard { display: none !important; }
+/* Убрал display: none для лидерборда, так как теперь он нам нужен */
+#menuLeaderboard { display: none !important; } 
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
 .ice-drop, .falling-ice-anim {
@@ -128,7 +129,7 @@ button:active { transform: scale(0.95); }
     position: absolute; 
     top: 15px; 
     right: 15px; 
-    width: 45px !important; /* Уменьшено для компактности в уровень с HUD */
+    width: 45px !important;
     height: 45px !important; 
     padding: 0 !important;
     display: flex;
@@ -141,17 +142,15 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН (ЧЕТКИЙ СЧЕТ КАК В МЕНЮ) --- */
-#shop {
+/* --- БАФФЫ (БЫВШИЙ МАГАЗИН) --- */
+#shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
     padding: 40px 20px 60px 20px !important;
     box-sizing: border-box;
-    overflow-y: scroll !important; 
+    overflow-y: auto !important; 
     touch-action: pan-y !important; 
     -webkit-overflow-scrolling: touch;
 }
-
-#shop::-webkit-scrollbar { width: 0; background: transparent; }
 
 .shop-title {
     color: white;
@@ -180,9 +179,9 @@ button:active { transform: scale(0.95); }
 }
 
 .shop-balance-wrapper {
-    background: rgba(0, 0, 0, 0.7) !important; /* Прозрачность как в меню */
+    background: rgba(0, 0, 0, 0.7) !important;
     backdrop-filter: blur(15px);
-    border: 2px solid #ff4fd8 !important; /* Цвет как в меню */
+    border: 2px solid #ff4fd8 !important;
     border-radius: 30px !important;
     padding: 12px 25px;
     display: flex;
@@ -263,6 +262,38 @@ button:active { transform: scale(0.95); }
     max-width: 220px;
 }
 
+/* --- ЛИДЕРБОРД --- */
+.leaderboard-container {
+    width: 90%;
+    max-width: 350px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 20px;
+    border: 2px solid #ff4fd8;
+    margin-top: 20px;
+    box-shadow: 0 0 30px rgba(255, 79, 216, 0.3);
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.leaderboard-item:last-child { border-bottom: none; }
+
+.leaderboard-item:first-child {
+    color: #ffea00;
+    font-size: 22px;
+    text-shadow: 0 0 10px #ffea00;
+}
+
 /* --- МЕНЮ --- */
 #menu { 
     justify-content: flex-start; 
@@ -322,8 +353,9 @@ button:active { transform: scale(0.95); }
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 120px; 
+    margin-bottom: 40px; /* Уменьшил отступ, чтобы влезло больше кнопок */
     z-index: 20;
+    gap: 10px;
 }
 
 /* --- ОКНО ПРОИГРЫША --- */
@@ -387,30 +419,30 @@ button:active { transform: scale(0.95); }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- HUD (ОБНОВЛЕННЫЙ: КОМПАКТНАЯ ПОЛОСКА В УРОВЕНЬ С ДОМИКОМ) --- */
+/* --- HUD (ОБНОВЛЕННЫЙ) --- */
 #hud {
     position: absolute; 
-    top: 15px; /* Совпадает с top кнопки #backBtn */
+    top: 15px; 
     left: 15px;
     background: rgba(0, 0, 0, 0.6); 
     backdrop-filter: blur(10px);
-    padding: 6px 15px; /* Уменьшены отступы */
+    padding: 6px 15px; 
     border-radius: 15px;
     border: 2px solid #ff4fd8; 
     color: white; 
     z-index: 100;
-    font-size: 18px; /* Уменьшен размер шрифта */
+    font-size: 18px; 
     font-weight: 900;
     display: flex; 
     align-items: center; 
     gap: 10px;
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
-    height: 45px; /* Фиксированная высота как у кнопки #backBtn */
+    height: 45px; 
     box-sizing: border-box;
 }
 
 .ice-icon {
-    width: 24px; /* Уменьшен размер иконки для HUD */
+    width: 24px; 
     height: 24px;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
