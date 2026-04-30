@@ -324,7 +324,6 @@ button:active { transform: scale(0.95); }
 }
 
 /* АУРЫ */
-/* ПРАВКА: Ограничили размер ауры щита и магнита, чтобы не закрывала экран */
 .shield-aura::after { 
     content: ''; 
     position: absolute; 
@@ -369,7 +368,7 @@ button:active { transform: scale(0.95); }
 }
 
 .difficulty-label {
-    color: #ffd700 !important; /* Золотистый цвет */
+    color: #ffd700 !important; 
     font-weight: 800; 
     font-size: 14px; 
     margin: 10px 0 5px 0;
@@ -405,10 +404,10 @@ button:active { transform: scale(0.95); }
 
 /* ПРАВКА: Заголовок "Герой BERRY" */
 .welcome-text {
-    font-size: 32px !important; /* Увеличил размер */
+    font-size: 32px !important; 
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 15px #ff4fd8, 0 0 5px #000, 2px 2px 5px #000 !important; /* Усилил тень для читаемости */
+    text-shadow: 0 0 15px #ff4fd8, 0 0 5px #000, 2px 2px 5px #000 !important; 
     margin-bottom: 15px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -416,7 +415,6 @@ button:active { transform: scale(0.95); }
 
 /* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА (ДОБАВЛЕНО) --- */
 
-/* Контейнер для идеальной центровки контента в меню */
 .menu-content-wrapper {
     display: flex;
     flex-direction: column;
@@ -427,20 +425,18 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* ФИКС: Огромные падающие объекты и магнит */
 #obstacle, .ice-drop, .golden-drop, .falling-ice-anim {
     width: 60px !important;  
     height: 60px !important;
     max-width: 60px !important;
-    max-height: 60px !important; /* КРИТИЧЕСКИЙ ФИКС: Щит не будет огромным */
+    max-height: 60px !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important; 
     pointer-events: none;
-    box-sizing: border-box; /* Чтобы padding не раздувал объект */
+    box-sizing: border-box;
 }
 
-/* ПРАВКА: ЩИТ в игровом процессе (чтобы не был гигантским) */
 #game #obstacle {
     width: 70px !important; 
     height: 70px !important;
@@ -448,23 +444,14 @@ button:active { transform: scale(0.95); }
     max-height: 70px !important;
 }
 
-/* Принудительный размер для магнита и других бонусов */
-[src*="magnet"], .magnet-bonus {
-    width: 40px !important;
-    height: 40px !important;
-    object-fit: contain !important;
-}
-
-/* ФИКС: Выравнивание кнопок и инпута по центру */
 #nick {
     text-align: center;
 }
 
 #difficulty {
-    text-align-last: center; /* Центрирует текст внутри select */
+    text-align-last: center;
 }
 
-/* Футер Berry Runner */
 .menu-footer {
     position: absolute;
     bottom: 25px;
@@ -478,4 +465,48 @@ button:active { transform: scale(0.95); }
     color: rgba(255, 255, 255, 0.2);
     font-weight: 900;
     margin: 0;
+}
+
+/* --- ПРАВКИ: ФИКС ИНТЕРФЕЙСА БАФФОВ (ДОБАВЛЕНО) --- */
+
+/* Изолируем иконки в магазине и нижней панели, чтобы они НЕ были огромными */
+#shop .shop-item img, 
+#bonus-panel img, 
+.shop-item img {
+    width: 45px !important;
+    height: 45px !important;
+    max-width: 45px !important;
+    max-height: 45px !important;
+    min-width: 45px !important;
+    min-height: 45px !important;
+    object-fit: contain !important;
+    transform: none !important;
+    animation: none !important;
+    position: relative !important;
+    margin: 0 !important;
+    top: auto !important;
+    left: auto !important;
+}
+
+/* Фиксируем размер панели бонусов, чтобы она не растягивалась */
+#bonus-panel {
+    height: 65px !important;
+    padding: 0 15px !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-radius: 40px !important;
+    border: 2px solid rgba(255, 79, 216, 0.4) !important;
+    align-items: center !important;
+}
+
+/* Отключаем ауру щита для иконок в магазине, чтобы она не вылезала на весь экран */
+.shop-item .shield-aura::after, 
+#bonus-panel .shield-aura::after {
+    display: none !important;
+}
+
+/* Принудительный сброс для всех картинок внутри кнопок */
+button img {
+    width: 25px !important;
+    height: 25px !important;
+    max-width: 25px !important;
 }
