@@ -16,19 +16,19 @@ let best = 0;
 let totalCoins = 0;
 
 // --- НОВАЯ ВАЛЮТА И VIP ПРОГРЕСС ---
-let goldenIce = 0; // Наша новая валюта
+let goldenIce = 0; 
 let hasVipSkin = false; 
-let extraShieldSlots = 0; // Улучшение ячеек щита
-let usedReviveThisRun = false; // Ограничение воскрешения (1 раз за игру)
+let extraShieldSlots = 0; 
+let usedReviveThisRun = false; 
 
-// НОВЫЕ ПЕРЕМЕННЫЕ: УРОВНИ И ОПЫТ
+// УРОВНИ И ОПЫТ
 let level = 1;
 let xp = 0;
 const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
 
 let inventory = { magnet: 0, shield: 0 };
 const PRICES = { magnet: 500, shield: 300, goldenConvert: 5000 };
-const VIP_PRICES = { skin: 10, slot: 5 }; // Цены в Золотых Ягодах
+const VIP_PRICES = { skin: 10, slot: 5 };
 
 let shieldActive = false;
 let magnetActive = false;
@@ -38,19 +38,18 @@ let comboMultiplier = 1;
 let rainInterval = null;
 
 const imgIceCream = "url('assets/icecream.png')";
-const imgGoldenIce = "url('assets/golden_ice.png')"; // Ресурс для золотого
+const imgGoldenIce = "url('assets/golden_ice.png')"; 
 const imgBad = "url('assets/obstacle.png')";
 
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 
-// --- ЭФФЕКТ ПАДАЮЩЕГО МОРОЖЕНЫХ ---
+// --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ ---
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
     if (!container || container.classList.contains('hidden')) return;
 
     const drop = document.createElement("div");
-    // Редкий шанс на золотое мороженое в меню для красоты
     const isGold = Math.random() < 0.1;
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
     drop.style.left = Math.random() * 95 + "vw";
@@ -90,7 +89,6 @@ function createExplosion(x, y, isGold = false) {
         particle.style.left = x + "px";
         particle.style.top = y + "px";
         particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
-        // Если золотое, добавим свечения
         if(isGold) particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
         
         layer.appendChild(particle);
@@ -108,7 +106,7 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// --- FIREBASE (ОБНОВЛЕНО СОХРАНЕНИЕ С ЗОЛОТОМ) ---
+// --- FIREBASE (ЗАГРУЗКА И СОХРАНЕНИЕ) ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -116,12 +114,11 @@ function loadUserData(playerNick) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
-            goldenIce = data.goldenIce || 0; // Загрузка золота
+            goldenIce = data.goldenIce || 0;
             level = data.level || 1;
             xp = data.xp || 0;
             inventory.shield = (data.inventory && data.inventory.shield) || 0;
             inventory.magnet = (data.inventory && data.inventory.magnet) || 0;
-            // Загрузка VIP статусов
             hasVipSkin = data.hasVipSkin || false;
             extraShieldSlots = data.extraShieldSlots || 0;
         }
@@ -132,15 +129,7 @@ function loadUserData(playerNick) {
 function saveUserData() {
     if (!nick || !window.db) return;
     db.ref('players/' + nick).set({ 
-        nick, 
-        best, 
-        totalCoins, 
-        goldenIce,
-        inventory,
-        level,
-        xp,
-        hasVipSkin,
-        extraShieldSlots
+        nick, best, totalCoins, goldenIce, inventory, level, xp, hasVipSkin, extraShieldSlots
     });
 }
 
@@ -150,6 +139,7 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
+// --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
@@ -157,15 +147,17 @@ function updateMenuInfo() {
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
+    
+    // Рекорд в меню
     const menuLb = document.getElementById("menuLeaderboard");
-    if(menuLb) menuLb.innerText = "🏆 " + best;
+    if(menuLb) menuLb.innerText = "🏆 РЕКОРД: " + best;
 
-    // Обновление баланса в меню (Мороженое + Золото)
+    // Баланс в меню
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
         totalBal.innerHTML = `
             <div class="currency-row">${totalCoins} ${getIceIcon()}</div>
-            <div class="currency-row">${goldenIce} ${getGoldIcon()}</div>
+            <div class="currency-row" style="margin-top:5px">${goldenIce} ${getGoldIcon()}</div>
         `;
     }
     
@@ -183,6 +175,7 @@ function updateBonusUI() {
     if(mCount) mCount.innerText = inventory.magnet;
 }
 
+// --- ИГРОВОЙ ПРОЦЕСС ---
 function startGame() {
     if (!nick) {
         const val = document.getElementById("nick").value.trim();
@@ -202,12 +195,12 @@ function startGame() {
 function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
-    usedReviveThisRun = false; // Сброс воскрешения
+    usedReviveThisRun = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
     
     const p = document.getElementById("player");
     p.className = ""; 
-    if(hasVipSkin) p.classList.add("skin-ice"); // Применяем VIP скин
+    if(hasVipSkin) p.classList.add("skin-ice"); 
     
     p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
@@ -227,11 +220,9 @@ function spawnObstacle() {
     const mode = document.getElementById("difficulty").value;
     const rand = Math.random();
     
-    // ЛОГИКА ПОЯВЛЕНИЯ ЗОЛОТЫХ ЯГОД (Только на Hard)
     if (mode === "hard" && rand < 0.05) {
         obs.dataset.type = "golden";
         obs.style.backgroundImage = imgGoldenIce;
-        speed += 2; // Золотые движутся быстрее
     } else {
         const isGood = rand < 0.6;
         obs.dataset.type = isGood ? "good" : "bad";
@@ -240,48 +231,36 @@ function spawnObstacle() {
 
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
-    obs.style.transform = "scale(1)";
 }
 
 function update() {
     if (!gameRunning) return;
     obstacleY += speed;
     speed += difficulty;
+    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
 
-    // Магнит теперь работает и на золотые ягоды!
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
         let targetX = lanes[targetLane];
-        let distY = playerTop - obstacleY;
-        
-        // ПАССИВКА СКИНА: +10% к силе магнита
         let magnetPower = hasVipSkin ? 0.35 : 0.25;
-
-        if (distY < 500 && distY > -30) {
-            let newLeft = currentLeft + (targetX - currentLeft) * magnetPower;
-            obs.style.left = newLeft + "%";
-            if (distY < 180) {
-                obs.style.left = targetX + "%";
-                obstacleLane = targetLane;
-            }
-            obstacleY -= (speed * 0.5); 
-        }
+        let newLeft = currentLeft + (targetX - currentLeft) * magnetPower;
+        obs.style.left = newLeft + "%";
     }
     
     obs.style.top = obstacleY + "px";
-    const catchRange = (magnetActive && isPullable) ? 120 : 60;
     
-    if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
+    // Проверка столкновения
+    if (obstacleLane === targetLane && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
     
     if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good" || obs.dataset.type === "golden") { 
+        if (isPullable) { 
             comboCount = 0; comboMultiplier = 1; 
             document.getElementById("combo-ui").classList.add("hidden"); 
         }
@@ -298,50 +277,33 @@ function handleCollision(obs, p) {
     if (obs.dataset.type === "good" || obs.dataset.type === "golden") {
         const isGold = obs.dataset.type === "golden";
         createExplosion(centerX, centerY, isGold); 
-        
         comboCount++;
         
-        // ВЫДАЧА ЗОЛОТА ЗА КОМБО (каждые 100)
-        if (comboCount > 0 && comboCount % 100 === 0) {
-            goldenIce++;
-            triggerComboFlash(10); // Особая вспышка
-        }
+        if (comboCount % 100 === 0) goldenIce++;
+        if (isGold) goldenIce++;
 
-        if (isGold) goldenIce++; // Прямое получение золотой ягоды
-
-        let oldMult = comboMultiplier;
-        if (comboCount >= 12) comboMultiplier = 5;
-        else if (comboCount >= 8) comboMultiplier = 4;
-        else if (comboCount >= 5) comboMultiplier = 3;
-        else if (comboCount >= 2) comboMultiplier = 2;
-        else comboMultiplier = 1;
+        comboMultiplier = comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
 
         const ui = document.getElementById("combo-ui");
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
-            if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
         }
 
         coins += comboMultiplier;
         xp += comboMultiplier;
         
         let nextXP = getNextLevelXP(level);
-        if (xp >= nextXP) {
-            xp -= nextXP;
-            level++;
-        }
+        if (xp >= nextXP) { xp -= nextXP; level++; }
 
         updateScore(); 
         spawnObstacle();
-    } else if (obs.dataset.type === "bad") {
+    } else {
         if (shieldActive) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            obstacleY = window.innerHeight + 500; 
             spawnObstacle();
-            updateBonusUI();
         } else {
             createCubeBoom(centerX, centerY); 
             gameOver();
@@ -353,9 +315,9 @@ function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
         hud.innerHTML = `
-            <div class="hud-item">Lvl ${level}</div>
-            <div class="hud-item">${getIceIcon()} ${coins}</div>
-            <div class="hud-item">${getGoldIcon()} ${goldenIce}</div>
+            <div class="currency-row">LVL ${level}</div>
+            <div class="currency-row">${coins} ${getIceIcon()}</div>
+            <div class="currency-row">${goldenIce} ${getGoldIcon()}</div>
         `;
     }
 }
@@ -365,76 +327,41 @@ function gameOver() {
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
-    
     document.getElementById("gameOverScreen").classList.remove("hidden");
     document.getElementById("final-score").innerText = coins; 
-
-    // Показываем кнопку воскрешения, если есть золото и еще не использовали
-    const reviveBtn = document.getElementById("revive-btn");
-    if (reviveBtn) {
-        reviveBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
-    }
+    
+    const revBtn = document.getElementById("revive-btn");
+    if(revBtn) revBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
 }
 
-// ФУНКЦИЯ ВТОРОГО ШАНСА
-function tryRevive() {
-    if (!usedReviveThisRun && goldenIce > 0) {
-        goldenIce--;
-        usedReviveThisRun = true;
-        document.getElementById("gameOverScreen").classList.add("hidden");
-        gameRunning = true;
-        // Даем 2 секунды неуязвимости
-        shieldActive = true;
-        document.getElementById("player").classList.add("shield-aura");
-        obstacleY = -200; 
-        spawnObstacle();
-        updateScore();
-        update();
-    }
-}
-
-// КОНВЕРТАЦИЯ ВАЛЮТЫ
+// --- МАГАЗИН И УЛУЧШЕНИЯ ---
 function convertIceToGold() {
-    if (totalCoins >= PRICES.goldenConvert) {
-        totalCoins -= PRICES.goldenConvert;
-        goldenIce += 1;
-        saveUserData();
-        updateMenuInfo();
-        alert("Обмен завершен! +1 Золотая ягода.");
-    } else {
-        alert("Нужно 5000 мороженого!");
-    }
+    if (totalCoins >= 5000) {
+        totalCoins -= 5000; goldenIce++;
+        saveUserData(); updateMenuInfo();
+        alert("Обмен успешен!");
+    } else alert("Нужно 5000 мороженого!");
 }
 
-// ПОКУПКА VIP УЛУЧШЕНИЙ
 function buyVipItem(type) {
-    if (type === 'skin') {
-        if (goldenIce >= VIP_PRICES.skin && !hasVipSkin) {
-            goldenIce -= VIP_PRICES.skin;
-            hasVipSkin = true;
-            alert("Скин куплен! Магнит усилен на 10% навсегда.");
-        } else if (hasVipSkin) alert("Уже куплено!");
-    } else if (type === 'slot') {
-        if (goldenIce >= VIP_PRICES.slot) {
-            goldenIce -= VIP_PRICES.slot;
-            extraShieldSlots++;
-            alert("Теперь вы можете нести больше щитов!");
-        }
+    if (type === 'skin' && goldenIce >= 10 && !hasVipSkin) {
+        goldenIce -= 10; hasVipSkin = true;
+        saveUserData(); updateMenuInfo();
+        alert("Скин разблокирован!");
+    } else if (type === 'slot' && goldenIce >= 5) {
+        goldenIce -= 5; extraShieldSlots++;
+        saveUserData(); updateMenuInfo();
+        alert("Слот добавлен!");
     }
-    saveUserData();
-    updateMenuInfo();
 }
 
 function buyItem(type) {
-    // Проверка на лимит щитов (базово 1 + улучшения)
-    if (type === 'shield' && inventory.shield >= (1 + extraShieldSlots)) {
-        return alert("Нет места для щита! Улучши ячейки в VIP магазине.");
-    }
-
+    let limit = 1 + extraShieldSlots;
+    if (type === 'shield' && inventory.shield >= limit) return alert("Мест нет!");
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
-    } else alert("Недостаточно мороженого!");
+    }
 }
 
 function useShield() {
@@ -450,46 +377,61 @@ function useMagnet() {
         inventory.magnet--; magnetActive = true;
         document.getElementById("player").classList.add("magnet-aura");
         updateBonusUI();
-        setTimeout(() => { 
-            magnetActive = false; 
-            if(gameRunning) {
-                document.getElementById("player").classList.remove("magnet-aura"); 
-                updateBonusUI();
-            }
+        setTimeout(() => {
+            magnetActive = false;
+            document.getElementById("player").classList.remove("magnet-aura");
         }, 10000);
     }
 }
 
-// Функции навигации без изменений...
+// --- ЛИДЕРБОРД ---
+function openLeaderboard() {
+    const lbScreen = document.getElementById("leaderboardScreen");
+    const list = document.getElementById("leaderboard-list");
+    lbScreen.classList.remove("hidden");
+    document.getElementById("menu").classList.add("hidden");
+    list.innerHTML = "Загрузка...";
+
+    if(window.db) {
+        db.ref('players').orderByChild('best').limitToLast(10).once('value', (snap) => {
+            list.innerHTML = "";
+            let players = [];
+            snap.forEach(child => { players.push(child.val()); });
+            players.reverse().forEach((p, index) => {
+                list.innerHTML += `<div class="leaderboard-item">
+                    <span>${index+1}. ${p.nick}</span>
+                    <span>${p.best} 🍦</span>
+                </div>`;
+            });
+        });
+    }
+}
+
+function closeLeaderboard() {
+    document.getElementById("leaderboardScreen").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
+}
+
 function openBuffs() { 
     document.getElementById("menu").classList.add("hidden"); 
     document.getElementById("shop").classList.remove("hidden"); 
-    startIceRain("shop"); 
     updateMenuInfo();
 }
 
 function closeShop() { 
     document.getElementById("shop").classList.add("hidden"); 
     document.getElementById("menu").classList.remove("hidden"); 
-    startIceRain("menu"); 
-}
-
-function openShop() {
-    // Здесь теперь можно открывать полноценный VIP магазин
-    alert("VIP магазин доступен в разделе БАФФЫ (прокрутите вниз).");
 }
 
 function backToMenu() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    startIceRain("menu"); 
     updateMenuInfo();
 }
 
-// Управление тачем...
+// УПРАВЛЕНИЕ
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
@@ -497,13 +439,7 @@ document.addEventListener("touchend", e => {
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
     const p = document.getElementById("player");
-    if (diff > 0) {
-        targetLane = Math.min(3, targetLane + 1);
-        p.style.transform = "translateX(-50%) rotate(15deg) scale(1.1)";
-    } else {
-        targetLane = Math.max(0, targetLane - 1);
-        p.style.transform = "translateX(-50%) rotate(-15deg) scale(1.1)";
-    }
+    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
+    else targetLane = Math.max(0, targetLane - 1);
     p.style.left = lanes[targetLane] + "%";
-    setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)"; }, 150);
 });
