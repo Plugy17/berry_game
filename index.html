@@ -67,23 +67,21 @@
         <span id="shop-balance">0</span> <span class="ice-icon"></span>
     </div>
 
-    <h2 style="color: white; margin-top: 80px; z-index: 5; text-shadow: 0 0 15px #ff4fd8; text-transform: uppercase;">🛒 МАГАЗИН</h2>
-    
-    <div class="shop-item">
-        <img src="assets/shield_icon.png" class="shop-item-img" alt="Shield">
-        <div class="item-title">ЩИТ</div>
-        <div class="item-price">300 <span class="ice-icon"></span></div>
-        <button class="buy-button" onclick="buyItem('shield')">КУПИТЬ</button>
+    <div class="shop-container">
+        <div class="shop-item">
+            <img src="assets/shield_icon.png" alt="Shield">
+            <div class="item-title">ЩИТ</div>
+            <button class="buy-button" onclick="buyItem('shield')">КУПИТЬ (300 🍦)</button>
+        </div>
+
+        <div class="shop-item">
+            <img src="assets/magnet_icon.png" alt="Magnet">
+            <div class="item-title">МАГНИТ</div>
+            <button class="buy-button" onclick="buyItem('magnet')">КУПИТЬ (500 🍦)</button>
+        </div>
     </div>
 
-    <div class="shop-item">
-        <img src="assets/magnet_icon.png" class="shop-item-img" alt="Magnet">
-        <div class="item-title">МАГНИТ</div>
-        <div class="item-price">500 <span class="ice-icon"></span></div>
-        <button class="buy-button" onclick="buyItem('magnet')">КУПИТЬ</button>
-    </div>
-
-    <button onclick="closeShop()" style="width: 200px !important; margin-top: 30px; background: rgba(0,0,0,0.5) !important;">НАЗАД</button>
+    <button id="backBtn" onclick="closeShop()">НАЗАД</button>
 </div>
 
 <script>
