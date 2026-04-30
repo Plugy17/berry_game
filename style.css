@@ -29,7 +29,7 @@ body {
 }
 
 .hidden { display: none !important; }
-#menuLeaderboard { display: none !important; } 
+/* #menuLeaderboard { display: none !important; } — УДАЛИЛ ЭТО, чтобы рекорд в меню был виден */
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
 .ice-drop, .falling-ice-anim {
@@ -154,7 +154,7 @@ button:active { transform: scale(0.95); }
 }
 
 /* --- МАГАЗИН И УЛУЧШЕНИЯ --- */
-#shop, #realShop, #leaderboardScreen {
+#shop, #realShop, #leaderboardScreen, #normalShop {
     justify-content: flex-start !important; 
     padding: 40px 20px 60px 20px !important;
     box-sizing: border-box;
@@ -176,151 +176,101 @@ button:active { transform: scale(0.95); }
     animation: neonGlow 2s infinite alternate;
 }
 
-@keyframes neonGlow {
-    from { transform: scale(1); text-shadow: 0 0 10px #ff4fd8, 0 0 20px #ff4fd8; }
-    to { transform: scale(1.05); text-shadow: 0 0 20px #ff4fd8, 0 0 40px #00eaff; }
-}
-
-/* НОВАЯ СЕКЦИЯ VIP */
-.shop-section-title {
-    color: #ffea00;
-    font-size: 20px;
-    font-weight: 900;
-    margin: 30px 0 15px 0;
-    text-align: center;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
-}
-
-.shop-item.vip {
-    border: 2px solid #ffea00 !important;
-    background: rgba(255, 234, 0, 0.05) !important;
-    border-radius: 25px;
-    margin-bottom: 20px;
-}
-
-.item-desc {
-    font-size: 14px;
-    color: #bbb;
-    text-align: center;
-    margin: 0 10px 10px 10px;
-    font-weight: 400;
-    text-transform: none;
-}
-
-.buy-button.gold {
-    background: linear-gradient(45deg, #ffea00, #ff9500) !important;
-    color: #000 !important;
-    box-shadow: 0 4px 15px rgba(255, 234, 0, 0.4) !important;
-}
-
-/* БЛОК ОБМЕНА */
-.exchange-container {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    padding: 15px;
-    width: 100%;
-    max-width: 280px;
-    text-align: center;
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    margin-top: 20px;
-}
-
-.exchange-text {
-    color: #fff;
-    font-size: 14px;
+/* ФИКС ГИГАНТСКИХ КАРТИНОК В БАФФАХ */
+.shop-item img {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: contain;
     margin-bottom: 10px;
 }
 
-/* --- ЛИДЕРБОРД --- */
-.leaderboard-container {
-    width: 90%;
-    max-width: 350px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    padding: 20px;
-    border: 2px solid #ff4fd8;
-    margin-top: 20px;
-    box-shadow: 0 0 30px rgba(255, 79, 216, 0.3);
-}
-
-/* --- МЕНЮ (ПРОКРУТКА + ВТОРАЯ ВАЛЮТА) --- */
-#menu { 
-    justify-content: flex-start;
-    padding: 40px 0 80px 0;
-    overflow-y: auto !important;
-    touch-action: pan-y !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-.balance-info {
-    font-size: 20px !important; /* Уменьшил чуть шрифт для двух валют */
-    color: #fff; 
-    font-weight: 900;
-    background: rgba(0, 0, 0, 0.7) !important; 
-    backdrop-filter: blur(15px);
-    padding: 10px 20px !important; 
-    border-radius: 30px !important; 
-    border: 2px solid #ff4fd8 !important;
+.shop-container {
     display: flex;
-    flex-direction: column; /* Валюты друг под другом для мобилок */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding-bottom: 30px;
+    width: 100%;
+}
+
+.shop-item {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 79, 216, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
+    width: 45%; /* Чтобы шли по два в ряд */
+    min-width: 140px;
+}
+
+/* --- БАЛАНС И СЧЕТ (КРАСИВОЕ МОРОЖЕНОЕ) --- */
+.balance-info, #hud {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border: 2px solid #ff4fd8 !important;
+    border-radius: 15px !important;
+    padding: 8px 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    min-width: 100px;
 }
 
 .currency-row {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 18px;
+    font-weight: 900;
+    color: white;
 }
 
-.golden-ice-icon {
-    width: 24px; height: 24px;
-    background: url('assets/golden_ice.png') no-repeat center center;
-    background-size: contain;
-    filter: drop-shadow(0 0 5px #ffea00);
-}
-
-.golden-ice-icon-small {
-    width: 18px; height: 18px;
-    background: url('assets/golden_ice.png') no-repeat center center;
+.ice-icon {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
     vertical-align: middle;
 }
 
-/* --- ОКНО ПРОИГРЫША (ВТОРОЙ ШАНС) --- */
-.revive-msg {
-    font-size: 14px;
-    color: #ffea00;
-    margin-bottom: 10px;
-    font-weight: 600;
+.golden-ice-icon-small {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: url('assets/golden_ice.png') no-repeat center center;
+    background-size: contain;
+    filter: drop-shadow(0 0 5px #ffea00);
+    vertical-align: middle;
 }
 
-/* --- HUD (ОБНОВЛЕННЫЙ С ДВУМЯ ВАЛЮТАМИ) --- */
-#hud {
-    position: absolute; 
-    top: 15px; 
-    left: 15px;
-    background: rgba(0, 0, 0, 0.7); 
-    backdrop-filter: blur(10px);
-    padding: 5px 12px; 
-    border-radius: 15px;
-    border: 2px solid #ff4fd8; 
-    color: white; 
-    z-index: 100;
-    display: flex; 
-    flex-direction: column; /* Чтобы две валюты влезли в угол */
-    gap: 2px;
-    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
-}
-
-.hud-item {
+/* --- ЛИДЕРБОРД --- */
+.leaderboard-item {
     display: flex;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: white;
+    width: 100%;
+    box-sizing: border-box;
+    border-left: 4px solid #ff4fd8;
+}
+
+/* --- МЕНЮ (ФИКС КНОПОК) --- */
+#menu { 
+    justify-content: flex-start;
+    padding: 20px 0 80px 0;
+}
+
+.menu-controls {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
-    font-size: 16px;
-    font-weight: 900;
+    gap: 10px;
+    width: 100%;
+    z-index: 10;
+    margin-top: 20px;
 }
 
 /* --- ПЕРСОНАЖ (ПОДДЕРЖКА СКИНОВ) --- */
@@ -328,12 +278,21 @@ button:active { transform: scale(0.95); }
     filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px #00eaff);
 }
 
-/* Остальные элементы без изменений */
+/* ОСТАЛЬНЫЕ ЭЛЕМЕНТЫ */
 #obstacle { position: absolute; width: 70px; height: 70px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 90; transition: left 0.2s ease-out; }
-#player { position: absolute; bottom: 18%; left: 50%; width: 85px; height: 85px; transform: translateX(-50%); background: url('assets/berry.png') no-repeat center center !important; background-size: contain !important; z-index: 99; }
+#player { position: absolute; bottom: 18%; left: 50%; width: 85px; height: 85px; transform: translateX(-50%); background: url('assets/berry.png') no-repeat center center !important; background-size: contain !important; z-index: 99; transition: left 0.1s ease-out, transform 0.15s ease-out; }
+
+/* АУРЫ */
 .shield-aura::after { content: ''; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; border: 5px solid #00eaff; border-radius: 50%; box-shadow: 0 0 20px #00eaff; animation: shieldJuicy 0.5s infinite alternate; }
 .magnet-aura::before { content: ''; position: absolute; top: -45px; left: -45px; right: -45px; bottom: -45px; border-radius: 50%; background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%); border: 2px dashed rgba(191, 0, 255, 0.6); animation: magnetRotation 0.8s linear infinite; }
+
+@keyframes neonGlow {
+    from { transform: scale(1); text-shadow: 0 0 10px #ff4fd8, 0 0 20px #ff4fd8; }
+    to { transform: scale(1.05); text-shadow: 0 0 20px #ff4fd8, 0 0 40px #00eaff; }
+}
+
 @keyframes magnetRotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 #bonus-panel { position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 110; }
 .bonus-btn { position: relative; width: 60px !important; height: 60px !important; background: rgba(0, 0, 0, 0.5) !important; backdrop-filter: blur(8px); border: 2px solid rgba(255, 79, 216, 0.4) !important; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; padding: 0 !important; }
 .bonus-btn img { width: 35px !important; height: 35px !important; }
