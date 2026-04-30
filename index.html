@@ -19,7 +19,7 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
-            <!-- Основной баланс игрока -->
+            <!-- Основной баланс игрока (Мороженое и Золото) -->
             <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
             <!-- Рекорд -->
             <div id="menuLeaderboard" class="record-info">🏆 0</div>
@@ -40,7 +40,7 @@
         <button onclick="startGame()">ИГРАТЬ</button>
         <!-- Разделение функционала с поддержкой свайпа -->
         <button onclick="openBuffs()">⚡ Баффы</button>
-        <button onclick="openShop()">🛒 Магазин</button>
+        <button onclick="openShop()">💎 VIP Магазин</button>
         <button onclick="openLeaderboard()">🏆 Рейтинг</button>
         
         <!-- Дополнительный отступ снизу для удобства прокрутки -->
@@ -54,7 +54,7 @@
 
     <!-- HUD теперь управляется целиком через JS для компактности -->
     <div id="hud">
-        <span class="ice-icon"></span> 0 | 🏆 0
+        <span class="ice-icon"></span> 0 | <span class="golden-ice-icon-small"></span> 0 | 🏆 0
     </div> 
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
@@ -87,13 +87,17 @@
             <span id="final-score">0</span>
         </div>
         <div class="go-btn-container">
+            <!-- Кнопка воскрешения за золото -->
+            <button id="revive-btn" class="btn-revive" onclick="tryRevive()" style="display: none; background: linear-gradient(180deg, #ffd700, #ff8c00);">
+                ✨ ВОСКРЕСНУТЬ (1 <span class="golden-ice-icon-small"></span>)
+            </button>
             <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
             <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
         </div>
     </div>
 </div>
 
-<!-- ЭКРАН БАФФОВ (БЫВШИЙ МАГАЗИН) -->
+<!-- ЭКРАН БАФФОВ (ОБЫЧНЫЙ МАГАЗИН) -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
 
@@ -119,29 +123,49 @@
                 КУПИТЬ 500 <span class="ice-icon"></span>
             </button>
         </div>
+
+        <!-- Кнопка обмена валюты прямо в баффах для удобства -->
+        <div class="shop-item" style="border: 2px solid #ffd700;">
+            <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
+            <p style="font-size: 10px; color: #fff;">5000 🍦 = 1 💎</p>
+            <button class="buy-button" onclick="convertIceToGold()" style="background: #444;">
+                ОБМЕНЯТЬ
+            </button>
+        </div>
     </div>
 
     <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
 </div>
 
-<!-- НОВЫЙ ЭКРАН РЕЙТИНГА -->
+<!-- НОВЫЙ ЭКРАН VIP МАГАЗИНА (ЗОЛОТО) -->
+<div id="realShop" class="screen hidden">
+    <h2 class="shop-title">VIP МАГАЗИН</h2>
+    <div class="shop-container">
+        <div class="shop-item">
+            <div class="item-title">GOLD СКИН</div>
+            <p style="font-size: 10px; color: #aaa;">+10% к силе магнита</p>
+            <button class="buy-button" onclick="buyVipItem('skin')" style="background: #d4af37;">
+                10 <span class="golden-ice-icon-small"></span>
+            </button>
+        </div>
+        <div class="shop-item">
+            <div class="item-title">+1 ЯЧЕЙКА ЩИТА</div>
+            <p style="font-size: 10px; color: #aaa;">Больше щитов в запас</p>
+            <button class="buy-button" onclick="buyVipItem('slot')" style="background: #d4af37;">
+                5 <span class="golden-ice-icon-small"></span>
+            </button>
+        </div>
+    </div>
+    <button class="shop-exit-btn" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
+</div>
+
+<!-- ЭКРАН РЕЙТИНГА -->
 <div id="leaderboardScreen" class="screen hidden">
     <h2 class="shop-title">ГЕРОИ</h2>
     <div class="leaderboard-container">
-        <div id="leaderboard-list">
-            <!-- Сюда JS вставит топ игроков -->
-        </div>
+        <div id="leaderboard-list"></div>
     </div>
     <button class="shop-exit-btn" onclick="closeLeaderboard()">НАЗАД</button>
-</div>
-
-<!-- ПУСТОЙ ЭКРАН МАГАЗИНА (ДЛЯ БУДУЩИХ СКИНОВ) -->
-<div id="realShop" class="screen hidden">
-    <h2 class="shop-title">СКИНЫ</h2>
-    <div class="shop-container">
-        <p style="color: white; font-weight: 800;">СКОРО В ИГРЕ...</p>
-    </div>
-    <button class="shop-exit-btn" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
 </div>
 
 <script>
@@ -159,6 +183,12 @@
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
   } catch (e) { console.error("Firebase init error:", e); window.db = null; }
+
+  // Функция для открытия реального магазина (VIP)
+  function openShop() {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('realShop').classList.remove('hidden');
+  }
 </script>
 <script src="game.js"></script>
 </body>
