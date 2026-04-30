@@ -14,37 +14,43 @@
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
-    <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ (БЕЗ НАЛОЖЕНИЙ) -->
-    <div class="top-bar-container" style="position: relative; top: 0; padding-top: 20px; z-index: 50;">
-        <div id="welcome" class="welcome-text">Герой BERRY</div>
-        <div id="total-balance" class="balance-info">
-            <!-- Сюда JS вставит валюту -->
-        </div>
-        <div id="menuLeaderboard" class="record-info">🏆 0</div>
-    </div>
-
-    <!-- 2. ЦЕНТРАЛЬНЫЙ БЛОК КНОПОК -->
-    <div class="menu-controls" style="position: relative; margin-top: 20px; z-index: 100;">
-        <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
+    <!-- ПРАВКА: Обертка для центровки всего контента -->
+    <div class="menu-content-wrapper">
         
-        <div style="width: 100%; text-align: center;">
-            <label class="difficulty-label">СЛОЖНОСТЬ:</label>
-            <select id="difficulty">
-                <option value="easy">🟩 Легко</option>
-                <option value="medium" selected>🟨 Средне</option>
-                <option value="hard">🟥 Сложно</option>
-            </select>
+        <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ -->
+        <div class="top-bar-container">
+            <div id="welcome" class="welcome-text">ГЕРОЙ BERRY</div>
+            <div id="total-balance" class="balance-info">
+                <!-- Сюда JS вставит валюту -->
+            </div>
+            <div id="menuLeaderboard" class="record-info">🏆 РЕКОРД: 0</div>
         </div>
-        
-        <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
-        <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
-        <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
-        <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
-    </div>
 
-    <!-- 3. НИЖНЯЯ ЧАСТЬ (ДЕКОР) -->
-    <div class="menu-footer" style="margin-top: auto; padding-bottom: 20px; text-align: center; pointer-events: none;">
-         <h1 style="color: white; font-size: 32px; text-shadow: 0 0 10px #ff4fd8; margin: 0;">BERRY RUNNER</h1>
+        <!-- 2. ЦЕНТРАЛЬНЫЙ БЛОК КНОПОК -->
+        <div class="menu-controls">
+            <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
+            
+            <!-- ПРАВКА: Контейнер сложности для выравнивания -->
+            <div class="difficulty-container">
+                <label class="difficulty-label">СЛОЖНОСТЬ:</label>
+                <select id="difficulty">
+                    <option value="easy">🟩 Легко</option>
+                    <option value="medium" selected>🟨 Средне</option>
+                    <option value="hard">🟥 Сложно</option>
+                </select>
+            </div>
+            
+            <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
+            <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
+            <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
+            <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
+        </div>
+
+    </div> <!-- Конец menu-content-wrapper -->
+
+    <!-- 3. НИЖНЯЯ ЧАСТЬ -->
+    <div class="menu-footer">
+         <h1 class="footer-logo">BERRY RUNNER</h1>
     </div>
 </div>
 
