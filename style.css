@@ -216,7 +216,7 @@ button:active { transform: scale(0.95); }
     border: 1px solid rgba(255, 79, 216, 0.4);
     border-radius: 15px;
     padding: 15px;
-    display: flex;
+    display: flex; 
     flex-direction: column;
     align-items: center;
     width: 100%;
@@ -394,13 +394,16 @@ button:active { transform: scale(0.95); }
     z-index: 1000 !important; 
 }
 
-.lvl-badge {
+.lvl-badge, #count-shield, #count-magnet {
     background: #00eaff;
     color: black;
     padding: 2px 8px;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 900;
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
 }
 
 .welcome-text {
@@ -438,7 +441,6 @@ button:active { transform: scale(0.95); }
     /* ФИКС: Враги должны быть выше даже мороженого */
     z-index: 510 !important; 
     position: absolute;
-    animation: iceFall linear forwards;
 }
 
 #nick { text-align: center; }
@@ -463,7 +465,8 @@ button:active { transform: scale(0.95); }
 
 #shop .shop-item img, 
 #bonus-panel img, 
-.shop-item img {
+.shop-item img,
+.bonus-btn img {
     width: 45px !important;
     height: 45px !important;
     max-width: 45px !important;
@@ -479,6 +482,12 @@ button:active { transform: scale(0.95); }
     left: auto !important;
 }
 
+.bonus-btn {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s active;
+}
+
 #bonus-panel {
     height: 65px !important;
     padding: 0 15px !important;
@@ -488,8 +497,10 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
 }
 
-.shop-item .shield-aura::after, 
-#bonus-panel .shield-aura::after {
+/* Удаление ауры только внутри кнопок и панелей */
+#shop .shield-aura::after, 
+#bonus-panel .shield-aura::after,
+.shop-item .shield-aura::after {
     display: none !important;
 }
 
@@ -497,4 +508,20 @@ button img {
     width: 25px !important;
     height: 25px !important;
     max-width: 25px !important;
+}
+
+/* ДОБАВЛЕНО: Специфические фиксы для VIP магазина и обмена */
+.vip-card {
+    border: 2px solid #ffd700 !important;
+}
+
+.exchange-card {
+    background: rgba(255, 215, 0, 0.1) !important;
+    border: 1px dashed #ffd700 !important;
+}
+
+.buy-button.gold {
+    background: linear-gradient(180deg, #ffd700, #b8860b) !important;
+    color: black !important;
+    border: 1px solid #fff !important;
 }
