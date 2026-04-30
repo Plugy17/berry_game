@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BERRY RUNNER ONLINE</title>
-    <link rel="stylesheet" href="style.css?v=1.2">
+    <!-- Обновлена ссылка на стили для стабильной загрузки -->
+    <link rel="stylesheet" href="style.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -17,9 +18,10 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
-            <!-- Добавлен id total-balance для JS -->
+            <!-- Основной баланс игрока -->
             <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
-            <div id="menuLeaderboard" class="record-info hidden">🏆 0</div>
+            <!-- Рекорд (убран класс hidden, чтобы JS управлял видимостью через логику) -->
+            <div id="menuLeaderboard" class="record-info">🏆 0</div>
         </div>
     </div>
 
@@ -42,8 +44,8 @@
     <div id="effects-layer"></div>
 
     <div id="hud">
-        <!-- Синхронизировано с game.js (используется innerHTML для иконки) -->
-        <div id="score-display">0 <span class="ice-icon"></span></div>
+        <!-- Блок счета во время игры (синхронизировано с game.js) -->
+        <div id="score-wrapper">0</div>
     </div> 
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
@@ -86,7 +88,7 @@
     <h2 class="shop-title">МАГАЗИН</h2>
 
     <div class="shop-balance-container">
-        <!-- balance-anim-target добавлен для анимации "прыжка" при покупке -->
+        <!-- balance-anim-target для анимации "прыжка" при покупке -->
         <div id="balance-anim-target" class="shop-balance-wrapper">
             <span id="shop-balance">0</span>
             <span class="ice-icon"></span>
@@ -115,6 +117,7 @@
 </div>
 
 <script>
+  // Конфигурация Firebase оставлена без изменений
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
