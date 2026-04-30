@@ -28,27 +28,30 @@ const imgBad = "url('assets/obstacle.png')";
 // Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
-// --- ЭФФЕКТ ВЗРЫВА ---
+// --- НОВЫЕ ЭФФЕКТЫ ВЗРЫВОВ ---
+function createIcePop(x, y) {
+    const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    const pop = document.createElement('div');
+    pop.className = 'ice-pop';
+    pop.style.left = x + 'px';
+    pop.style.top = y + 'px';
+    layer.appendChild(pop);
+    setTimeout(() => pop.remove(), 400);
+}
+
+function createCubeBoom(x, y) {
+    const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    const boom = document.createElement('div');
+    boom.className = 'cube-boom';
+    boom.style.left = x + 'px';
+    boom.style.top = y + 'px';
+    layer.appendChild(boom);
+    setTimeout(() => boom.remove(), 500);
+}
+
+// Старая функция оставлена для совместимости, если где-то вызывается
 function createExplosion(x, y) {
-    const game = document.getElementById("game");
-    for (let i = 0; i < 8; i++) {
-        const particle = document.createElement("div");
-        particle.className = "ice-particle";
-        
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 50 + Math.random() * 50;
-        const dx = Math.cos(angle) * dist + "px";
-        const dy = Math.sin(angle) * dist + "px";
-        
-        particle.style.setProperty('--dx', dx);
-        particle.style.setProperty('--dy', dy);
-        particle.style.left = x + "px";
-        particle.style.top = y + "px";
-        particle.style.backgroundImage = imgIceCream;
-        
-        game.appendChild(particle);
-        setTimeout(() => particle.remove(), 600);
-    }
+    createIcePop(x, y);
 }
 
 // --- FIREBASE ---
@@ -121,6 +124,10 @@ function startGame() {
         if (val.length < 2) return alert("Введи имя!");
         nick = val; localStorage.setItem("nick", nick);
     }
+    // Прячем окно проигрыша при старте
+    const goScreen = document.getElementById("gameOverScreen");
+    if(goScreen) goScreen.classList.add("hidden");
+
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
@@ -172,30 +179,24 @@ function update() {
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
 
-    // --- ФИКС МАГНИТА (ПРИТЯГИВАЕТ И ЗАСТАВЛЯЕТ ЗАЧИСЛЯТЬСЯ) ---
     if (magnetActive && obs.dataset.type === "good") {
         let currentLeft = parseFloat(obs.style.left);
         let targetX = lanes[targetLane];
         let distY = playerTop - obstacleY;
 
         if (distY < 500 && distY > -30) {
-            // 1. Быстрое горизонтальное притягивание
             let newLeft = currentLeft + (targetX - currentLeft) * 0.25;
             obs.style.left = newLeft + "%";
-            
-            // 2. ФИКС: Принудительная синхронизация полосы, когда объект близко
             if (distY < 180) {
                 obs.style.left = targetX + "%";
-                obstacleLane = targetLane; // Важно для handleCollision!
+                obstacleLane = targetLane;
             }
-            // 3. ПРИТОРМАЖИВАЕМ, чтобы магнит успел "засосать" мороженое
             obstacleY -= (speed * 0.5); 
         }
     }
 
     obs.style.top = obstacleY + "px";
 
-    // Увеличенная зона подбора для магнита
     const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
 
     if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
@@ -225,9 +226,12 @@ function triggerComboFlash(mult) {
 }
 
 function handleCollision(obs, p) {
+    const rect = obs.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
     if (obs.dataset.type === "good") {
-        const rect = obs.getBoundingClientRect();
-        createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        createIcePop(centerX, centerY); // ЭФФЕКТ СБОРА
 
         comboCount++;
         let oldMult = comboMultiplier;
@@ -244,11 +248,9 @@ function handleCollision(obs, p) {
             ui.classList.remove("hidden");
             if (comboMultiplier >= 5) ui.classList.add("combo-epic");
             else ui.classList.remove("combo-epic");
-
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = null;
-
             if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
         }
 
@@ -257,13 +259,17 @@ function handleCollision(obs, p) {
         spawnObstacle();
     } else if (obs.dataset.type === "bad") {
         if (shieldActive) {
+            createCubeBoom(centerX, centerY); // ЭФФЕКТ УДАРА ПО ЩИТУ
             shieldActive = false; 
             p.classList.remove("shield-aura");
             obstacleY = window.innerHeight + 500; 
             spawnObstacle();
             updateBonusUI();
             triggerComboFlash(1);
-        } else gameOver();
+        } else {
+            createCubeBoom(centerX, centerY); // ЭФФЕКТ СМЕРТИ
+            gameOver();
+        }
     }
 }
 
@@ -274,19 +280,28 @@ function updateScore() {
 function gameOver() {
     gameRunning = false;
     totalCoins += coins;
-    let isNewRecord = false;
-    if (coins > best) {
-        best = coins;
-        isNewRecord = true;
-    }
+    if (coins > best) best = coins;
     saveUserData();
-    alert(isNewRecord ? `НОВЫЙ РЕКОРД! 🎉 Собрано: ${coins}` : `Игра окончена! Собрано: ${coins}`);
-    backToMenu();
+    
+    // ПОКАЗ КРАСИВОГО ОКНА GAMEOVER
+    const goScreen = document.getElementById("gameOverScreen");
+    const finalScore = document.getElementById("final-score");
+    if(goScreen) {
+        goScreen.classList.remove("hidden");
+        if(finalScore) finalScore.innerText = "Собрано: " + coins;
+    } else {
+        alert(`Игра окончена! Собрано: ${coins}`);
+        backToMenu();
+    }
 }
 
 function backToMenu() {
     gameRunning = false;
     if (loopId) cancelAnimationFrame(loopId);
+    
+    const goScreen = document.getElementById("gameOverScreen");
+    if(goScreen) goScreen.classList.add("hidden");
+
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
