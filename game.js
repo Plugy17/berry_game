@@ -37,7 +37,7 @@ function createRainDrop(containerId) {
     if (!container || container.classList.contains('hidden')) return;
 
     const drop = document.createElement("div");
-    drop.className = "falling-ice-anim"; // Используй этот класс в CSS
+    drop.className = "falling-ice-anim"; 
     drop.style.left = Math.random() * 95 + "vw";
     drop.style.backgroundImage = imgIceCream;
     
@@ -57,19 +57,21 @@ function stopIceRain() {
     if (rainInterval) clearInterval(rainInterval);
 }
 
-// --- ЛЕГЕНДАРНЫЙ ЭФФЕКТ ВЗРЫВА МОРОЖЕНОГО ---
+// --- ТОТ САМЫЙ ЭФФЕКТ ВЗРЫВА (БАХ!) ---
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
     
-    const particleCount = 12;
+    // 15 частиц для сочного эффекта "лопнувшего шарика"
+    const particleCount = 15;
 
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
         
         const angle = Math.random() * Math.PI * 2;
-        const dist = 60 + Math.random() * 80; 
+        // Увеличил разброс для эффекта "слопал"
+        const dist = 80 + Math.random() * 120; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
         
@@ -80,6 +82,7 @@ function createExplosion(x, y) {
         particle.style.backgroundImage = imgIceCream;
         
         layer.appendChild(particle);
+        // Удаляем через 0.6с, когда анимация в CSS закончится
         setTimeout(() => particle.remove(), 600);
     }
 }
@@ -134,7 +137,7 @@ function updateMenuInfo() {
     
     const shopBal = document.getElementById("shop-balance");
     if(shopBal) {
-        // Счёт цифрами и рядом две иконки мороженого
+        // Счёт и две иконки мороженого
         shopBal.innerHTML = `${totalCoins} ${getIceIcon()}${getIceIcon()}`;
     }
     
@@ -261,6 +264,7 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
+        // --- ЗАПУСК ЭФФЕКТА БА-БАХ ---
         createExplosion(centerX, centerY); 
 
         comboCount++;
@@ -304,7 +308,8 @@ function handleCollision(obs, p) {
 }
 
 function updateScore() {
-    document.getElementById("hud").innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
+    const hud = document.getElementById("hud");
+    if(hud) hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
 }
 
 function gameOver() {
@@ -317,7 +322,6 @@ function gameOver() {
     const finalScore = document.getElementById("final-score");
     if(goScreen) {
         goScreen.classList.remove("hidden");
-        // Передаем просто цифру, иконка должна быть в HTML
         if(finalScore) finalScore.innerText = coins; 
     } else {
         alert(`Игра окончена! Собрано: ${coins}`);
