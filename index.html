@@ -17,6 +17,7 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
+            <!-- Добавлен id total-balance для JS -->
             <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
             <div id="menuLeaderboard" class="record-info hidden">🏆 0</div>
         </div>
@@ -37,10 +38,12 @@
 </div>
 
 <div id="game" class="screen hidden">
+    <!-- Слой для взрывов и частиц -->
     <div id="effects-layer"></div>
 
     <div id="hud">
-        <span id="score-display">0</span> <span class="ice-icon"></span>
+        <!-- Синхронизировано с game.js (используется innerHTML для иконки) -->
+        <div id="score-display">0 <span class="ice-icon"></span></div>
     </div> 
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
@@ -62,7 +65,7 @@
     </div>
     
     <div id="player"></div> 
-    <div id="obstacle" style="position: absolute; width: 60px; height: 60px; background-size: contain; background-repeat: no-repeat;"></div> 
+    <div id="obstacle"></div> 
 </div>
 
 <div id="gameOverScreen" class="hidden">
@@ -83,7 +86,8 @@
     <h2 class="shop-title">МАГАЗИН</h2>
 
     <div class="shop-balance-container">
-        <div class="shop-balance-wrapper">
+        <!-- balance-anim-target добавлен для анимации "прыжка" при покупке -->
+        <div id="balance-anim-target" class="shop-balance-wrapper">
             <span id="shop-balance">0</span>
             <span class="ice-icon"></span>
         </div>
