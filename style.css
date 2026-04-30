@@ -29,7 +29,6 @@ body {
 }
 
 .hidden { display: none !important; }
-/* #menuLeaderboard { display: none !important; } — УДАЛИЛ ЭТО, чтобы рекорд в меню был виден */
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
 .ice-drop, .falling-ice-anim {
@@ -42,7 +41,6 @@ body {
     animation: iceFall linear infinite;
 }
 
-/* СТИЛЬ ДЛЯ ПАДАЮЩЕГО ЗОЛОТОГО МОРОЖЕНОГО */
 .golden-drop {
     position: absolute;
     width: 30px; height: 30px;
@@ -63,6 +61,26 @@ body {
     15% { opacity: 0.8; }
     85% { opacity: 0.8; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* --- КОМБО ЭФФЕКТЫ (ДОБАВЛЕНО) --- */
+#combo-ui {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffeb3b;
+    text-shadow: 0 0 20px rgba(255, 235, 59, 0.9), 3px 3px 0px #000;
+    z-index: 200;
+    pointer-events: none;
+}
+
+@keyframes comboPop {
+    0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+    50% { transform: translateX(-50%) scale(1.4); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
 /* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
@@ -153,8 +171,8 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН И УЛУЧШЕНИЯ --- */
-#shop, #realShop, #leaderboardScreen, #normalShop {
+/* --- МАГАЗИН И VIP --- */
+#shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
     padding: 40px 20px 60px 20px !important;
     box-sizing: border-box;
@@ -176,23 +194,6 @@ button:active { transform: scale(0.95); }
     animation: neonGlow 2s infinite alternate;
 }
 
-/* ФИКС ГИГАНТСКИХ КАРТИНОК В БАФФАХ */
-.shop-item img {
-    width: 60px !important;
-    height: 60px !important;
-    object-fit: contain;
-    margin-bottom: 10px;
-}
-
-.shop-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    padding-bottom: 30px;
-    width: 100%;
-}
-
 .shop-item {
     background: rgba(0,0,0,0.5);
     border: 1px solid rgba(255, 79, 216, 0.3);
@@ -201,100 +202,101 @@ button:active { transform: scale(0.95); }
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 45%; /* Чтобы шли по два в ряд */
+    width: 45%;
     min-width: 140px;
 }
 
-/* --- БАЛАНС И СЧЕТ (КРАСИВОЕ МОРОЖЕНОЕ) --- */
-.balance-info, #hud {
-    background: rgba(0, 0, 0, 0.6) !important;
-    border: 2px solid #ff4fd8 !important;
-    border-radius: 15px !important;
-    padding: 8px 15px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    min-width: 100px;
+.vip-card {
+    border: 2px solid #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
-.currency-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 18px;
-    font-weight: 900;
-    color: white;
+.buy-button.gold {
+    background: linear-gradient(180deg, #ffd700, #ff8c00) !important;
+    color: black !important;
+    border: none !important;
 }
 
-.ice-icon {
-    display: inline-block;
-    width: 20px; height: 20px;
-    background: url('assets/icecream.png') no-repeat center center;
-    background-size: contain;
-    vertical-align: middle;
-}
-
-.golden-ice-icon-small {
-    display: inline-block;
-    width: 20px; height: 20px;
-    background: url('assets/golden_ice.png') no-repeat center center;
-    background-size: contain;
-    filter: drop-shadow(0 0 5px #ffea00);
-    vertical-align: middle;
-}
-
-/* --- ЛИДЕРБОРД --- */
-.leaderboard-item {
-    display: flex;
-    justify-content: space-between;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 8px 0;
-    padding: 12px 15px;
-    border-radius: 12px;
-    color: white;
-    width: 100%;
-    box-sizing: border-box;
-    border-left: 4px solid #ff4fd8;
-}
-
-/* --- МЕНЮ (ФИКС КНОПОК) --- */
-#menu { 
-    justify-content: flex-start;
-    padding: 20px 0 80px 0;
-}
-
-.menu-controls {
+/* --- БАЛАНС И HUD (ФИКС НАЛОЖЕНИЯ) --- */
+.top-bar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
     width: 100%;
-    z-index: 10;
-    margin-top: 20px;
 }
 
-/* --- ПЕРСОНАЖ (ПОДДЕРЖКА СКИНОВ) --- */
+.balance-info, #hud {
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 2px solid #ff4fd8 !important;
+    border-radius: 15px !important;
+    padding: 10px 20px !important;
+    display: flex !important;
+    flex-direction: row !important; /* В одну строку */
+    gap: 15px !important;
+    align-items: center !important;
+    width: fit-content !important;
+    max-width: 90%;
+}
+
+.currency-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: 900;
+    color: white;
+    white-space: nowrap;
+}
+
+.ice-icon, .golden-ice-icon-small {
+    width: 22px; height: 22px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.ice-icon { background-image: url('assets/icecream.png'); }
+.golden-ice-icon-small { 
+    background-image: url('assets/golden_ice.png'); 
+    filter: drop-shadow(0 0 5px #ffea00);
+}
+
+/* --- ПЕРСОНАЖ --- */
+#player { 
+    position: absolute; 
+    bottom: 18%; 
+    left: 50%; 
+    width: 85px; 
+    height: 85px; 
+    transform: translateX(-50%); 
+    background: url('assets/berry.png') no-repeat center center !important; 
+    background-size: contain !important; 
+    z-index: 99; 
+    transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s ease-out; 
+}
+
 #player.skin-ice {
     filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px #00eaff);
 }
 
-/* ОСТАЛЬНЫЕ ЭЛЕМЕНТЫ */
-#obstacle { position: absolute; width: 70px; height: 70px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 90; transition: left 0.2s ease-out; }
-#player { position: absolute; bottom: 18%; left: 50%; width: 85px; height: 85px; transform: translateX(-50%); background: url('assets/berry.png') no-repeat center center !important; background-size: contain !important; z-index: 99; transition: left 0.1s ease-out, transform 0.15s ease-out; }
-
 /* АУРЫ */
-.shield-aura::after { content: ''; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; border: 5px solid #00eaff; border-radius: 50%; box-shadow: 0 0 20px #00eaff; animation: shieldJuicy 0.5s infinite alternate; }
-.magnet-aura::before { content: ''; position: absolute; top: -45px; left: -45px; right: -45px; bottom: -45px; border-radius: 50%; background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%); border: 2px dashed rgba(191, 0, 255, 0.6); animation: magnetRotation 0.8s linear infinite; }
-
-@keyframes neonGlow {
-    from { transform: scale(1); text-shadow: 0 0 10px #ff4fd8, 0 0 20px #ff4fd8; }
-    to { transform: scale(1.05); text-shadow: 0 0 20px #ff4fd8, 0 0 40px #00eaff; }
+.shield-aura::after { 
+    content: ''; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px; 
+    border: 4px solid #00eaff; border-radius: 50%; box-shadow: 0 0 20px #00eaff; 
+    animation: shieldJuicy 0.5s infinite alternate; 
 }
 
-@keyframes magnetRotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes shieldJuicy { from { opacity: 0.5; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
+
+/* --- МЕНЮ --- */
+.difficulty-label {
+    color: white; font-weight: 800; font-size: 14px; margin: 10px 0 -5px 0;
+}
+
+.vip-btn {
+    border-color: #ffd700 !important;
+    color: #ffd700 !important;
+    text-shadow: 0 0 5px #ffd700;
+}
 
 #bonus-panel { position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 110; }
-.bonus-btn { position: relative; width: 60px !important; height: 60px !important; background: rgba(0, 0, 0, 0.5) !important; backdrop-filter: blur(8px); border: 2px solid rgba(255, 79, 216, 0.4) !important; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; padding: 0 !important; }
-.bonus-btn img { width: 35px !important; height: 35px !important; }
-.bonus-btn span { position: absolute; bottom: -5px; right: -5px; font-size: 14px; background: #ff4fd8; padding: 2px 6px; border-radius: 10px; border: 1px solid white; }
-#effects-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
