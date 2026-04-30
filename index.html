@@ -18,6 +18,9 @@
             background-repeat: no-repeat !important;
             background-position: center !important;
         }
+        /* ДОБАВЛЕНО: Стили для отображения иконок валют в HTML */
+        .ice-icon::after { content: '🍦'; }
+        .gold-icon::after { content: '💎'; }
     </style>
 </head>
 <body>
@@ -52,6 +55,7 @@
             </div>
             
             <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
+            <!-- ПРАВКА: Добавлена функция openShop() для баффов -->
             <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
             <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
             <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
@@ -108,7 +112,8 @@
 
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px;">0 🍦</div>
+    <!-- ПРАВКА: Добавлен ID для обновления баланса -->
+    <div id="shop-balance-ice" class="balance-info" style="margin-bottom: 20px;">0 🍦</div>
     <div class="shop-container">
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
@@ -126,11 +131,14 @@
         <p style="color: white; margin: 5px 0;">5000 🍦 = 1 💎</p>
         <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
     </div>
+    <!-- ПРАВКА: Исправлена функция закрытия -->
     <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
 
 <div id="realShop" class="screen hidden">
     <h2 class="shop-title">VIP SHOP</h2>
+    <!-- ПРАВКА: Добавлено отображение баланса алмазов в VIP магазине -->
+    <div id="vip-balance-gold" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">0 💎</div>
     <div class="shop-container">
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">GOLD СКИН</div>
@@ -169,19 +177,35 @@
     window.db = firebase.database();
   } catch (e) { console.error("Firebase error", e); }
 
+  // ПРАВКА: Функция открытия обычного магазина баффов
+  function openBuffs() {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('shop').classList.remove('hidden');
+      if(typeof window.updateMenuInfo === 'function') window.updateMenuInfo();
+  }
+
   function openShop() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('realShop').classList.remove('hidden');
+      // Обновляем баланс при открытии
+      if(typeof window.updateMenuInfo === 'function') window.updateMenuInfo();
+  }
+
+  // ПРАВКА: Добавлена функция closeShop, если её нет в game.js
+  function closeShop() {
+      document.getElementById('shop').classList.add('hidden');
+      document.getElementById('menu').classList.remove('hidden');
   }
 
   function tryRevive() {
+      // ПРАВКА: Проверка существования переменных
       if (window.goldenIce >= 1 && !window.usedReviveThisRun) {
           window.goldenIce -= 1;
           window.usedReviveThisRun = true;
           window.gameRunning = true;
           window.obstacleY = -150;
           document.getElementById("gameOverScreen").classList.add("hidden");
-          window.saveUserData();
+          if(typeof window.saveUserData === 'function') window.saveUserData();
           if(typeof window.updateScore === 'function') window.updateScore();
           if(typeof window.update === 'function') window.update();
       } else {
