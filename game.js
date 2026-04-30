@@ -25,7 +25,7 @@ let comboMultiplier = 1;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// Функция для создания HTML иконки мороженого (анимированная "падающая" иконка)
+// Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
 // --- FIREBASE ---
@@ -48,10 +48,14 @@ function saveUserData() {
     db.ref('players/' + nick).set({ best, totalCoins, inventory });
 }
 
-// ДОБАВЛЕНО: Эффект падающего мороженого в главном меню
+// Эффект падающего мороженого в главном меню
 function initMenuEffects() {
     const menu = document.getElementById("menu");
     if (!menu) return;
+    // Очищаем старые частицы перед созданием новых
+    const oldParticles = menu.querySelectorAll(".menu-falling-ice");
+    oldParticles.forEach(p => p.remove());
+
     for (let i = 0; i < 12; i++) {
         const ice = document.createElement("div");
         ice.className = "menu-falling-ice";
@@ -66,7 +70,7 @@ function initMenuEffects() {
 window.onload = () => { 
     if(nick) loadUserData(nick); 
     else updateMenuInfo();
-    initMenuEffects(); // Запуск эффектов при загрузке
+    initMenuEffects(); 
 };
 
 function updateMenuInfo() {
@@ -75,9 +79,8 @@ function updateMenuInfo() {
         document.getElementById("nick").style.display = "none";
     }
     document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
-    // Баланс в меню
     document.getElementById("total-balance").innerHTML = `${totalCoins} ${getIceIcon()}`;
-    // Баланс в магазине (перемещен в угол через CSS класс shop-balance-container)
+    
     const shopBal = document.getElementById("shop-balance");
     if(shopBal) shopBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
@@ -85,8 +88,10 @@ function updateMenuInfo() {
 }
 
 function updateBonusUI() {
-    document.getElementById("count-shield").innerText = inventory.shield;
-    document.getElementById("count-magnet").innerText = inventory.magnet;
+    const sCount = document.getElementById("count-shield");
+    const mCount = document.getElementById("count-magnet");
+    if(sCount) sCount.innerText = inventory.shield;
+    if(mCount) mCount.innerText = inventory.magnet;
 }
 
 function startGame() {
@@ -107,9 +112,17 @@ function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
+    
     const p = document.getElementById("player");
-    p.className = ""; p.style.left = lanes[targetLane] + "%";
+    p.className = ""; 
+    p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
+    
+    // Скрываем комбо при старте
+    const ui = document.getElementById("combo-ui");
+    ui.classList.add("hidden");
+    ui.classList.remove("combo-epic");
+
     updateScore(); 
     spawnObstacle();
     updateBonusUI();
@@ -126,6 +139,7 @@ function spawnObstacle() {
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
+    obs.style.transform = "scale(1)"; // Сброс масштаба после магнита
 }
 
 function update() {
@@ -137,7 +151,6 @@ function update() {
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
 
-    // --- УСИЛЕННЫЙ МАГНИТ: ПЛАВНОЕ ПРИТЯЖЕНИЕ ---
     if (magnetActive && obs.dataset.type === "good") {
         const playerRect = p.getBoundingClientRect();
         const obsRect = obs.getBoundingClientRect();
@@ -146,21 +159,20 @@ function update() {
         let obsX = obsRect.left + obsRect.width / 2;
         let distY = playerRect.top - obsRect.top;
 
-        // Если мороженое в зоне досягаемости магнита
-        if (distY < 400 && distY > -50) {
-            let diffX = (playerX - obsX) * 0.15; // Плавность притяжения
+        if (distY < 500 && distY > -50) {
             let currentLeft = parseFloat(obs.style.left);
-            // Смещаем мороженое в сторону игрока
-            obs.style.left = `calc(${obs.style.left} + ${diffX}px)`;
-            obstacleY += 3; // Слегка ускоряем "поглощение"
+            let targetX = lanes[targetLane];
+            // Плавно подтягиваем мороженое к текущей полосе игрока
+            let newLeft = currentLeft + (targetX - currentLeft) * 0.1;
+            obs.style.left = newLeft + "%";
+            obstacleY += 2; 
         }
     }
 
     obs.style.top = obstacleY + "px";
     const playerTop = window.innerHeight * 0.75; 
 
-    // Проверка столкновения
-    if (obstacleLane === targetLane && obstacleY > playerTop - 40 && obstacleY < playerTop + 40) {
+    if (obstacleLane === targetLane && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
 
@@ -179,7 +191,7 @@ function triggerComboFlash(mult) {
     const flash = document.createElement("div");
     flash.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: ${mult >= 4 ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 79, 216, 0.2)'};
+        background: ${mult >= 4 ? 'rgba(0, 234, 255, 0.3)' : 'rgba(255, 79, 216, 0.2)'};
         pointer-events: none; z-index: 1000; animation: fadeOut 0.3s forwards;
     `;
     document.body.appendChild(flash);
@@ -190,19 +202,29 @@ function handleCollision(obs, p) {
     if (obs.dataset.type === "good") {
         comboCount++;
         let oldMult = comboMultiplier;
-        if (comboCount >= 8) comboMultiplier = 4;
-        else if (comboCount >= 6) comboMultiplier = 3;
-        else if (comboCount >= 3) comboMultiplier = 2;
+        
+        // Логика уровней комбо
+        if (comboCount >= 12) comboMultiplier = 5;
+        else if (comboCount >= 8) comboMultiplier = 4;
+        else if (comboCount >= 5) comboMultiplier = 3;
+        else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
 
         const ui = document.getElementById("combo-ui");
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
-            if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
+            
+            // Если достигли максимального комбо — добавляем эффект тряски
+            if (comboMultiplier >= 5) ui.classList.add("combo-epic");
+            else ui.classList.remove("combo-epic");
+
+            // Перезапуск анимации "БАХ"
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = null;
+
+            if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
         }
 
         coins += comboMultiplier; 
@@ -215,6 +237,7 @@ function handleCollision(obs, p) {
             obstacleY = window.innerHeight + 500; 
             spawnObstacle();
             updateBonusUI();
+            triggerComboFlash(1); // Легкая вспышка при потере щита
         } else gameOver();
     }
 }
@@ -224,48 +247,57 @@ function updateScore() {
 }
 
 function gameOver() {
-    gameRunning = false; totalCoins += coins;
-    if (coins > best) best = coins;
+    gameRunning = false;
+    totalCoins += coins;
+    let isNewRecord = false;
+    if (coins > best) {
+        best = coins;
+        isNewRecord = true;
+    }
     saveUserData();
-    alert("Игра окончена! Собрано: " + coins);
+    
+    // Более красивое уведомление
+    alert(isNewRecord ? `НОВЫЙ РЕКОРД! 🎉 Собрано: ${coins}` : `Игра окончена! Собрано: ${coins}`);
     backToMenu();
 }
 
 function backToMenu() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId);
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
 }
 
-// УПРАВЛЕНИЕ
+// УПРАВЛЕНИЕ (Улучшенная отзывчивость)
 let startX = 0;
-document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
+document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) < 30) return;
+    if (Math.abs(diff) < 25) return; // Уменьшен порог свайпа для быстроты
 
     const p = document.getElementById("player");
     if (diff > 0) {
         targetLane = Math.min(3, targetLane + 1);
-        p.style.transform = "translateX(-50%) rotate(15deg)";
+        p.style.transform = "translateX(-50%) rotate(15deg) scale(1.1)";
     } else {
         targetLane = Math.max(0, targetLane - 1);
-        p.style.transform = "translateX(-50%) rotate(-15deg)";
+        p.style.transform = "translateX(-50%) rotate(-15deg) scale(1.1)";
     }
     
     p.style.left = lanes[targetLane] + "%";
     
     setTimeout(() => {
-        p.style.transform = "translateX(-50%) rotate(0deg)";
-    }, 200);
+        if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
+    }, 150);
 });
 
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
+        // Визуальный фидбек покупки (можно добавить звук или вспышку здесь)
     } else alert("Недостаточно мороженого!");
 }
 
@@ -284,15 +316,18 @@ function useMagnet() {
         updateBonusUI();
         setTimeout(() => { 
             magnetActive = false; 
-            document.getElementById("player").classList.remove("magnet-aura"); 
-            updateBonusUI();
+            if(gameRunning) {
+                document.getElementById("player").classList.remove("magnet-aura"); 
+                updateBonusUI();
+            }
         }, 10000);
     }
 }
 
 function createFallingEffects() {
     const shopScreen = document.getElementById("shop");
-    document.querySelectorAll('.falling-ice').forEach(p => p.remove());
+    if(!shopScreen) return;
+    shopScreen.querySelectorAll('.falling-ice').forEach(p => p.remove());
     for (let i = 0; i < 15; i++) {
         const ice = document.createElement("div");
         ice.className = "falling-ice";
@@ -305,5 +340,13 @@ function createFallingEffects() {
     }
 }
 
-function openShop() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); createFallingEffects(); }
-function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
+function openShop() { 
+    document.getElementById("menu").classList.add("hidden"); 
+    document.getElementById("shop").classList.remove("hidden"); 
+    createFallingEffects(); 
+}
+
+function closeShop() { 
+    document.getElementById("shop").classList.add("hidden"); 
+    document.getElementById("menu").classList.remove("hidden"); 
+}
