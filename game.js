@@ -152,7 +152,7 @@ window.onload = () => {
 
 // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
-    // ПРАВКА: Переименование кнопки в Магазин
+    // ПРАВКА: Текст кнопки Магазин
     const shopBtn = document.getElementById("shop-btn-main");
     if(shopBtn) shopBtn.innerHTML = `💎 МАГАЗИН`;
 
@@ -179,11 +179,17 @@ function updateMenuInfo() {
     if(shopBalValue) {
         shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
     }
+
+    // Обновляем баланс в VIP магазине
+    const vipBalInfo = document.getElementById("vip-balance-info");
+    if(vipBalInfo) {
+        vipBalInfo.innerHTML = `Баланс: ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
+    }
+
     updateBonusUI();
 }
 
 function updateBonusUI() {
-    // ПРАВКА: Обновление текста на раздельных кнопках
     const sCount = document.getElementById("count-shield");
     const mCount = document.getElementById("count-magnet");
     if(sCount) sCount.innerText = inventory.shield;
@@ -414,13 +420,13 @@ function revivePlayer() {
     }
 }
 
-// --- МАГАЗИН ---
+// --- МАГАЗИН И ДИЛЕРЫ ---
 function convertIceToGold() {
     if (totalCoins >= 5000) {
         totalCoins -= 5000; goldenIce++;
         saveUserData(); updateMenuInfo();
-        alert("Обмен успешен!");
-    } else alert("Нужно 5000 мороженого!");
+        alert("Золотой дилер: Обмен успешен! +1 Золотое мороженое");
+    } else alert("Нужно 5000 мороженого для обмена!");
 }
 
 function buyDiamond() {
@@ -428,29 +434,39 @@ function buyDiamond() {
         totalCoins -= VIP_PRICES.diamond;
         diamonds++;
         saveUserData(); updateMenuInfo();
-        alert("Алмаз приобретен!");
-    } else alert("Нужно 50,000 мороженого!");
+        alert("Алмазный дилер: Алмаз приобретен!");
+    } else alert("Нужно 50,000 мороженого для покупки алмаза!");
 }
 
 function buyVipItem(type) {
-    if (type === 'skin' && goldenIce >= 10 && !hasVipSkin) {
-        goldenIce -= 10; hasVipSkin = true;
-        saveUserData(); updateMenuInfo();
-        alert("Скин разблокирован!");
-    } else if (type === 'slot' && goldenIce >= 5) {
-        goldenIce -= 5; extraShieldSlots++;
-        saveUserData(); updateMenuInfo();
-        alert("Слот добавлен!");
+    if (type === 'skin') {
+        if (goldenIce >= 10 && !hasVipSkin) {
+            goldenIce -= 10; hasVipSkin = true;
+            saveUserData(); updateMenuInfo();
+            alert("VIP Магазин: Скин разблокирован!");
+        } else if(hasVipSkin) {
+            alert("Скин уже куплен!");
+        } else alert("Недостаточно Золотого мороженого!");
+    } 
+    
+    if (type === 'slot') {
+        if (goldenIce >= 5) {
+            goldenIce -= 5; 
+            extraShieldSlots++;
+            saveUserData(); updateMenuInfo();
+            alert("VIP Магазин: Слот добавлен! Текущий лимит: " + (1 + extraShieldSlots));
+        } else alert("Недостаточно Золотого мороженого!");
     }
 }
 
 function buyItem(type) {
     let limit = 1 + extraShieldSlots;
-    if (type === 'shield' && inventory.shield >= limit) return alert("Мест нет!");
+    if (inventory[type] >= limit) return alert("Слоты переполнены! Купите '+1 СЛОТ' в Магазине.");
+    
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
-    } else alert("Недостаточно мороженого!"); 
+    } else alert("Недостаточно обычного мороженого!"); 
 }
 
 function useShield() {
