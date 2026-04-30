@@ -30,12 +30,9 @@ body {
 
 .hidden { display: none !important; }
 
-/* ФИКС: Убираем счет Лидерборда с главного меню */
-#menuLeaderboard {
-    display: none !important;
-}
+#menuLeaderboard { display: none !important; }
 
-/* --- ФИКС КНОПОК --- */
+/* --- КНОПКИ --- */
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(12px);
@@ -72,70 +69,62 @@ button:active { transform: scale(0.95); }
     background: rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 79, 216, 0.6) !important;
     z-index: 100;
-    box-shadow: 0 0 15px rgba(255, 79, 216, 0.2);
 }
 
-/* --- МАГАЗИН (ОБНОВЛЕННЫЙ ВИД С ПРОКРУТКОЙ) --- */
+/* --- МАГАЗИН (СЕНСОРНЫЙ СКРОЛЛ И ЧИСТЫЕ ОБЪЕКТЫ) --- */
 #shop {
-    justify-content: flex-start !important; /* Начинаем сверху для скролла */
+    justify-content: flex-start !important; 
     padding: 100px 20px 60px 20px !important;
     box-sizing: border-box;
-    overflow-y: auto; /* ВКЛЮЧАЕМ ПРОКРУТКУ */
+    overflow-y: scroll !important; /* Исправлено для телефона */
+    touch-action: pan-y !important; /* Разрешает свайп пальцем */
     -webkit-overflow-scrolling: touch;
 }
 
-/* Скрываем скроллбар для эстетики */
 #shop::-webkit-scrollbar { width: 0; background: transparent; }
 
 .shop-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
     width: 100%;
     align-items: center;
-    flex-shrink: 0; /* Чтобы не сжимался */
-    justify-content: center;
+    flex-shrink: 0;
 }
 
 .shop-item {
-    background: rgba(255, 255, 255, 0.08); 
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 35px;
-    padding: 25px;
-    margin: 10px 0;
+    background: none !important; /* Объект без ячейки */
+    border: none !important;
+    padding: 10px;
     width: 90%;
     max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* ПРАВКА: ВРАЩЕНИЕ И МАСШТАБ */
 .shop-item img {
-    width: 130px !important; 
-    height: 130px !important;
+    width: 140px !important; 
+    height: 140px !important;
     object-fit: contain !important;
     margin-bottom: 15px;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    filter: drop-shadow(0 0 25px rgba(255, 79, 216, 0.7));
     animation: objectAlive 6s ease-in-out infinite;
 }
 
 @keyframes objectAlive {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.1) rotate(10deg); }
+    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
+    50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
 }
 
 .item-title {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 10px #ff4fd8;
+    text-shadow: 0 0 15px #ff4fd8;
     margin-bottom: 15px;
 }
 
-/* Кнопка купить с ценой в одну линию */
 .buy-button {
     background: linear-gradient(45deg, #ff4fd8, #ba55d3) !important;
     border: none !important;
@@ -149,34 +138,31 @@ button:active { transform: scale(0.95); }
     gap: 10px;
 }
 
-/* Фикс кнопки Назад в магазине (теперь она в конце списка) */
 #shop #backBtn {
     position: relative !important; 
     top: auto !important;
     right: auto !important;
-    margin: 30px 0 50px 0 !important; /* Отступы для удобного скролла */
+    margin: 40px 0 80px 0 !important;
     width: 100% !important;
     max-width: 220px;
     height: 55px !important;
-    font-size: 18px !important;
     flex-shrink: 0;
 }
 
-/* --- МЕНЮ (ЦЕНТРОВКА) --- */
+/* --- МЕНЮ (ЦЕНТРОВКА НА ТЕЛЕФОНЕ) --- */
 #menu { 
     justify-content: flex-start; 
-    padding: 60px 20px; 
+    padding: 60px 0; 
 }
 
 .top-bar-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* СТРОГО ПО ЦЕНТРУ */
+    align-items: center;
     width: 100%;
     gap: 15px;
     margin-bottom: auto; 
     z-index: 5;
-    text-align: center;
 }
 
 .welcome-text {
@@ -190,11 +176,10 @@ button:active { transform: scale(0.95); }
 }
 
 .balance-info {
-    flex: 0 1 auto; 
     font-size: 22px !important; 
     color: #fff; 
     font-weight: 900;
-    background: rgba(0, 0, 0, 0.6) !important; 
+    background: rgba(0, 0, 0, 0.7) !important; 
     backdrop-filter: blur(15px);
     padding: 12px 25px !important; 
     border-radius: 30px !important; 
@@ -202,16 +187,13 @@ button:active { transform: scale(0.95); }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin: 0 auto; /* Центрируем сам блок */
+    margin: 0 auto !important; /* Центр */
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     animation: scorePulse 2s infinite alternate;
 }
 
-/* ПРАВКА: Убираем лишнюю иконку из баланса */
-.balance-info .ice-icon:nth-of-type(n+2) {
-    display: none !important;
-}
+/* Чистый счет без лишних иконок */
+.balance-info .ice-icon, .balance-info img { display: none !important; }
 
 @keyframes scorePulse {
     from { box-shadow: 0 0 10px rgba(255, 79, 216, 0.4); border-color: #ff4fd8; }
@@ -234,9 +216,7 @@ button:active { transform: scale(0.95); }
     padding: 10px 15px; border-radius: 15px;
     border: 2px solid #ff4fd8; color: white; z-index: 100;
     font-weight: 900;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
 }
 
 .ice-icon {
@@ -245,7 +225,6 @@ button:active { transform: scale(0.95); }
     background-size: contain;
     display: inline-block;
     filter: drop-shadow(0 0 5px #fff);
-    animation: iceSway 2s ease-in-out infinite;
 }
 
 /* --- КОМБО --- */
@@ -261,9 +240,9 @@ button:active { transform: scale(0.95); }
 }
 
 @keyframes comboPop {
-    0% { transform: scale(0.3) rotate(-20deg); opacity: 0; filter: brightness(5); }
-    50% { transform: scale(1.2) rotate(5deg); opacity: 1; filter: brightness(1.5); }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+    0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 /* --- ПЕРСОНАЖ --- */
@@ -277,10 +256,8 @@ button:active { transform: scale(0.95); }
     background: url('assets/berry.png') no-repeat center center !important;
     background-size: contain !important; 
     z-index: 99;
-    transition: transform 0.2s ease-out, left 0.3s ease-out;
 }
 
-/* ЖИВОЙ ЩИТ */
 .shield-aura::after {
     content: '';
     position: absolute;
@@ -289,16 +266,14 @@ button:active { transform: scale(0.95); }
     border-radius: 50%;
     box-shadow: 0 0 20px #00eaff, inset 0 0 15px #00eaff;
     animation: shieldPulse 1s infinite ease-in-out;
-    pointer-events: none;
 }
 
 @keyframes shieldPulse {
-    0% { transform: scale(1); opacity: 0.8; }
+    0%, 100% { transform: scale(1); opacity: 0.8; }
     50% { transform: scale(1.1); opacity: 0.4; }
-    100% { transform: scale(1); opacity: 0.8; }
 }
 
-/* --- ПАНЕЛЬ БОНУСОВ --- */
+/* --- БОНУСЫ --- */
 #bonus-panel {
     position: absolute; bottom: 35px; left: 50%;
     transform: translateX(-50%); display: flex; gap: 20px; z-index: 110;
@@ -312,26 +287,15 @@ button:active { transform: scale(0.95); }
     border: 2px solid rgba(255, 79, 216, 0.4) !important;
     border-radius: 50% !important; 
     display: flex; justify-content: center; align-items: center;
-    padding: 0 !important; transition: 0.3s;
-    box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
+    padding: 0 !important;
     animation: floatBtn 3s ease-in-out infinite; 
 }
 
-.bonus-btn img {
-    width: 35px !important;
-    height: 35px !important;
-    object-fit: contain !important;
-}
+.bonus-btn img { width: 35px !important; height: 35px !important; object-fit: contain !important; }
 
 .bonus-btn span {
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    font-size: 14px;
-    background: #ff4fd8;
-    padding: 2px 6px;
-    border-radius: 10px;
-    border: 1px solid white;
+    position: absolute; bottom: -5px; right: -5px; font-size: 14px;
+    background: #ff4fd8; padding: 2px 6px; border-radius: 10px; border: 1px solid white;
 }
 
 @keyframes floatBtn {
