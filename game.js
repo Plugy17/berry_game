@@ -56,6 +56,10 @@ function createRainDrop(containerId) {
     const drop = document.createElement("div");
     const isGold = Math.random() < 0.1;
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
+    
+    // ПРАВКА: Принудительно задаем начальную позицию выше экрана
+    drop.style.position = "absolute";
+    drop.style.top = "-100px"; 
     drop.style.left = Math.random() * 95 + "vw";
     
     // ПРАВКА: Анимация теперь визуально начинается выше за счет настроек в CSS
