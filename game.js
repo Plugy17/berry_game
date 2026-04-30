@@ -172,33 +172,33 @@ function update() {
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
 
-    // --- ОБНОВЛЕННЫЙ МАГНИТ (ПРИТЯГИВАЕТ И ЗАМЕДЛЯЕТ) ---
+    // --- ФИКС МАГНИТА (ПРИТЯГИВАЕТ И ЗАСТАВЛЯЕТ ЗАЧИСЛЯТЬСЯ) ---
     if (magnetActive && obs.dataset.type === "good") {
         let currentLeft = parseFloat(obs.style.left);
         let targetX = lanes[targetLane];
         let distY = playerTop - obstacleY;
 
-        if (distY < 500 && distY > -20) {
-            // Притягиваем горизонтально
-            let newLeft = currentLeft + (targetX - currentLeft) * 0.2;
+        if (distY < 500 && distY > -30) {
+            // 1. Быстрое горизонтальное притягивание
+            let newLeft = currentLeft + (targetX - currentLeft) * 0.25;
             obs.style.left = newLeft + "%";
             
-            // Если почти подлетел — фиксируем в полосе игрока
-            if (distY < 150) {
+            // 2. ФИКС: Принудительная синхронизация полосы, когда объект близко
+            if (distY < 180) {
                 obs.style.left = targetX + "%";
-                obstacleLane = targetLane; 
+                obstacleLane = targetLane; // Важно для handleCollision!
             }
-            // Замедляем падение, чтобы магнит успел сработать
-            obstacleY -= (speed * 0.45); 
+            // 3. ПРИТОРМАЖИВАЕМ, чтобы магнит успел "засосать" мороженое
+            obstacleY -= (speed * 0.5); 
         }
     }
 
     obs.style.top = obstacleY + "px";
 
-    // Фикс подбора: зона еще шире для магнита
-    const magnetRange = (magnetActive && obs.dataset.type === "good") ? 100 : 60;
+    // Увеличенная зона подбора для магнита
+    const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
 
-    if (obstacleLane === targetLane && obstacleY > playerTop - magnetRange && obstacleY < playerTop + magnetRange) {
+    if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
         handleCollision(obs, p);
     }
 
