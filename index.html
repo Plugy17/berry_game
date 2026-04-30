@@ -49,7 +49,6 @@
             
             <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
             <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
-            <!-- ПРАВКА: Переименовано в Магазин -->
             <button id="shop-btn-main" class="sub-btn vip-btn" onclick="openShop()">💎 Магазин</button>
             <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
         </div>
@@ -72,7 +71,6 @@
         <div id="combo-msg"></div> 
     </div>
     
-    <!-- ПРАВКА: Кнопки разделены на независимые блоки -->
     <div id="bonus-panel">
         <div class="bonus-btn-wrapper" onclick="useShield()">
             <div class="bonus-btn">
@@ -108,6 +106,7 @@
     </div>
 </div>
 
+<!-- ОКНО БАФФОВ: Только расходники -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 <span class="golden-ice-icon-small"></span> | 0 💎</div>
@@ -123,26 +122,14 @@
             <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
         </div>
     </div>
-    <div class="shop-container" style="margin-top: 15px;">
-        <div class="shop-item exchange-card" style="width: 100%;">
-            <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
-            <p style="color: white; margin: 5px 0;">5000 🍦 = 1 <span class="golden-ice-icon-small"></span></p>
-            <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-        </div>
-        <div class="shop-item exchange-card" style="width: 100%; margin-top: 10px; border-color: #00eaff;">
-            <div class="item-title" style="color: #00eaff;">АЛМАЗНЫЙ ДИЛЕР</div>
-            <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 💎</p>
-            <button class="buy-button gold" style="background: #004e63;" onclick="buyDiamond()">КУПИТЬ 💎</button>
-        </div>
-    </div>
     <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
 
+<!-- ОКНО МАГАЗИНА: Скины, Слоты и Дилеры -->
 <div id="realShop" class="screen hidden">
-    <!-- ПРАВКА: Название исправлено -->
     <h2 class="shop-title">МАГАЗИН</h2>
     <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">
-        Используйте <span class="golden-ice-icon-small"></span> и 💎 для покупок
+        Баланс обновлен
     </div>
     <div class="shop-container">
         <div class="shop-item vip-card">
@@ -152,8 +139,20 @@
         </div>
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">+1 СЛОТ</div>
-            <p style="color: #eee; font-size: 12px; text-align: center;">Запас щитов</p>
+            <p style="color: #eee; font-size: 12px; text-align: center;">Увеличить запас щитов</p>
             <button class="buy-button gold" onclick="buyVipItem('slot')">5 <span class="golden-ice-icon-small"></span></button>
+        </div>
+        
+        <!-- ПЕРЕНЕСЕННЫЕ ДИЛЕРЫ -->
+        <div class="shop-item exchange-card" style="grid-column: span 2; width: 100%;">
+            <div class="item-title" style="color: #ffd700;">ЗОЛОТОЙ ДИЛЕР</div>
+            <p style="color: white; margin: 5px 0;">5000 🍦 = 1 <span class="golden-ice-icon-small"></span></p>
+            <button class="buy-button gold" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+        </div>
+        <div class="shop-item exchange-card" style="grid-column: span 2; width: 100%; margin-top: 10px; border-color: #00eaff;">
+            <div class="item-title" style="color: #00eaff;">АЛМАЗНЫЙ ДИЛЕР</div>
+            <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 💎</p>
+            <button class="buy-button gold" style="background: #004e63 !important;" onclick="buyDiamond()">КУПИТЬ 💎</button>
         </div>
     </div>
     <button class="sub-btn" style="margin-top: 30px;" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
