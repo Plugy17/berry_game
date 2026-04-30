@@ -35,6 +35,10 @@
             display: inline-block;
             vertical-align: middle;
         } 
+        /* ДОБАВЛЕНО: Фикс для анимации дождя, чтобы начинался выше экрана */
+        .falling-ice-anim, .golden-drop {
+            top: -100px !important;
+        }
     </style>
 </head>
 <body>
@@ -96,13 +100,15 @@
     <div id="bonus-panel">
         <div class="bonus-btn-wrapper" onclick="useShield()" id="btn-use-shield">
             <div class="bonus-btn">
-                <img src="assets/shield.png" class="bonus-icon-img" alt="Shield">
+                <!-- ИЗМЕНЕНО: Название файла на shield_icon.png -->
+                <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
                 <span id="count-shield">0</span>
             </div>
         </div>
         <div class="bonus-btn-wrapper" onclick="useMagnet()" id="btn-use-magnet">
             <div class="bonus-btn">
-                <img src="assets/magnet.png" class="bonus-icon-img" alt="Magnet">
+                <!-- ИЗМЕНЕНО: Название файла на magnet_icon.png -->
+                <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
                 <span id="count-magnet">0</span>
             </div>
         </div>
@@ -134,12 +140,14 @@
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 <span class="golden-ice-icon-small"></span> | 0 💎</div>
     <div class="shop-container">
         <div class="shop-item">
-            <img src="assets/shield.png" alt="Shield" style="width: 50px; height: 50px;">
+            <!-- ИЗМЕНЕНО: Название файла на shield_icon.png -->
+            <img src="assets/shield_icon.png" alt="Shield" style="width: 50px; height: 50px;">
             <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">ЩИТ</div>
             <button class="buy-button" onclick="buyItem('shield')">300 🍦</button>
         </div>
         <div class="shop-item">
-            <img src="assets/magnet.png" alt="Magnet" style="width: 50px; height: 50px;">
+            <!-- ИЗМЕНЕНО: Название файла на magnet_icon.png -->
+            <img src="assets/magnet_icon.png" alt="Magnet" style="width: 50px; height: 50px;">
             <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">МАГНИТ</div>
             <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
         </div>
