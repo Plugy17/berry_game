@@ -386,22 +386,36 @@ button:active { transform: scale(0.95); }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- HUD --- */
+/* --- HUD (ОБНОВЛЕННЫЙ: КРУПНЫЙ И ЯРКИЙ СЧЕТ) --- */
 #hud {
-    position: absolute; top: 20px; left: 20px;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-    padding: 10px 15px; border-radius: 15px;
-    border: 2px solid #ff4fd8; color: white; z-index: 100;
+    position: absolute; 
+    top: 30px; 
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7); 
+    backdrop-filter: blur(15px);
+    padding: 12px 25px; 
+    border-radius: 25px;
+    border: 3px solid #ff4fd8; 
+    color: white; 
+    z-index: 100;
+    font-size: 32px; 
     font-weight: 900;
-    display: flex; align-items: center; gap: 8px;
+    font-family: 'Arial Black', sans-serif;
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.6), inset 0 0 10px rgba(255, 79, 216, 0.4);
+    text-shadow: 0 0 10px #ff4fd8;
+    transition: transform 0.1s ease-out; /* Для пульсации из JS */
 }
 
 .ice-icon {
-    width: 26px; height: 26px;
+    width: 35px; /* Увеличен размер для HUD */
+    height: 35px;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
     display: inline-block;
-    filter: drop-shadow(0 0 5px #fff);
+    filter: drop-shadow(0 0 8px #fff);
 }
 
 /* --- КОМБО --- */
