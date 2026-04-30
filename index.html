@@ -35,7 +35,10 @@
             <option value="hard">🟥 Сложно</option>
         </select>
         <button onclick="startGame()">ИГРАТЬ</button>
+        <!-- Новые кнопки для разделения функционала -->
+        <button onclick="openBuffs()">⚡ Баффы</button>
         <button onclick="openShop()">🛒 Магазин</button>
+        <button onclick="openLeaderboard()">🏆 Рейтинг</button>
     </div>
 </div>
 
@@ -84,13 +87,12 @@
     </div>
 </div>
 
+<!-- ЭКРАН БАФФОВ (БЫВШИЙ МАГАЗИН) -->
 <div id="shop" class="screen hidden">
-    <h2 class="shop-title">МАГАЗИН</h2>
+    <h2 class="shop-title">БАФФЫ</h2>
 
     <div class="shop-balance-container">
-        <!-- Обертка для анимации покупки -->
         <div id="balance-anim-target" class="shop-balance-wrapper">
-            <!-- Сюда JS вставит число и иконку -->
             <span id="shop-balance">0 <span class="ice-icon"></span></span>
         </div>
     </div>
@@ -114,6 +116,26 @@
     </div>
 
     <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
+</div>
+
+<!-- НОВЫЙ ЭКРАН РЕЙТИНГА -->
+<div id="leaderboardScreen" class="screen hidden">
+    <h2 class="shop-title">ГЕРОИ</h2>
+    <div class="leaderboard-container">
+        <div id="leaderboard-list">
+            <!-- Сюда JS вставит топ игроков -->
+        </div>
+    </div>
+    <button class="shop-exit-btn" onclick="closeLeaderboard()">НАЗАД</button>
+</div>
+
+<!-- ПУСТОЙ ЭКРАН МАГАЗИНА (ДЛЯ БУДУЩИХ СКИНОВ) -->
+<div id="realShop" class="screen hidden">
+    <h2 class="shop-title">СКИНЫ</h2>
+    <div class="shop-container">
+        <p style="color: white; font-weight: 800;">СКОРО В ИГРЕ...</p>
+    </div>
+    <button class="shop-exit-btn" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
 </div>
 
 <script>
