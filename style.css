@@ -31,6 +31,57 @@ body {
 .hidden { display: none !important; }
 #menuLeaderboard { display: none !important; }
 
+/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
+.ice-drop {
+    position: absolute;
+    width: 25px; height: 25px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    z-index: 1;
+    pointer-events: none;
+    animation: iceFall linear infinite;
+}
+
+@keyframes iceFall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.6; }
+    85% { opacity: 0.6; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
+.ice-pop {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #fff, 0 0 40px #ffea00;
+    pointer-events: none;
+    z-index: 150;
+    animation: popEffect 0.4s ease-out forwards;
+}
+
+@keyframes popEffect {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(6); opacity: 0; }
+}
+
+.cube-boom {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: #ff4f00;
+    box-shadow: 0 0 30px #ff0000, 0 0 60px #ffaa00;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 160;
+    animation: boomEffect 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes boomEffect {
+    0% { transform: scale(0.5) rotate(0deg); opacity: 1; }
+    100% { transform: scale(4) rotate(90deg); opacity: 0; }
+}
+
 /* --- КНОПКИ --- */
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
@@ -70,7 +121,7 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН (СЕНСОРНЫЙ СКРОЛЛ И ЧИСТЫЕ ОБЪЕКТЫ) --- */
+/* --- МАГАЗИН --- */
 #shop {
     justify-content: flex-start !important; 
     padding: 100px 20px 60px 20px !important;
@@ -110,6 +161,16 @@ button:active { transform: scale(0.95); }
     filter: drop-shadow(0 0 25px rgba(255, 79, 216, 0.7));
     animation: objectAlive 6s ease-in-out infinite;
 }
+
+/* Красивые цифры в магазине */
+.shop-item .price, .buy-button span {
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Убираем лишнее мороженое в магазине */
+.shop-item .ice-icon:nth-of-type(n+2) { display: none !important; }
 
 @keyframes objectAlive {
     0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
@@ -175,7 +236,7 @@ button:active { transform: scale(0.95); }
 }
 
 .balance-info {
-    font-size: 22px !important; 
+    font-size: 24px !important; 
     color: #fff; 
     font-weight: 900;
     background: rgba(0, 0, 0, 0.7) !important; 
@@ -189,11 +250,13 @@ button:active { transform: scale(0.95); }
     margin: 0 auto !important;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     animation: scorePulse 2s infinite alternate;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* ПРАВКА: Возвращаем иконку в меню */
-.balance-info .ice-icon { display: inline-block !important; }
+.balance-info .ice-icon { 
+    display: inline-block !important; 
+    width: 30px; height: 30px;
+}
 .balance-info img { display: none !important; }
 
 @keyframes scorePulse {
@@ -209,6 +272,40 @@ button:active { transform: scale(0.95); }
     margin-bottom: 120px; 
     z-index: 20;
 }
+
+/* --- ОКНО ПРОИГРЫША --- */
+#gameOverScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.go-title {
+    font-size: 55px; font-weight: 900;
+    color: #fff; text-shadow: 0 0 20px #ff0055;
+    margin-bottom: 10px;
+}
+
+.go-stats {
+    font-size: 24px; color: #00eaff;
+    font-weight: 700; margin-bottom: 30px;
+}
+
+.go-btn-container {
+    display: flex; flex-direction: column;
+    gap: 15px; width: 100%; align-items: center;
+}
+
+.btn-restart { background: linear-gradient(45deg, #00eaff, #0081ff) !important; }
+.btn-exit { background: rgba(255, 255, 255, 0.1) !important; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* --- HUD --- */
 #hud {
@@ -259,40 +356,39 @@ button:active { transform: scale(0.95); }
     z-index: 99;
 }
 
-/* СОЧНЫЙ ЩИТ */
+/* СОЧНЫЙ ЩИТ (УЛУЧШЕНО) */
 .shield-aura::after {
     content: '';
     position: absolute;
     top: -20px; left: -20px; right: -20px; bottom: -20px;
-    border: 4px solid #00eaff;
+    border: 5px solid #00eaff;
     border-radius: 50%;
-    /* Тройное свечение для сочности */
     box-shadow: 
-        0 0 15px #00eaff, 
-        inset 0 0 15px #00eaff,
-        0 0 30px rgba(0, 234, 255, 0.5);
-    animation: shieldJuicy 0.6s infinite alternate;
+        0 0 20px #00eaff, 
+        inset 0 0 20px #00eaff,
+        0 0 40px rgba(0, 234, 255, 0.5);
+    animation: shieldJuicy 0.5s infinite alternate;
 }
 
 @keyframes shieldJuicy {
-    from { transform: scale(1); opacity: 0.9; filter: contrast(1.5); }
-    to { transform: scale(1.15); opacity: 0.5; filter: contrast(1); }
+    from { transform: scale(1); filter: brightness(1.2) contrast(1.2); }
+    to { transform: scale(1.15); filter: brightness(0.8) contrast(1); }
 }
 
-/* ИМБОВЫЙ МАГНИТ (ВОЗВРАЩЕНО) */
+/* ИМБОВЫЙ МАГНИТ (УЛУЧШЕНО) */
 .magnet-aura::before {
     content: '';
     position: absolute;
-    top: -40px; left: -40px; right: -40px; bottom: -40px;
+    top: -45px; left: -45px; right: -45px; bottom: -45px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%);
-    border: 2px dashed rgba(191, 0, 255, 0.6);
-    animation: magnetRotation 1s linear infinite;
+    background: radial-gradient(circle, rgba(191, 0, 255, 0.5) 0%, rgba(191, 0, 255, 0) 70%);
+    border: 3px dashed rgba(191, 0, 255, 0.8);
+    animation: magnetRotation 0.8s linear infinite;
 }
 
 @keyframes magnetRotation {
     from { transform: rotate(0deg) scale(1); }
-    to { transform: rotate(360deg) scale(1.1); }
+    to { transform: rotate(360deg) scale(1.2); }
 }
 
 /* --- БОНУСЫ --- */
