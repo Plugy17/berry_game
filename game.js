@@ -28,30 +28,47 @@ const imgBad = "url('assets/obstacle.png')";
 // Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
-// --- НОВЫЕ ЭФФЕКТЫ ВЗРЫВОВ ---
-function createIcePop(x, y) {
+// --- ЛЕГЕНДАРНЫЙ ЭФФЕКТ ВЗРЫВА МОРОЖЕНОГО ---
+function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
-    const pop = document.createElement('div');
-    pop.className = 'ice-pop';
-    pop.style.left = x + 'px';
-    pop.style.top = y + 'px';
-    layer.appendChild(pop);
-    setTimeout(() => pop.remove(), 400);
+    if (!layer) return;
+    
+    const particleCount = 12; // Больше частиц для сочности
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement("div");
+        particle.className = "ice-particle";
+        
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 60 + Math.random() * 80; // Дистанция разлета
+        const dx = Math.cos(angle) * dist + "px";
+        const dy = Math.sin(angle) * dist + "px";
+        
+        particle.style.setProperty('--dx', dx);
+        particle.style.setProperty('--dy', dy);
+        particle.style.left = x + "px";
+        particle.style.top = y + "px";
+        particle.style.backgroundImage = imgIceCream;
+        
+        layer.appendChild(particle);
+        setTimeout(() => particle.remove(), 600);
+    }
+}
+
+// --- НОВЫЕ ЭФФЕКТЫ ДЛЯ COLLISION ---
+function createIcePop(x, y) {
+    // Всплывающее облачко или быстрый эффект
+    createExplosion(x, y); 
 }
 
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     const boom = document.createElement('div');
-    boom.className = 'cube-boom';
+    boom.className = 'cube-boom'; // Искры при столкновении
     boom.style.left = x + 'px';
     boom.style.top = y + 'px';
     layer.appendChild(boom);
     setTimeout(() => boom.remove(), 500);
-}
-
-// Старая функция оставлена для совместимости, если где-то вызывается
-function createExplosion(x, y) {
-    createIcePop(x, y);
 }
 
 // --- FIREBASE ---
@@ -124,7 +141,6 @@ function startGame() {
         if (val.length < 2) return alert("Введи имя!");
         nick = val; localStorage.setItem("nick", nick);
     }
-    // Прячем окно проигрыша при старте
     const goScreen = document.getElementById("gameOverScreen");
     if(goScreen) goScreen.classList.add("hidden");
 
@@ -231,7 +247,7 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        createIcePop(centerX, centerY); // ЭФФЕКТ СБОРА
+        createExplosion(centerX, centerY); // ТОТ САМЫЙ ВЗРЫВ ПРИ СБОРЕ
 
         comboCount++;
         let oldMult = comboMultiplier;
@@ -259,7 +275,7 @@ function handleCollision(obs, p) {
         spawnObstacle();
     } else if (obs.dataset.type === "bad") {
         if (shieldActive) {
-            createCubeBoom(centerX, centerY); // ЭФФЕКТ УДАРА ПО ЩИТУ
+            createCubeBoom(centerX, centerY); // ИСКРЫ ПРИ УДАРЕ В ЩИТ
             shieldActive = false; 
             p.classList.remove("shield-aura");
             obstacleY = window.innerHeight + 500; 
@@ -267,7 +283,7 @@ function handleCollision(obs, p) {
             updateBonusUI();
             triggerComboFlash(1);
         } else {
-            createCubeBoom(centerX, centerY); // ЭФФЕКТ СМЕРТИ
+            createCubeBoom(centerX, centerY); // ИСКРЫ ПРИ СМЕРТИ
             gameOver();
         }
     }
@@ -283,7 +299,6 @@ function gameOver() {
     if (coins > best) best = coins;
     saveUserData();
     
-    // ПОКАЗ КРАСИВОГО ОКНА GAMEOVER
     const goScreen = document.getElementById("gameOverScreen");
     const finalScore = document.getElementById("final-score");
     if(goScreen) {
