@@ -307,9 +307,12 @@ button:active { transform: scale(0.95); }
     width: 24px; height: 24px;
     background-size: contain;
     background-repeat: no-repeat;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .ice-icon { background-image: url('assets/icecream.png'); }
+
 .golden-ice-icon-small { 
     background-image: url('assets/golden_ice.png'); 
     filter: drop-shadow(0 0 5px #ffea00);
