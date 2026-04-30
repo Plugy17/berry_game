@@ -14,7 +14,7 @@
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
-    <!-- Шапка (как на скринах) -->
+    <!-- Шапка -->
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div id="total-balance" class="balance-info">
@@ -23,7 +23,7 @@
         <div id="menuLeaderboard" class="record-info">🏆 0</div>
     </div>
 
-    <!-- Область кнопок с прокруткой -->
+    <!-- Область кнопок -->
     <div class="menu-controls">
         <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
         
@@ -47,10 +47,12 @@
     <!-- Слой для эффектов -->
     <div id="effects-layer"></div>
 
-    <!-- Обновленный HUD (в одну строку) -->
-    <div id="hud">
-        <!-- Генерируется через JS: Lvl | Ice | Gold -->
-    </div> 
+    <!-- Обновленный HUD -->
+    <div class="top-bar-container">
+        <div id="hud">
+            <!-- Lvl | Ice | Gold -->
+        </div> 
+    </div>
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
     
@@ -74,20 +76,18 @@
     <div id="obstacle"></div> 
 </div>
 
-<div id="gameOverScreen" class="hidden">
-    <div class="go-card">
-        <div class="go-title">БА-БАХ!</div>
-        <div class="go-stats">
-            <span class="ice-icon-big"></span>
-            <span id="final-score">0</span>
+<div id="gameOverScreen" class="screen hidden" style="background: rgba(0,0,0,0.85); z-index: 1000;">
+    <div class="go-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <div class="shop-title" style="font-size: 60px;">БА-БАХ!</div>
+        <div class="currency-row" style="font-size: 32px; margin: 20px 0;">
+            <span id="final-score">0</span> <span class="ice-icon"></span>
         </div>
-        <div class="go-btn-container">
-            <!-- Кнопка воскрешения -->
-            <button id="revive-btn" class="btn-revive" onclick="tryRevive()">
+        <div class="menu-controls" style="width: 280px;">
+            <button id="revive-btn" class="buy-button gold" onclick="tryRevive()">
                 ✨ ВОСКРЕСНУТЬ (1 💎)
             </button>
-            <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
-            <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
+            <button class="main-btn" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
+            <button class="sub-btn" onclick="backToMenu()">В МЕНЮ</button>
         </div>
     </div>
 </div>
@@ -95,30 +95,29 @@
 <!-- БАФФЫ -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-    <div class="shop-balance-container">
-        <div id="shop-balance" class="shop-balance-wrapper">0 🍦</div>
-    </div>
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px;">0 🍦</div>
 
     <div class="shop-container">
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
-            <div class="item-title">ЩИТ</div>
+            <div class="item-title" style="color: white; margin-bottom: 5px;">ЩИТ</div>
             <button class="buy-button" onclick="buyItem('shield')">300 🍦</button>
         </div>
 
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
-            <div class="item-title">МАГНИТ</div>
+            <div class="item-title" style="color: white; margin-bottom: 5px;">МАГНИТ</div>
             <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
         </div>
-
-        <div class="shop-item exchange-card">
-            <div class="item-title">ОБМЕННИК</div>
-            <p>5000 🍦 = 1 💎</p>
-            <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-        </div>
     </div>
-    <button class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
+    
+    <div class="shop-item exchange-card" style="width: 100%; max-width: 350px; margin-top: 15px;">
+        <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
+        <p style="color: white; margin: 5px 0;">5000 🍦 = 1 💎</p>
+        <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+    </div>
+    
+    <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
 
 <!-- VIP МАГАЗИН -->
@@ -126,32 +125,29 @@
     <h2 class="shop-title">VIP SHOP</h2>
     <div class="shop-container">
         <div class="shop-item vip-card">
-            <div class="item-title">GOLD СКИН</div>
-            <p>Сила магнита +10%</p>
+            <div class="item-title" style="color: #ffd700;">GOLD СКИН</div>
+            <p style="color: #eee; font-size: 12px; text-align: center;">Магнит сильнее на 10%</p>
             <button class="buy-button gold" onclick="buyVipItem('skin')">10 💎</button>
         </div>
         <div class="shop-item vip-card">
-            <div class="item-title">+1 СЛОТ ЩИТА</div>
-            <p>Запас защиты</p>
+            <div class="item-title" style="color: #ffd700;">+1 СЛОТ</div>
+            <p style="color: #eee; font-size: 12px; text-align: center;">Запас щитов</p>
             <button class="buy-button gold" onclick="buyVipItem('slot')">5 💎</button>
         </div>
     </div>
-    <button class="shop-exit-btn" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
+    <button class="sub-btn" style="margin-top: 30px;" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
 </div>
 
 <!-- РЕЙТИНГ -->
 <div id="leaderboardScreen" class="screen hidden">
     <h2 class="shop-title">ТОП ГЕРОЕВ</h2>
-    <div class="leaderboard-container">
-        <div id="leaderboard-list">
-            <!-- Данные из Firebase -->
-        </div>
+    <div id="leaderboard-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <!-- Данные из Firebase -->
     </div>
-    <button class="shop-exit-btn" onclick="closeLeaderboard()">НАЗАД</button>
+    <button class="sub-btn" style="margin-top: 30px;" onclick="closeLeaderboard()">НАЗАД</button>
 </div>
 
 <script>
-  // Конфиг Firebase без изменений
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
@@ -168,14 +164,24 @@
     window.db = firebase.database();
   } catch (e) { console.error("Firebase error", e); }
 
-  // Функции открытия спец-экранов
   function openShop() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('realShop').classList.remove('hidden');
   }
-  function openLeaderboard() {
-      // Эта функция вызывается в script.js
-      if(typeof window.openLeaderboard === 'function') window.openLeaderboard();
+
+  function tryRevive() {
+      if (window.goldenIce >= 1 && !window.usedReviveThisRun) {
+          window.goldenIce -= 1;
+          window.usedReviveThisRun = true;
+          window.gameRunning = true;
+          window.obstacleY = -150;
+          document.getElementById("gameOverScreen").classList.add("hidden");
+          window.saveUserData();
+          window.updateScore();
+          window.update(); // Перезапуск цикла
+      } else {
+          alert("Недостаточно алмазов или уже использовано!");
+      }
   }
 </script>
 <script src="game.js"></script>
