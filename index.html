@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <!-- ДОБАВЛЕН СТИЛЬ ДЛЯ ФИКСА ГИГАНТСКОГО ЩИТА -->
     <style>
         #obstacle {
             width: 80px !important;
@@ -18,11 +17,9 @@
             background-repeat: no-repeat !important;
             background-position: center !important;
         }
-        /* ДОБАВЛЕНО: Стили для отображения иконок валют в HTML */
         .ice-icon::after { content: '🍦'; }
-        /* ПРАВКА: Теперь здесь пусто, так как иконка берется из PNG в CSS */
         .golden-ice-icon-small::after { content: ''; } 
-        .diamond-icon-small::after { content: '💎'; } /* Алмаз */
+        .diamond-icon-small::after { content: '💎'; } 
     </style>
 </head>
 <body>
@@ -30,23 +27,17 @@
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
-    <!-- ПРАВКА: Обертка для центровки всего контента -->
     <div class="menu-content-wrapper">
         
-        <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ -->
         <div class="top-bar-container">
             <div id="welcome" class="welcome-text">ГЕРОЙ BERRY</div>
-            <div id="total-balance" class="balance-info">
-                <!-- Сюда JS вставит валюту: Мороженое, Золотое и Алмазы -->
-            </div>
+            <div id="total-balance" class="balance-info"></div>
             <div id="menuLeaderboard" class="best-score" style="color: #ffd700; font-size: 18px; margin-top: 5px;">🏆 РЕКОРД: 0</div>
         </div>
 
-        <!-- 2. ЦЕНТРАЛЬНЫЙ БЛОК КНОПОК -->
         <div class="menu-controls">
             <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
             
-            <!-- ПРАВКА: Контейнер сложности для выравнивания -->
             <div class="difficulty-container">
                 <label class="difficulty-label">СЛОЖНОСТЬ:</label>
                 <select id="difficulty">
@@ -57,15 +48,14 @@
             </div>
             
             <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
-            <!-- ПРАВКА: Добавлена функция openBuffs() для баффов -->
             <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
-            <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
+            <!-- ПРАВКА: Переименовано в Магазин -->
+            <button id="shop-btn-main" class="sub-btn vip-btn" onclick="openShop()">💎 Магазин</button>
             <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
         </div>
 
-    </div> <!-- Конец menu-content-wrapper -->
+    </div>
 
-    <!-- 3. НИЖНЯЯ ЧАСТЬ -->
     <div class="menu-footer">
          <h1 class="footer-logo">BERRY RUNNER</h1>
     </div>
@@ -81,18 +71,24 @@
         <div id="combo-ui" class="hidden">x2</div>
         <div id="combo-msg"></div> 
     </div>
+    
+    <!-- ПРАВКА: Кнопки разделены на независимые блоки -->
     <div id="bonus-panel">
-        <div class="bonus-btn" onclick="useShield()">
-            <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
-            <span id="count-shield">0</span>
+        <div class="bonus-btn-wrapper" onclick="useShield()">
+            <div class="bonus-btn">
+                <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
+                <span id="count-shield">0</span>
+            </div>
         </div>
-        <div class="bonus-btn" onclick="useMagnet()">
-            <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
-            <span id="count-magnet">0</span>
+        <div class="bonus-btn-wrapper" onclick="useMagnet()">
+            <div class="bonus-btn">
+                <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
+                <span id="count-magnet">0</span>
+            </div>
         </div>
     </div>
+
     <div id="player"></div> 
-    <!-- ПРАВКА: Добавлен инлайн стиль для гарантии размера -->
     <div id="obstacle" style="width: 80px; height: 80px;"></div> 
 </div>
 
@@ -103,7 +99,6 @@
             <span id="final-score">0</span> <span class="ice-icon"></span>
         </div>
         <div class="menu-controls" style="width: 280px; position: relative; z-index: 1001;">
-            <!-- ПРАВКА: Теперь вызываем revivePlayer() из твоего JS, который тратит алмазы -->
             <button id="revive-btn" class="buy-button gold" onclick="revivePlayer()" style="display:none; width: 100%; margin-bottom: 10px;">
                 ✨ ВОСКРЕСНУТЬ (1 💎)
             </button>
@@ -115,7 +110,6 @@
 
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-    <!-- ПРАВКА: Единый баланс для магазина. ЗАМЕНА ⭐ на иконку -->
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 <span class="golden-ice-icon-small"></span> | 0 💎</div>
     <div class="shop-container">
         <div class="shop-item">
@@ -132,11 +126,9 @@
     <div class="shop-container" style="margin-top: 15px;">
         <div class="shop-item exchange-card" style="width: 100%;">
             <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
-            <!-- ЗАМЕНА ⭐ на иконку -->
             <p style="color: white; margin: 5px 0;">5000 🍦 = 1 <span class="golden-ice-icon-small"></span></p>
             <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
         </div>
-        <!-- ДОБАВЛЕНО: Покупка алмаза за обычное мороженое -->
         <div class="shop-item exchange-card" style="width: 100%; margin-top: 10px; border-color: #00eaff;">
             <div class="item-title" style="color: #00eaff;">АЛМАЗНЫЙ ДИЛЕР</div>
             <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 💎</p>
@@ -147,8 +139,8 @@
 </div>
 
 <div id="realShop" class="screen hidden">
-    <h2 class="shop-title">VIP SHOP</h2>
-    <!-- Баланс в VIP магазине. ЗАМЕНА ⭐ на иконку -->
+    <!-- ПРАВКА: Название исправлено -->
+    <h2 class="shop-title">МАГАЗИН</h2>
     <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">
         Используйте <span class="golden-ice-icon-small"></span> и 💎 для покупок
     </div>
@@ -156,13 +148,11 @@
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">GOLD СКИН</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит сильнее на 10%</p>
-            <!-- ЗАМЕНА ⭐ на иконку -->
             <button class="buy-button gold" onclick="buyVipItem('skin')">10 <span class="golden-ice-icon-small"></span></button>
         </div>
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">+1 СЛОТ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Запас щитов</p>
-            <!-- ЗАМЕНА ⭐ на иконку -->
             <button class="buy-button gold" onclick="buyVipItem('slot')">5 <span class="golden-ice-icon-small"></span></button>
         </div>
     </div>
@@ -192,7 +182,6 @@
     window.db = firebase.database();
   } catch (e) { console.error("Firebase error", e); }
 
-  // Эти функции теперь просто переключают экраны, вся логика баланса внутри game.js
   function openBuffs() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('shop').classList.remove('hidden');
