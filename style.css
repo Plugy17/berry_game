@@ -21,34 +21,38 @@ body {
     z-index: 10;
     background: url('assets/bg.jpg') no-repeat center center;
     background-size: cover;
-    /* ПРАВКА: элементы распределяются сверху вниз */
     justify-content: flex-start; 
 }
 
 #game.screen {
     background: url('assets/game_bg.jpg') no-repeat center center;
     background-size: cover;
+    /* ФИКС: Гарантируем, что падающие объекты не обрезаются сверху */
+    overflow: visible !important;
 }
 
 .hidden { display: none !important; }
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
+/* ПРАВКА: Поднял z-index до 90, чтобы элементы были ПОВЕРХ фона */
 .ice-drop, .falling-ice-anim {
     position: absolute;
-    width: 25px; height: 25px;
+    width: 50px !important; /* Увеличил, чтобы было лучше видно при падении */
+    height: 50px !important;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
-    z-index: 1;
+    z-index: 90 !important; 
     pointer-events: none;
-    animation: iceFall linear infinite;
+    animation: iceFall linear forwards; /* Изменил на forwards */
 }
 
 .golden-drop {
     position: absolute;
-    width: 30px; height: 30px;
+    width: 55px !important; 
+    height: 55px !important;
     background: url('assets/golden_ice.png') no-repeat center center;
     background-size: contain;
-    z-index: 2;
+    z-index: 91 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
     filter: drop-shadow(0 0 10px #ffea00);
@@ -58,11 +62,10 @@ body {
     animation: iceFall linear forwards;
 }
 
+/* ФИКС АНИМАЦИИ: Убрал opacity: 0 в начале и конце, чтобы они не были невидимыми */
 @keyframes iceFall {
-    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-    15% { opacity: 0.8; }
-    85% { opacity: 0.8; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 1; }
 }
 
 /* --- КОМБО ЭФФЕКТЫ --- */
@@ -160,12 +163,10 @@ button, select, input {
 
 button:active { transform: scale(0.95); }
 
-/* ПРАВКА: Сделали кнопку Играть ярче и выше по слоям */
 .main-btn {
     background: linear-gradient(180deg, #ff4fd8, #ba2891) !important;
     z-index: 110 !important;
     position: relative;
-    /* ФИКС: Делаем акцент на кнопке */
     border: 2px solid #fff !important;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
@@ -187,7 +188,7 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН (ИСПРАВЛЕНО) --- */
+/* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
     padding: 20px !important;
@@ -256,7 +257,7 @@ button:active { transform: scale(0.95); }
     align-items: center;
     gap: 8px;
     width: 100%;
-    z-index: 50;
+    z-index: 150; /* Поднял HUD над падающими элементами */
 }
 
 .balance-info, #hud {
@@ -271,10 +272,7 @@ button:active { transform: scale(0.95); }
     width: auto !important;
 }
 
-/* ПРАВКА: Скрываем рекорд именно в главном меню через CSS */
-#menu .record-info {
-    display: none !important;
-}
+#menu .record-info { display: none !important; }
 
 .record-info {
     font-weight: 800;
@@ -338,7 +336,6 @@ button:active { transform: scale(0.95); }
     animation: shieldJuicy 0.5s infinite alternate; 
 }
 
-/* ДОБАВЛЕНО: Визуальный эффект магнита вокруг игрока */
 .magnet-aura::before {
     content: '';
     position: absolute;
@@ -381,7 +378,6 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 5px #ffd700;
 }
 
-/* ПРАВКА: Баффы теперь фиксированы в самом низу экрана под Берри */
 #bonus-panel { 
     position: fixed !important; 
     bottom: 30px !important; 
@@ -392,7 +388,6 @@ button:active { transform: scale(0.95); }
     z-index: 110 !important; 
 }
 
-/* Стили для уровней в лидерборде */
 .lvl-badge {
     background: #00eaff;
     color: black;
@@ -402,7 +397,6 @@ button:active { transform: scale(0.95); }
     font-weight: 900;
 }
 
-/* ПРАВКА: Заголовок "Герой BERRY" */
 .welcome-text {
     font-size: 32px !important; 
     font-weight: 900;
@@ -413,7 +407,7 @@ button:active { transform: scale(0.95); }
     letter-spacing: 2px;
 }
 
-/* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА (ДОБАВЛЕНО) --- */
+/* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА --- */
 
 .menu-content-wrapper {
     display: flex;
@@ -425,32 +419,24 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-#obstacle, .ice-drop, .golden-drop, .falling-ice-anim {
-    width: 60px !important;  
-    height: 60px !important;
-    max-width: 60px !important;
-    max-height: 60px !important;
+/* ФИКС: Препятствия теперь ТОЖЕ имеют высокий z-index */
+#obstacle {
+    width: 70px !important; 
+    height: 70px !important;
+    max-width: 70px !important;
+    max-height: 70px !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important; 
     pointer-events: none;
     box-sizing: border-box;
+    z-index: 92 !important; 
+    position: absolute;
+    animation: iceFall linear forwards; /* Добавил анимацию, если она не задана в JS */
 }
 
-#game #obstacle {
-    width: 70px !important; 
-    height: 70px !important;
-    max-width: 70px !important;
-    max-height: 70px !important;
-}
-
-#nick {
-    text-align: center;
-}
-
-#difficulty {
-    text-align-last: center;
-}
+#nick { text-align: center; }
+#difficulty { text-align-last: center; }
 
 .menu-footer {
     position: absolute;
@@ -467,9 +453,7 @@ button:active { transform: scale(0.95); }
     margin: 0;
 }
 
-/* --- ПРАВКИ: ФИКС ИНТЕРФЕЙСА БАФФОВ (ДОБАВЛЕНО) --- */
-
-/* Изолируем иконки в магазине и нижней панели, чтобы они НЕ были огромными */
+/* --- ФИКС ИНТЕРФЕЙСА БАФФОВ --- */
 #shop .shop-item img, 
 #bonus-panel img, 
 .shop-item img {
@@ -477,18 +461,12 @@ button:active { transform: scale(0.95); }
     height: 45px !important;
     max-width: 45px !important;
     max-height: 45px !important;
-    min-width: 45px !important;
-    min-height: 45px !important;
     object-fit: contain !important;
     transform: none !important;
     animation: none !important;
     position: relative !important;
-    margin: 0 !important;
-    top: auto !important;
-    left: auto !important;
 }
 
-/* Фиксируем размер панели бонусов, чтобы она не растягивалась */
 #bonus-panel {
     height: 65px !important;
     padding: 0 15px !important;
@@ -498,15 +476,12 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
 }
 
-/* Отключаем ауру щита для иконок в магазине, чтобы она не вылезала на весь экран */
 .shop-item .shield-aura::after, 
 #bonus-panel .shield-aura::after {
     display: none !important;
 }
 
-/* Принудительный сброс для всех картинок внутри кнопок */
 button img {
     width: 25px !important;
     height: 25px !important;
-    max-width: 25px !important;
 }
