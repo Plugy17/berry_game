@@ -91,13 +91,12 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
-/* Стиль для новых картинок в магазине */
-.shop-item-img {
-    width: 75px;
-    height: 75px;
-    object-fit: contain;
+/* ФИКС: Ограничение размера новых иконок в магазине */
+.shop-item img {
+    width: 80px !important;
+    height: 80px !important;
+    object-fit: contain !important;
     margin-bottom: 10px;
-    filter: drop-shadow(0 0 10px rgba(255, 79, 216, 0.4));
 }
 
 .item-title {
@@ -109,17 +108,16 @@ button:active { transform: scale(0.95); }
 }
 
 .item-price {
-    font-size: 20px; /* Сделал чуть больше */
+    font-size: 18px;
     color: #00eaff;
     background: rgba(0, 0, 0, 0.4);
-    padding: 6px 18px;
+    padding: 5px 15px;
     border-radius: 15px;
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     gap: 8px;
     border: 1px solid rgba(0, 234, 255, 0.3);
-    font-weight: 900;
 }
 
 .buy-button {
@@ -322,7 +320,7 @@ button:active { transform: scale(0.95); }
 }
 
 .bonus-btn {
-    position: relative; /* Для позиционирования счетчика */
+    position: relative; /* Для фиксации счетчика */
     width: 60px !important; height: 60px !important;
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(8px);
@@ -334,31 +332,23 @@ button:active { transform: scale(0.95); }
     animation: floatBtn 3s ease-in-out infinite; 
 }
 
-/* Иконки внутри кнопок бонусов */
-.bonus-icon-img {
-    width: 38px;
-    height: 38px;
-    object-fit: contain;
-    pointer-events: none;
+/* ФИКС: Размер иконок внутри кнопок бонусов */
+.bonus-btn img {
+    width: 35px !important;
+    height: 35px !important;
+    object-fit: contain !important;
 }
 
-/* Красивые цифры количества бонусов */
+/* Счётчик поверх кнопки */
 .bonus-btn span {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
-    background: linear-gradient(45deg, #00eaff, #008cff);
-    color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
+    bottom: -5px;
+    right: -5px;
     font-size: 14px;
-    font-weight: 900;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #fff;
-    box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+    background: #ff4fd8;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid white;
 }
 
 @keyframes floatBtn {
