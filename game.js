@@ -42,7 +42,7 @@ const imgIceCream = "url('assets/icecream.png')";
 const imgGoldenIce = "url('assets/golden_ice.png')"; 
 const imgBad = "url('assets/obstacle.png')";
 
-// ПРАВКА: Функции иконок теперь возвращают пустые span, чтобы текст/эмодзи не закрывали графику
+// ПРАВКА: Иконки теперь корректно отображаются через CSS классы без лишнего текста
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
@@ -56,6 +56,8 @@ function createRainDrop(containerId) {
     const isGold = Math.random() < 0.1;
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
     drop.style.left = Math.random() * 95 + "vw";
+    
+    // ПРАВКА: Убеждаемся, что анимация берет значения из CSS, где прописано -120px для старта
     drop.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
     
     const duration = Math.random() * 2 + 3; 
@@ -153,13 +155,11 @@ window.onload = () => {
 
 // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
-    // ПРАВКА: Текст кнопки Магазин
     const shopBtn = document.getElementById("shop-btn-main");
     if(shopBtn) shopBtn.innerHTML = `💎 МАГАЗИН`;
 
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
-        // ПРАВКА: Сделали имя в верхнем регистре для стиля
         if(welcomeElem) welcomeElem.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
@@ -170,7 +170,7 @@ function updateMenuInfo() {
 
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
-        // ПРАВКА: Добавлены дополнительные классы для управления через CSS
+        // ПРАВКА: Цифры счета теперь внутри span, который в CSS сделан видимым (display: inline-block)
         totalBal.innerHTML = `
             <div class="currency-row"><span>${totalCoins}</span> ${getIceIcon()}</div>
             <div class="currency-row gold-highlight" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
@@ -180,12 +180,12 @@ function updateMenuInfo() {
     
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) {
-        shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
+        shopBalValue.innerHTML = `<span>${totalCoins}</span> ${getIceIcon()} | <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
 
     const vipBalInfo = document.getElementById("vip-balance-info");
     if(vipBalInfo) {
-        vipBalInfo.innerHTML = `Баланс: ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
+        vipBalInfo.innerHTML = `Баланс: <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
 
     updateBonusUI();
@@ -368,7 +368,7 @@ function handleCollision(obs, p) {
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
-        // ПРАВКА: Очистили строки, добавили span для чисел и сохранили LVL
+        // ПРАВКА: В игровом интерфейсе (HUD) также возвращаем span для отображения цифр счета
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
             <div class="currency-row"><span>${coins}</span> ${getIceIcon()}</div>
