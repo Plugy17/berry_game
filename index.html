@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BERRY RUNNER ONLINE</title>
-    <!-- Обновлена ссылка на стили для стабильной загрузки -->
     <link rel="stylesheet" href="style.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,46 +14,42 @@
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
-    <!-- Шапка всегда сверху -->
+    <!-- Шапка (как на скринах) -->
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
-        <div class="menu-stats-container">
-            <!-- Основной баланс игрока (Мороженое и Золото) -->
-            <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
-            <!-- Рекорд -->
-            <div id="menuLeaderboard" class="record-info">🏆 0</div>
+        <div id="total-balance" class="balance-info">
+            <!-- Сюда JS вставит валюту -->
         </div>
+        <div id="menuLeaderboard" class="record-info">🏆 0</div>
     </div>
 
-    <!-- Новая область прокрутки для кнопок -->
+    <!-- Область кнопок с прокруткой -->
     <div class="menu-controls">
         <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
         
-        <label style="color: white; font-weight: 800; font-size: 14px; margin-top: 10px; margin-bottom: -5px;">СЛОЖНОСТЬ:</label>
+        <label class="difficulty-label">СЛОЖНОСТЬ:</label>
         <select id="difficulty">
             <option value="easy">🟩 Легко</option>
             <option value="medium" selected>🟨 Средне</option>
             <option value="hard">🟥 Сложно</option>
         </select>
         
-        <button onclick="startGame()">ИГРАТЬ</button>
-        <!-- Разделение функционала с поддержкой свайпа -->
-        <button onclick="openBuffs()">⚡ Баффы</button>
-        <button onclick="openShop()">💎 VIP Магазин</button>
-        <button onclick="openLeaderboard()">🏆 Рейтинг</button>
+        <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
+        <button class="sub-btn" onclick="openBuffs()">⚡ Баффы</button>
+        <button class="sub-btn vip-btn" onclick="openShop()">💎 VIP Магазин</button>
+        <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
         
-        <!-- Дополнительный отступ снизу для удобства прокрутки -->
         <div style="height: 40px; width: 100%;"></div>
     </div>
 </div>
 
 <div id="game" class="screen hidden">
-    <!-- Слой для взрывов и частиц -->
+    <!-- Слой для эффектов -->
     <div id="effects-layer"></div>
 
-    <!-- HUD теперь управляется целиком через JS для компактности -->
+    <!-- Обновленный HUD (в одну строку) -->
     <div id="hud">
-        <span class="ice-icon"></span> 0 | <span class="golden-ice-icon-small"></span> 0 | 🏆 0
+        <!-- Генерируется через JS: Lvl | Ice | Gold -->
     </div> 
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
@@ -87,9 +82,9 @@
             <span id="final-score">0</span>
         </div>
         <div class="go-btn-container">
-            <!-- Кнопка воскрешения за золото -->
-            <button id="revive-btn" class="btn-revive" onclick="tryRevive()" style="display: none; background: linear-gradient(180deg, #ffd700, #ff8c00);">
-                ✨ ВОСКРЕСНУТЬ (1 <span class="golden-ice-icon-small"></span>)
+            <!-- Кнопка воскрешения -->
+            <button id="revive-btn" class="btn-revive" onclick="tryRevive()">
+                ✨ ВОСКРЕСНУТЬ (1 💎)
             </button>
             <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
             <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
@@ -97,78 +92,66 @@
     </div>
 </div>
 
-<!-- ЭКРАН БАФФОВ (ОБЫЧНЫЙ МАГАЗИН) -->
+<!-- БАФФЫ -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-
     <div class="shop-balance-container">
-        <div id="balance-anim-target" class="shop-balance-wrapper">
-            <span id="shop-balance">0 <span class="ice-icon"></span></span>
-        </div>
+        <div id="shop-balance" class="shop-balance-wrapper">0 🍦</div>
     </div>
 
     <div class="shop-container">
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
             <div class="item-title">ЩИТ</div>
-            <button class="buy-button" onclick="buyItem('shield')">
-                КУПИТЬ 300 <span class="ice-icon"></span>
-            </button>
+            <button class="buy-button" onclick="buyItem('shield')">300 🍦</button>
         </div>
 
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
             <div class="item-title">МАГНИТ</div>
-            <button class="buy-button" onclick="buyItem('magnet')">
-                КУПИТЬ 500 <span class="ice-icon"></span>
-            </button>
+            <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
         </div>
 
-        <!-- Кнопка обмена валюты прямо в баффах для удобства -->
-        <div class="shop-item" style="border: 2px solid #ffd700;">
-            <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
-            <p style="font-size: 10px; color: #fff;">5000 🍦 = 1 💎</p>
-            <button class="buy-button" onclick="convertIceToGold()" style="background: #444;">
-                ОБМЕНЯТЬ
-            </button>
+        <div class="shop-item exchange-card">
+            <div class="item-title">ОБМЕННИК</div>
+            <p>5000 🍦 = 1 💎</p>
+            <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
         </div>
     </div>
-
-    <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
+    <button class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
 </div>
 
-<!-- НОВЫЙ ЭКРАН VIP МАГАЗИНА (ЗОЛОТО) -->
+<!-- VIP МАГАЗИН -->
 <div id="realShop" class="screen hidden">
-    <h2 class="shop-title">VIP МАГАЗИН</h2>
+    <h2 class="shop-title">VIP SHOP</h2>
     <div class="shop-container">
-        <div class="shop-item">
+        <div class="shop-item vip-card">
             <div class="item-title">GOLD СКИН</div>
-            <p style="font-size: 10px; color: #aaa;">+10% к силе магнита</p>
-            <button class="buy-button" onclick="buyVipItem('skin')" style="background: #d4af37;">
-                10 <span class="golden-ice-icon-small"></span>
-            </button>
+            <p>Сила магнита +10%</p>
+            <button class="buy-button gold" onclick="buyVipItem('skin')">10 💎</button>
         </div>
-        <div class="shop-item">
-            <div class="item-title">+1 ЯЧЕЙКА ЩИТА</div>
-            <p style="font-size: 10px; color: #aaa;">Больше щитов в запас</p>
-            <button class="buy-button" onclick="buyVipItem('slot')" style="background: #d4af37;">
-                5 <span class="golden-ice-icon-small"></span>
-            </button>
+        <div class="shop-item vip-card">
+            <div class="item-title">+1 СЛОТ ЩИТА</div>
+            <p>Запас защиты</p>
+            <button class="buy-button gold" onclick="buyVipItem('slot')">5 💎</button>
         </div>
     </div>
     <button class="shop-exit-btn" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
 </div>
 
-<!-- ЭКРАН РЕЙТИНГА -->
+<!-- РЕЙТИНГ -->
 <div id="leaderboardScreen" class="screen hidden">
-    <h2 class="shop-title">ГЕРОИ</h2>
+    <h2 class="shop-title">ТОП ГЕРОЕВ</h2>
     <div class="leaderboard-container">
-        <div id="leaderboard-list"></div>
+        <div id="leaderboard-list">
+            <!-- Данные из Firebase -->
+        </div>
     </div>
     <button class="shop-exit-btn" onclick="closeLeaderboard()">НАЗАД</button>
 </div>
 
 <script>
+  // Конфиг Firebase без изменений
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
@@ -179,15 +162,20 @@
     appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
     measurementId: "G-LLJ9L848G0"
   };
+  
   try {
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
-  } catch (e) { console.error("Firebase init error:", e); window.db = null; }
+  } catch (e) { console.error("Firebase error", e); }
 
-  // Функция для открытия реального магазина (VIP)
+  // Функции открытия спец-экранов
   function openShop() {
       document.getElementById('menu').classList.add('hidden');
       document.getElementById('realShop').classList.remove('hidden');
+  }
+  function openLeaderboard() {
+      // Эта функция вызывается в script.js
+      if(typeof window.openLeaderboard === 'function') window.openLeaderboard();
   }
 </script>
 <script src="game.js"></script>
