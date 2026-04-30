@@ -66,18 +66,25 @@
 </div>
 
 <div id="gameOverScreen" class="hidden">
-    <div class="go-title">БА-БАХ!</div>
-    <div id="final-score" class="go-stats">Счет: 0</div>
-    <div class="go-btn-container">
-        <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
-        <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
+    <div class="go-card">
+        <div class="go-title">БА-БАХ!</div>
+        <div class="go-stats">
+            <span class="ice-icon-big"></span>
+            <span id="final-score">0</span>
+        </div>
+        <div class="go-btn-container">
+            <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
+            <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
+        </div>
     </div>
 </div>
 
 <div id="shop" class="screen hidden">
     <div class="shop-balance-container">
         <div class="balance-info">
-            <span id="shop-balance">0</span> <span class="ice-icon"></span>
+            <span id="shop-balance">0</span>
+            <span class="ice-icon"></span>
+            <span class="ice-icon"></span>
         </div>
     </div>
 
