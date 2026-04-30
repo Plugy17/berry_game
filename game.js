@@ -15,7 +15,7 @@ let coins = 0;
 let best = 0;
 let totalCoins = 0;
 
-// --- НОВАЯ ВАЛЮТА И VIP ПРОГРЕСС ---
+// --- ВАЛЮТА И ПРОГРЕСС ---
 let goldenIce = 0; 
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
@@ -240,10 +240,16 @@ function update() {
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
 
-    // --- ДОБАВЛЕНО: ЭФФЕКТ НАКЛОНА ПРИ ДВИЖЕНИИ ---
+    // --- ПЛАВНОЕ ПЕРЕМЕЩЕНИЕ И НАКЛОН ---
     let currentX = parseFloat(p.style.left);
     let targetX = lanes[targetLane];
-    let tilt = (targetX - currentX) * 1.5; // Наклон зависит от расстояния
+    
+    // Плавное сближение с целевой полосой (интерполяция)
+    let newX = currentX + (targetX - currentX) * 0.15;
+    p.style.left = newX + "%";
+    
+    // Наклон зависит от скорости смены полосы
+    let tilt = (targetX - currentX) * 2.5; 
     p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
 
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
@@ -257,7 +263,8 @@ function update() {
     
     obs.style.top = obstacleY + "px";
     
-    if (obstacleLane === targetLane && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
+    // Улучшенная проверка коллизии (по координатам)
+    if (Math.abs(newX - lanes[obstacleLane]) < 5 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
     
@@ -280,10 +287,11 @@ function handleCollision(obs, p) {
         const isGold = obs.dataset.type === "golden";
         createExplosion(centerX, centerY, isGold); 
         
-        // --- ДОБАВЛЕНО: ВИЗУАЛЬНЫЙ ОТКЛИК ПОДБОРА ---
         p.style.transition = "none";
         p.style.transform = "translateX(-50%) scale(1.3)";
-        setTimeout(() => { p.style.transition = "left 0.2s, transform 0.2s"; p.style.transform = "translateX(-50%) scale(1)"; }, 100);
+        setTimeout(() => { 
+            if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; 
+        }, 100);
 
         comboCount++;
         if (comboCount % 100 === 0) goldenIce++;
@@ -295,7 +303,6 @@ function handleCollision(obs, p) {
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
-            // --- ДОБАВЛЕНО: АНИМАЦИЯ КОМБО ---
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = 'comboPop 0.3s ease-out';
@@ -335,10 +342,14 @@ function updateScore() {
 
 function gameOver() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId); // Останавливаем цикл
+    
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
-    document.getElementById("gameOverScreen").classList.remove("hidden");
+    
+    const goScreen = document.getElementById("gameOverScreen");
+    goScreen.classList.remove("hidden");
     document.getElementById("final-score").innerText = coins; 
     
     const revBtn = document.getElementById("revive-btn");
@@ -390,7 +401,8 @@ function useMagnet() {
         updateBonusUI();
         setTimeout(() => {
             magnetActive = false;
-            document.getElementById("player").classList.remove("magnet-aura");
+            if(document.getElementById("player")) 
+                document.getElementById("player").classList.remove("magnet-aura");
         }, 10000);
     }
 }
@@ -400,17 +412,19 @@ function openLeaderboard() {
     const list = document.getElementById("leaderboard-list");
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
-    list.innerHTML = "Загрузка...";
+    list.innerHTML = "<div class='loading'>Загрузка уровней...</div>";
 
     if(window.db) {
-        db.ref('players').orderByChild('best').limitToLast(10).once('value', (snap) => {
+        // СОРТИРОВКА ПО УРОВНЮ (LEVEL)
+        db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
             let players = [];
             snap.forEach(child => { players.push(child.val()); });
             players.reverse().forEach((p, index) => {
-                list.innerHTML += `<div class="leaderboard-item">
+                list.innerHTML += `
+                <div class="leaderboard-item">
                     <span>${index+1}. ${p.nick}</span>
-                    <span>${p.best} 🍦</span>
+                    <span style="color: #ffeb3b; font-weight: bold;">LVL ${p.level || 1}</span>
                 </div>`;
             });
         });
@@ -439,6 +453,7 @@ function backToMenu() {
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
     updateMenuInfo();
+    startIceRain("menu");
 }
 
 // УПРАВЛЕНИЕ
@@ -448,8 +463,6 @@ document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
-    const p = document.getElementById("player");
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
-    p.style.left = lanes[targetLane] + "%";
 });
