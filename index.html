@@ -8,6 +8,17 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- ДОБАВЛЕН СТИЛЬ ДЛЯ ФИКСА ГИГАНТСКОГО ЩИТА -->
+    <style>
+        #obstacle {
+            width: 80px !important;
+            height: 80px !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -23,7 +34,7 @@
             <div id="total-balance" class="balance-info">
                 <!-- Сюда JS вставит валюту -->
             </div>
-            <div id="menuLeaderboard" class="record-info">🏆 РЕКОРД: 0</div>
+            <!-- РЕКОРД УДАЛЕН ОТСЮДА (как ты и просил) -->
         </div>
 
         <!-- 2. ЦЕНТРАЛЬНЫЙ БЛОК КНОПОК -->
@@ -75,7 +86,8 @@
         </div>
     </div>
     <div id="player"></div> 
-    <div id="obstacle"></div> 
+    <!-- ПРАВКА: Добавлен инлайн стиль для гарантии размера -->
+    <div id="obstacle" style="width: 80px; height: 80px;"></div> 
 </div>
 
 <div id="gameOverScreen" class="screen hidden" style="background: rgba(0,0,0,0.85); z-index: 1000;">
