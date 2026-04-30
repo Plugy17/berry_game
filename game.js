@@ -42,6 +42,7 @@ const imgIceCream = "url('assets/icecream.png')";
 const imgGoldenIce = "url('assets/golden_ice.png')"; 
 const imgBad = "url('assets/obstacle.png')";
 
+// ПРАВКА: Функции иконок теперь возвращают пустые span, чтобы текст/эмодзи не закрывали графику
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
@@ -168,10 +169,11 @@ function updateMenuInfo() {
 
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
+        // ПРАВКА: Обернул числа в span для чистоты верстки
         totalBal.innerHTML = `
-            <div class="currency-row">${totalCoins} ${getIceIcon()}</div>
-            <div class="currency-row" style="margin-top:5px">${goldenIce} ${getGoldIcon()}</div>
-            <div class="currency-row" style="margin-top:5px; color:#00eaff">${diamonds} ${getDiamondIcon()}</div>
+            <div class="currency-row"><span>${totalCoins}</span> ${getIceIcon()}</div>
+            <div class="currency-row" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
+            <div class="currency-row" style="margin-top:5px; color:#00eaff"><span>${diamonds}</span> ${getDiamondIcon()}</div>
         `;
     }
     
@@ -180,7 +182,6 @@ function updateMenuInfo() {
         shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
     }
 
-    // Обновляем баланс в VIP магазине
     const vipBalInfo = document.getElementById("vip-balance-info");
     if(vipBalInfo) {
         vipBalInfo.innerHTML = `Баланс: ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
@@ -366,10 +367,11 @@ function handleCollision(obs, p) {
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
+        // ПРАВКА: Очистили строки, добавили span для чисел
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
-            <div class="currency-row">${coins} ${getIceIcon()}</div>
-            <div class="currency-row" style="color:#00eaff">${diamonds} ${getDiamondIcon()}</div>
+            <div class="currency-row"><span>${coins}</span> ${getIceIcon()}</div>
+            <div class="currency-row" style="color:#00eaff"><span>${diamonds}</span> ${getDiamondIcon()}</div>
         `;
     }
 }
