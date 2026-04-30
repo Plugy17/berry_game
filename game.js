@@ -170,29 +170,33 @@ function update() {
 
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
+    const playerTop = window.innerHeight * 0.75; 
 
+    // --- ОБНОВЛЕННЫЙ МАГНИТ (ПРИТЯГИВАЕТ И ЗАМЕДЛЯЕТ) ---
     if (magnetActive && obs.dataset.type === "good") {
-        const playerRect = p.getBoundingClientRect();
-        const obsRect = obs.getBoundingClientRect();
-        
-        let playerX = playerRect.left + playerRect.width / 2;
-        let obsX = obsRect.left + obsRect.width / 2;
-        let distY = playerRect.top - obsRect.top;
+        let currentLeft = parseFloat(obs.style.left);
+        let targetX = lanes[targetLane];
+        let distY = playerTop - obstacleY;
 
-        if (distY < 500 && distY > -50) {
-            let currentLeft = parseFloat(obs.style.left);
-            let targetX = lanes[targetLane];
-            let newLeft = currentLeft + (targetX - currentLeft) * 0.15;
+        if (distY < 500 && distY > -20) {
+            // Притягиваем горизонтально
+            let newLeft = currentLeft + (targetX - currentLeft) * 0.2;
             obs.style.left = newLeft + "%";
-            obstacleY += 2; 
+            
+            // Если почти подлетел — фиксируем в полосе игрока
+            if (distY < 150) {
+                obs.style.left = targetX + "%";
+                obstacleLane = targetLane; 
+            }
+            // Замедляем падение, чтобы магнит успел сработать
+            obstacleY -= (speed * 0.45); 
         }
     }
 
     obs.style.top = obstacleY + "px";
-    const playerTop = window.innerHeight * 0.75; 
 
-    // Фикс подбора: если магнит активен, зона подбора шире (magnetRange), чтобы точно засчитало
-    const magnetRange = (magnetActive && obs.dataset.type === "good") ? 90 : 60;
+    // Фикс подбора: зона еще шире для магнита
+    const magnetRange = (magnetActive && obs.dataset.type === "good") ? 100 : 60;
 
     if (obstacleLane === targetLane && obstacleY > playerTop - magnetRange && obstacleY < playerTop + magnetRange) {
         handleCollision(obs, p);
@@ -222,7 +226,6 @@ function triggerComboFlash(mult) {
 
 function handleCollision(obs, p) {
     if (obs.dataset.type === "good") {
-        // Эффект взрыва при столкновении
         const rect = obs.getBoundingClientRect();
         createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
