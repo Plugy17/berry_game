@@ -175,7 +175,7 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
 
-/* ПРАВКА 1: Увеличиваем домик и его кнопку */
+/* ПРАВКА 1: Увеличиваем домик и его кнопку. Добавлена иконка через фон */
 #backBtn {
     position: absolute; 
     top: 20px; 
@@ -187,8 +187,8 @@ button:active { transform: scale(0.95); }
     justify-content: center;
     align-items: center;
     border-radius: 15px !important;
-    font-size: 35px !important; /* Большой размер эмодзи домика */
-    background: rgba(0, 0, 0, 0.6) !important;
+    background: rgba(0, 0, 0, 0.6) url('assets/home.png') no-repeat center center !important;
+    background-size: 35px !important; /* Вместо font-size используем картинку */
     border: 2px solid #ff4fd8 !important;
     z-index: 100;
     line-height: 1;
@@ -322,6 +322,8 @@ button:active { transform: scale(0.95); }
 .diamond-icon-small {
     background-image: url('assets/diamond.png');
     filter: drop-shadow(0 0 5px #00eaff);
+    width: 28px !important;
+    height: 28px !important;
 }
 
 /* --- ПЕРСОНАЖ --- */
@@ -342,7 +344,7 @@ button:active { transform: scale(0.95); }
     filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px #00eaff);
 }
 
-/* АУРЫ */
+/* АУРЫ - Добавлена прозрачность, чтобы не перекрывать скин */
 .shield-aura::after { 
     content: ''; 
     position: absolute; 
@@ -355,6 +357,7 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px #00eaff; 
     pointer-events: none;
     animation: shieldJuicy 0.5s infinite alternate; 
+    z-index: -1;
 }
 
 .magnet-aura::before {
@@ -365,6 +368,7 @@ button:active { transform: scale(0.95); }
     border-radius: 50%;
     animation: rotateMagnet 2s linear infinite;
     pointer-events: none;
+    z-index: -1;
 }
 
 @keyframes rotateMagnet {
@@ -427,6 +431,10 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
     cursor: pointer;
 }
+
+/* Добавлены иконки внутрь кнопок баффов через CSS */
+#btn-use-shield { background: rgba(0,0,0,0.7) url('assets/shield.png') no-repeat center center; background-size: 40px; }
+#btn-use-magnet { background: rgba(0,0,0,0.7) url('assets/magnet.png') no-repeat center center; background-size: 40px; }
 
 .bonus-btn-wrapper:active { transform: scale(0.9); }
 
