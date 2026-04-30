@@ -28,6 +28,29 @@ const imgBad = "url('assets/obstacle.png')";
 // Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
+// --- ЭФФЕКТ ВЗРЫВА ---
+function createExplosion(x, y) {
+    const game = document.getElementById("game");
+    for (let i = 0; i < 8; i++) {
+        const particle = document.createElement("div");
+        particle.className = "ice-particle";
+        
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 50 + Math.random() * 50;
+        const dx = Math.cos(angle) * dist + "px";
+        const dy = Math.sin(angle) * dist + "px";
+        
+        particle.style.setProperty('--dx', dx);
+        particle.style.setProperty('--dy', dy);
+        particle.style.left = x + "px";
+        particle.style.top = y + "px";
+        particle.style.backgroundImage = imgIceCream;
+        
+        game.appendChild(particle);
+        setTimeout(() => particle.remove(), 600);
+    }
+}
+
 // --- FIREBASE ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
@@ -48,11 +71,9 @@ function saveUserData() {
     db.ref('players/' + nick).set({ best, totalCoins, inventory });
 }
 
-// Эффект падающего мороженого в главном меню
 function initMenuEffects() {
     const menu = document.getElementById("menu");
     if (!menu) return;
-    // Очищаем старые частицы перед созданием новых
     const oldParticles = menu.querySelectorAll(".menu-falling-ice");
     oldParticles.forEach(p => p.remove());
 
@@ -118,7 +139,6 @@ function resetGame() {
     p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
     
-    // Скрываем комбо при старте
     const ui = document.getElementById("combo-ui");
     ui.classList.add("hidden");
     ui.classList.remove("combo-epic");
@@ -139,7 +159,7 @@ function spawnObstacle() {
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
-    obs.style.transform = "scale(1)"; // Сброс масштаба после магнита
+    obs.style.transform = "scale(1)";
 }
 
 function update() {
@@ -162,8 +182,7 @@ function update() {
         if (distY < 500 && distY > -50) {
             let currentLeft = parseFloat(obs.style.left);
             let targetX = lanes[targetLane];
-            // Плавно подтягиваем мороженое к текущей полосе игрока
-            let newLeft = currentLeft + (targetX - currentLeft) * 0.1;
+            let newLeft = currentLeft + (targetX - currentLeft) * 0.15;
             obs.style.left = newLeft + "%";
             obstacleY += 2; 
         }
@@ -172,7 +191,10 @@ function update() {
     obs.style.top = obstacleY + "px";
     const playerTop = window.innerHeight * 0.75; 
 
-    if (obstacleLane === targetLane && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
+    // Фикс подбора: если магнит активен, зона подбора шире (magnetRange), чтобы точно засчитало
+    const magnetRange = (magnetActive && obs.dataset.type === "good") ? 90 : 60;
+
+    if (obstacleLane === targetLane && obstacleY > playerTop - magnetRange && obstacleY < playerTop + magnetRange) {
         handleCollision(obs, p);
     }
 
@@ -200,10 +222,13 @@ function triggerComboFlash(mult) {
 
 function handleCollision(obs, p) {
     if (obs.dataset.type === "good") {
+        // Эффект взрыва при столкновении
+        const rect = obs.getBoundingClientRect();
+        createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
         comboCount++;
         let oldMult = comboMultiplier;
         
-        // Логика уровней комбо
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
         else if (comboCount >= 5) comboMultiplier = 3;
@@ -214,12 +239,9 @@ function handleCollision(obs, p) {
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
-            
-            // Если достигли максимального комбо — добавляем эффект тряски
             if (comboMultiplier >= 5) ui.classList.add("combo-epic");
             else ui.classList.remove("combo-epic");
 
-            // Перезапуск анимации "БАХ"
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = null;
@@ -237,7 +259,7 @@ function handleCollision(obs, p) {
             obstacleY = window.innerHeight + 500; 
             spawnObstacle();
             updateBonusUI();
-            triggerComboFlash(1); // Легкая вспышка при потере щита
+            triggerComboFlash(1);
         } else gameOver();
     }
 }
@@ -255,8 +277,6 @@ function gameOver() {
         isNewRecord = true;
     }
     saveUserData();
-    
-    // Более красивое уведомление
     alert(isNewRecord ? `НОВЫЙ РЕКОРД! 🎉 Собрано: ${coins}` : `Игра окончена! Собрано: ${coins}`);
     backToMenu();
 }
@@ -269,13 +289,12 @@ function backToMenu() {
     updateMenuInfo();
 }
 
-// УПРАВЛЕНИЕ (Улучшенная отзывчивость)
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) < 25) return; // Уменьшен порог свайпа для быстроты
+    if (Math.abs(diff) < 25) return;
 
     const p = document.getElementById("player");
     if (diff > 0) {
@@ -285,9 +304,7 @@ document.addEventListener("touchend", e => {
         targetLane = Math.max(0, targetLane - 1);
         p.style.transform = "translateX(-50%) rotate(-15deg) scale(1.1)";
     }
-    
     p.style.left = lanes[targetLane] + "%";
-    
     setTimeout(() => {
         if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
     }, 150);
@@ -297,7 +314,6 @@ function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
-        // Визуальный фидбек покупки (можно добавить звук или вспышку здесь)
     } else alert("Недостаточно мороженого!");
 }
 
