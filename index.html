@@ -20,7 +20,8 @@
         }
         /* ДОБАВЛЕНО: Стили для отображения иконок валют в HTML */
         .ice-icon::after { content: '🍦'; }
-        .golden-ice-icon-small::after { content: '⭐'; } /* Золотое мороженое */
+        /* ПРАВКА: Теперь здесь пусто, так как иконка берется из PNG в CSS */
+        .golden-ice-icon-small::after { content: ''; } 
         .diamond-icon-small::after { content: '💎'; } /* Алмаз */
     </style>
 </head>
@@ -114,8 +115,8 @@
 
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
-    <!-- ПРАВКА: Единый баланс для магазина -->
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 ⭐ | 0 💎</div>
+    <!-- ПРАВКА: Единый баланс для магазина. ЗАМЕНА ⭐ на иконку -->
+    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 <span class="golden-ice-icon-small"></span> | 0 💎</div>
     <div class="shop-container">
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
@@ -131,7 +132,8 @@
     <div class="shop-container" style="margin-top: 15px;">
         <div class="shop-item exchange-card" style="width: 100%;">
             <div class="item-title" style="color: #ffd700;">ОБМЕННИК</div>
-            <p style="color: white; margin: 5px 0;">5000 🍦 = 1 ⭐</p>
+            <!-- ЗАМЕНА ⭐ на иконку -->
+            <p style="color: white; margin: 5px 0;">5000 🍦 = 1 <span class="golden-ice-icon-small"></span></p>
             <button class="buy-button" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
         </div>
         <!-- ДОБАВЛЕНО: Покупка алмаза за обычное мороженое -->
@@ -146,20 +148,22 @@
 
 <div id="realShop" class="screen hidden">
     <h2 class="shop-title">VIP SHOP</h2>
-    <!-- Баланс в VIP магазине -->
+    <!-- Баланс в VIP магазине. ЗАМЕНА ⭐ на иконку -->
     <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">
-        Используйте ⭐ и 💎 для покупок
+        Используйте <span class="golden-ice-icon-small"></span> и 💎 для покупок
     </div>
     <div class="shop-container">
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">GOLD СКИН</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит сильнее на 10%</p>
-            <button class="buy-button gold" onclick="buyVipItem('skin')">10 ⭐</button>
+            <!-- ЗАМЕНА ⭐ на иконку -->
+            <button class="buy-button gold" onclick="buyVipItem('skin')">10 <span class="golden-ice-icon-small"></span></button>
         </div>
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700;">+1 СЛОТ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Запас щитов</p>
-            <button class="buy-button gold" onclick="buyVipItem('slot')">5 ⭐</button>
+            <!-- ЗАМЕНА ⭐ на иконку -->
+            <button class="buy-button gold" onclick="buyVipItem('slot')">5 <span class="golden-ice-icon-small"></span></button>
         </div>
     </div>
     <button class="sub-btn" style="margin-top: 30px;" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
