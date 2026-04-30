@@ -103,8 +103,11 @@ function createCubeBoom(x, y) {
     if(!layer) return;
     
     // ПРАВКА: Тряска экрана при взрыве
-    layer.classList.add("shake-anim");
-    setTimeout(() => layer.classList.remove("shake-anim"), 300);
+    const gameContainer = document.getElementById("game");
+    if(gameContainer) {
+        gameContainer.classList.add("shake-anim");
+        setTimeout(() => gameContainer.classList.remove("shake-anim"), 300);
+    }
 
     const boom = document.createElement('div');
     boom.className = 'cube-boom';
@@ -185,6 +188,7 @@ function updateBonusUI() {
     // ПРАВКА: Логика отрисовки слотов (пустые/полные)
     const bonusPanel = document.getElementById("bonus-panel");
     if(bonusPanel) {
+        let maxSlots = 1 + extraShieldSlots;
         // Здесь можно добавить динамическую отрисовку div.buff-slot.empty, если нужно визуально показать пустые места
     }
 }
@@ -387,7 +391,8 @@ function gameOver() {
     const goScreen = document.getElementById("gameOverScreen");
     if(goScreen) {
         goScreen.classList.remove("hidden");
-        document.getElementById("final-score").innerText = coins; 
+        const finalScoreElem = document.getElementById("final-score");
+        if(finalScoreElem) finalScoreElem.innerText = coins; 
     }
     
     const revBtn = document.getElementById("revive-btn");
