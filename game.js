@@ -137,12 +137,10 @@ function updateMenuInfo() {
     const totalBal = document.getElementById("total-balance");
     if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
-    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА (С АНИМАЦИЕЙ)
     const shopBalValue = document.getElementById("shop-balance");
     const animTarget = document.getElementById("balance-anim-target");
 
     if(shopBalValue) {
-        // Если значение изменилось, добавляем эффект прыжка
         if (shopBalValue.innerText !== totalCoins.toString()) {
             shopBalValue.innerText = totalCoins;
             if(animTarget) {
@@ -317,9 +315,18 @@ function handleCollision(obs, p) {
     }
 }
 
+/* ОБНОВЛЕННАЯ ФУНКЦИЯ: Крупный счет и анимация */
 function updateScore() {
     const hud = document.getElementById("hud");
-    if(hud) hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
+    if(hud) {
+        hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
+        
+        // Визуальная отдача при получении очков (пульсация)
+        hud.style.transform = "scale(1.15)";
+        setTimeout(() => {
+            hud.style.transform = "scale(1)";
+        }, 100);
+    }
 }
 
 function gameOver() {
