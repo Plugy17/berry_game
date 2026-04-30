@@ -42,7 +42,6 @@ body {
     animation: iceFall linear infinite;
 }
 
-/* Дополнительный класс для анимации из JS */
 .falling-ice-anim {
     animation: iceFall linear forwards;
 }
@@ -87,7 +86,6 @@ body {
     100% { transform: scale(4) rotate(90deg); opacity: 0; }
 }
 
-/* ЭФФЕКТ ПРИ ПОИМКЕ (СТАРЫЙ БА-БАХ) */
 .ice-particle {
     position: absolute;
     width: 25px;
@@ -143,7 +141,7 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН --- */
+/* --- МАГАЗИН (ИСПРАВЛЕНО) --- */
 #shop {
     justify-content: flex-start !important; 
     padding: 100px 20px 60px 20px !important;
@@ -154,6 +152,34 @@ button:active { transform: scale(0.95); }
 }
 
 #shop::-webkit-scrollbar { width: 0; background: transparent; }
+
+/* Плашка баланса по скриншоту */
+.shop-balance-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+    z-index: 15;
+}
+
+.shop-balance-wrapper {
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #ff4fd8;
+    border-radius: 50px;
+    padding: 12px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Отступ между числом и иконками */
+    box-shadow: 0 0 25px rgba(255, 79, 216, 0.6);
+    min-width: 150px;
+    justify-content: center;
+}
+
+.shop-icons-layout {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
 
 .shop-container {
     display: flex;
@@ -184,31 +210,6 @@ button:active { transform: scale(0.95); }
     animation: objectAlive 6s ease-in-out infinite;
 }
 
-.shop-item .price, .buy-button span {
-    font-size: 22px !important;
-    font-weight: 900 !important;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-}
-
-#shop-balance {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 24px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 10px #ff4fd8;
-    background: rgba(0,0,0,0.5);
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 1px solid #ff4fd8;
-}
-
-@keyframes objectAlive {
-    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
-    50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
-}
-
 .item-title {
     font-size: 26px;
     font-weight: 900;
@@ -230,15 +231,14 @@ button:active { transform: scale(0.95); }
     gap: 10px;
 }
 
-#shop #backBtn {
-    position: relative !important; 
-    top: auto !important;
-    right: auto !important;
+@keyframes objectAlive {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
+    50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
+}
+
+.shop-exit-btn {
     margin: 40px 0 80px 0 !important;
-    width: 100% !important;
     max-width: 220px;
-    height: 55px !important;
-    flex-shrink: 0;
 }
 
 /* --- МЕНЮ --- */
@@ -304,7 +304,7 @@ button:active { transform: scale(0.95); }
     z-index: 20;
 }
 
-/* --- ОКНО ПРОИГРЫША (ОБНОВЛЕНО) --- */
+/* --- ОКНО ПРОИГРЫША --- */
 #gameOverScreen {
     position: fixed;
     top: 0; left: 0;
