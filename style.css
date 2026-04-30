@@ -31,8 +31,8 @@ body {
 .hidden { display: none !important; }
 #menuLeaderboard { display: none !important; }
 
-/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
-.ice-drop {
+/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ (ОБНОВЛЕНО) --- */
+.ice-drop, .falling-ice-anim {
     position: absolute;
     width: 25px; height: 25px;
     background: url('assets/icecream.png') no-repeat center center;
@@ -42,11 +42,16 @@ body {
     animation: iceFall linear infinite;
 }
 
+/* Дополнительный класс для анимации из JS */
+.falling-ice-anim {
+    animation: iceFall linear forwards;
+}
+
 @keyframes iceFall {
-    0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
-    15% { opacity: 0.6; }
-    85% { opacity: 0.6; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.8; }
+    85% { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
 /* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
@@ -162,15 +167,26 @@ button:active { transform: scale(0.95); }
     animation: objectAlive 6s ease-in-out infinite;
 }
 
-/* Красивые цифры в магазине */
 .shop-item .price, .buy-button span {
     font-size: 22px !important;
     font-weight: 900 !important;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
-/* Убираем лишнее мороженое в магазине */
-.shop-item .ice-icon:nth-of-type(n+2) { display: none !important; }
+/* Исправлено отображение иконок в магазине */
+#shop-balance {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 10px #ff4fd8;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid #ff4fd8;
+}
 
 @keyframes objectAlive {
     0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
@@ -257,7 +273,6 @@ button:active { transform: scale(0.95); }
     display: inline-block !important; 
     width: 30px; height: 30px;
 }
-.balance-info img { display: none !important; }
 
 @keyframes scorePulse {
     from { box-shadow: 0 0 10px rgba(255, 79, 216, 0.4); border-color: #ff4fd8; }
@@ -273,28 +288,50 @@ button:active { transform: scale(0.95); }
     z-index: 20;
 }
 
-/* --- ОКНО ПРОИГРЫША --- */
+/* --- ОКНО ПРОИГРЫША (ОБНОВЛЕНО) --- */
 #gameOverScreen {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(15px);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 2000;
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Карточка внутри окна БА-БАХ */
+.go-card {
+    background: rgba(20, 20, 30, 0.9);
+    padding: 40px;
+    border-radius: 30px;
+    border: 3px solid #ff4fd8;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 79, 216, 0.5);
+    max-width: 320px;
+    width: 80%;
 }
 
 .go-title {
-    font-size: 55px; font-weight: 900;
-    color: #fff; text-shadow: 0 0 20px #ff0055;
-    margin-bottom: 10px;
+    font-size: 50px; font-weight: 900;
+    color: #fff; text-shadow: 0 0 20px #ff4fd8;
+    margin-bottom: 15px;
+    font-family: 'Arial Black', sans-serif;
 }
 
 .go-stats {
-    font-size: 24px; color: #00eaff;
-    font-weight: 700; margin-bottom: 30px;
+    font-size: 32px; color: #00eaff;
+    font-weight: 900; margin-bottom: 30px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+
+/* Иконка в окне смерти */
+.ice-icon-big {
+    display: inline-block;
+    width: 40px; height: 40px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
 }
 
 .go-btn-container {
@@ -302,8 +339,15 @@ button:active { transform: scale(0.95); }
     gap: 15px; width: 100%; align-items: center;
 }
 
-.btn-restart { background: linear-gradient(45deg, #00eaff, #0081ff) !important; }
-.btn-exit { background: rgba(255, 255, 255, 0.1) !important; }
+.btn-restart { 
+    background: linear-gradient(45deg, #00ff88, #00ba63) !important; 
+    color: #000 !important;
+}
+
+.btn-exit { 
+    background: rgba(255, 255, 255, 0.1) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
