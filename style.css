@@ -324,9 +324,18 @@ button:active { transform: scale(0.95); }
 }
 
 /* АУРЫ */
+/* ПРАВКА: Ограничили размер ауры щита, чтобы не закрывала экран */
 .shield-aura::after { 
-    content: ''; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px; 
-    border: 4px solid #00eaff; border-radius: 50%; box-shadow: 0 0 20px #00eaff; 
+    content: ''; 
+    position: absolute; 
+    top: -10px !important; 
+    left: -10px !important; 
+    right: -10px !important; 
+    bottom: -10px !important; 
+    border: 4px solid #00eaff; 
+    border-radius: 50%; 
+    box-shadow: 0 0 20px #00eaff; 
+    pointer-events: none;
     animation: shieldJuicy 0.5s infinite alternate; 
 }
 
@@ -357,14 +366,15 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 5px #ffd700;
 }
 
+/* ПРАВКА: Баффы теперь фиксированы в самом низу экрана под Берри */
 #bonus-panel { 
-    position: absolute; 
-    bottom: 35px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    display: flex; 
-    gap: 20px; 
-    z-index: 110; 
+    position: fixed !important; 
+    bottom: 30px !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    display: flex !important; 
+    gap: 20px !important; 
+    z-index: 110 !important; 
 }
 
 /* Стили для уровней в лидерборде */
@@ -403,18 +413,22 @@ button:active { transform: scale(0.95); }
 
 /* ФИКС: Огромные падающие объекты и магнит */
 #obstacle, .ice-drop, .golden-drop, .falling-ice-anim {
-    width: 60px !important;  /* Сделал чуть больше 45px для баланса, но жестко ограничил */
+    width: 60px !important;  
     height: 60px !important;
     max-width: 60px !important;
+    max-height: 60px !important; /* КРИТИЧЕСКИЙ ФИКС: Щит не будет огромным */
     background-size: contain !important;
     background-repeat: no-repeat !important;
-    background-position: center !important; /* Центрируем картинку внутри */
+    background-position: center !important; 
+    pointer-events: none;
 }
 
 /* ПРАВКА: ЩИТ в игровом процессе (чтобы не был гигантским) */
 #game #obstacle {
-    width: 70px !important; /* Размер для щита-препятствия */
+    width: 70px !important; 
     height: 70px !important;
+    max-width: 70px !important;
+    max-height: 70px !important;
 }
 
 /* Принудительный размер для магнита и других бонусов */
