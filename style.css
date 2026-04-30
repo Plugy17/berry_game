@@ -192,6 +192,14 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
     min-width: 120px;
     justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Добавлен класс для анимации прыжка баланса при покупке */
+.balance-bump {
+    transform: scale(1.2);
+    border-color: #ff4fd8;
+    box-shadow: 0 0 30px rgba(255, 79, 216, 0.8);
 }
 
 .shop-container {
@@ -408,10 +416,28 @@ button:active { transform: scale(0.95); }
     animation: comboPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+/* Доп. класс для супер-комбо (интеграция с JS) */
+.combo-epic {
+    color: #00eaff !important;
+    text-shadow: 0 0 20px #00eaff, 0 0 40px #fff !important;
+}
+
 @keyframes comboPop {
     0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
     50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* --- ПРЕПЯТСТВИЕ --- */
+#obstacle {
+    position: absolute;
+    width: 70px; height: 70px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 90;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+    transition: left 0.2s ease-out; /* Плавное притяжение магнитом */
 }
 
 /* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
@@ -425,6 +451,7 @@ button:active { transform: scale(0.95); }
     background: url('assets/berry.png') no-repeat center center !important;
     background-size: contain !important; 
     z-index: 99;
+    transition: left 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), transform 0.2s;
 }
 
 .shield-aura::after {
@@ -488,4 +515,19 @@ button:active { transform: scale(0.95); }
 @keyframes floatBtn {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
+}
+
+/* Слой для частиц, чтобы они были поверх всего */
+#effects-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Анимация затухания вспышки при комбо */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
