@@ -75,12 +75,17 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.2);
 }
 
-/* --- МАГАЗИН (ОБНОВЛЕННЫЙ ВИД) --- */
+/* --- МАГАЗИН (ОБНОВЛЕННЫЙ ВИД С ПРОКРУТКОЙ) --- */
 #shop {
-    justify-content: space-between !important; 
-    padding: 100px 20px 40px 20px !important;
+    justify-content: flex-start !important; /* Начинаем сверху для скролла */
+    padding: 100px 20px 60px 20px !important;
     box-sizing: border-box;
+    overflow-y: auto; /* ВКЛЮЧАЕМ ПРОКРУТКУ */
+    -webkit-overflow-scrolling: touch;
 }
+
+/* Скрываем скроллбар для эстетики */
+#shop::-webkit-scrollbar { width: 0; background: transparent; }
 
 .shop-container {
     display: flex;
@@ -88,86 +93,76 @@ button:active { transform: scale(0.95); }
     gap: 20px;
     width: 100%;
     align-items: center;
-    flex-grow: 1;
+    flex-shrink: 0; /* Чтобы не сжимался */
     justify-content: center;
 }
 
 .shop-item {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08); 
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 35px;
-    padding: 30px 25px;
+    padding: 25px;
     margin: 10px 0;
     width: 90%;
     max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* ЭФФЕКТ: ВРАЩЕНИЕ И МАСШТАБ ДЛЯ ОБЪЕКТОВ */
+/* ПРАВКА: ВРАЩЕНИЕ И МАСШТАБ */
 .shop-item img {
-    width: 140px !important; 
-    height: 140px !important;
+    width: 130px !important; 
+    height: 130px !important;
     object-fit: contain !important;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 40px rgba(255, 79, 216, 0.3));
-    animation: objectAlive 5s ease-in-out infinite; /* Вращение и пульсация */
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    animation: objectAlive 6s ease-in-out infinite;
 }
 
 @keyframes objectAlive {
     0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.1) rotate(8deg); }
+    50% { transform: scale(1.1) rotate(10deg); }
 }
 
 .item-title {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 15px rgba(255, 79, 216, 0.8);
-    margin-bottom: 20px;
-    letter-spacing: 1px;
+    text-shadow: 0 0 10px #ff4fd8;
+    margin-bottom: 15px;
 }
 
 /* Кнопка купить с ценой в одну линию */
 .buy-button {
     background: linear-gradient(45deg, #ff4fd8, #ba55d3) !important;
     border: none !important;
-    border-radius: 25px !important;
+    border-radius: 20px !important;
     width: 100% !important;
-    padding: 16px !important;
-    box-shadow: 0 10px 25px rgba(255, 79, 216, 0.5) !important;
+    padding: 14px !important;
+    box-shadow: 0 8px 20px rgba(255, 79, 216, 0.4) !important;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    font-size: 20px !important;
 }
 
-/* Фикс мороженого в кнопке */
-.buy-button .ice-icon {
-    width: 22px;
-    height: 22px;
-    animation: none; /* В кнопке пусть стоит ровно */
-    margin: 0;
-}
-
-/* Фикс кнопки Назад в магазине */
+/* Фикс кнопки Назад в магазине (теперь она в конце списка) */
 #shop #backBtn {
     position: relative !important; 
     top: auto !important;
     right: auto !important;
-    margin-top: 25px;
+    margin: 30px 0 50px 0 !important; /* Отступы для удобного скролла */
     width: 100% !important;
-    max-width: 240px;
-    height: 60px !important;
-    font-size: 20px !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    max-width: 220px;
+    height: 55px !important;
+    font-size: 18px !important;
+    flex-shrink: 0;
 }
 
-/* --- МЕНЮ И ХЕДЕР --- */
+/* --- МЕНЮ (ЦЕНТРОВКА) --- */
 #menu { 
     justify-content: flex-start; 
     padding: 60px 20px; 
@@ -176,19 +171,16 @@ button:active { transform: scale(0.95); }
 .top-bar-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* СТРОГО ПО ЦЕНТРУ */
     width: 100%;
     gap: 15px;
     margin-bottom: auto; 
     z-index: 5;
-}
-
-/* ФИКС: Убираем дубликат мороженого в балансе */
-.balance-info .ice-icon:nth-of-type(n+2) {
-    display: none !important;
+    text-align: center;
 }
 
 .welcome-text {
+    width: 100%;
     font-size: 32px; 
     font-weight: 900;
     text-shadow: 0 0 15px #ff4fd8;
@@ -207,13 +199,18 @@ button:active { transform: scale(0.95); }
     padding: 12px 25px !important; 
     border-radius: 30px !important; 
     border: 2px solid #ff4fd8 !important;
-    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    margin: 0 auto; /* Центрируем сам блок */
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     animation: scorePulse 2s infinite alternate;
+}
+
+/* ПРАВКА: Убираем лишнюю иконку из баланса */
+.balance-info .ice-icon:nth-of-type(n+2) {
+    display: none !important;
 }
 
 @keyframes scorePulse {
@@ -296,8 +293,9 @@ button:active { transform: scale(0.95); }
 }
 
 @keyframes shieldPulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
+    0% { transform: scale(1); opacity: 0.8; }
     50% { transform: scale(1.1); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 0.8; }
 }
 
 /* --- ПАНЕЛЬ БОНУСОВ --- */
