@@ -70,18 +70,10 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 15px rgba(255, 79, 216, 0.2);
 }
 
-/* --- МЕНЮ (ОБНОВЛЕННАЯ ЦЕНТРОВКА) --- */
+/* --- МЕНЮ --- */
 #menu { 
     justify-content: flex-start; 
     padding: 60px 20px; 
-}
-
-#menu-particles {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 1;
 }
 
 .top-bar-container {
@@ -103,15 +95,6 @@ button:active { transform: scale(0.95); }
     text-align: center;
     margin: 0;
 }
-
-.menu-stats-container { 
-    display: flex; 
-    justify-content: center; 
-    width: 100%;
-    max-width: 320px;
-}
-
-.record-info { display: none !important; }
 
 .balance-info {
     flex: 0 1 auto; 
@@ -147,7 +130,7 @@ button:active { transform: scale(0.95); }
     z-index: 20;
 }
 
-/* --- HUD И СЧЕТ В ИГРЕ --- */
+/* --- HUD --- */
 #hud {
     position: absolute; top: 20px; left: 20px;
     background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
@@ -160,8 +143,7 @@ button:active { transform: scale(0.95); }
 }
 
 .ice-icon {
-    width: 26px;
-    height: 26px;
+    width: 26px; height: 26px;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
     display: inline-block;
@@ -169,59 +151,25 @@ button:active { transform: scale(0.95); }
     animation: iceSway 2s ease-in-out infinite;
 }
 
-@keyframes iceSway {
-    0%, 100% { transform: rotate(-8deg); }
-    50% { transform: rotate(8deg); }
-}
-
-/* --- ОБНОВЛЕННЫЙ ЭФФЕКТ КОМБО (БАХ!) --- */
+/* --- КОМБО (БАХ!) --- */
 #combo-container {
-    position: absolute;
-    top: 110px;
-    left: 30px;
-    display: flex;
-    flex-direction: column;
-    z-index: 110;
-    pointer-events: none;
+    position: absolute; top: 110px; left: 30px;
+    display: flex; flex-direction: column; z-index: 110; pointer-events: none;
 }
 
 #combo-ui {
-    font-size: 68px; /* Увеличено для масштаба */
-    font-weight: 900;
-    color: #fff;
-    font-style: italic; /* Динамичный наклон */
+    font-size: 68px; font-weight: 900; color: #fff; font-style: italic;
     text-shadow: 0 0 15px #fff, 0 0 30px #ff4fd8, 0 0 50px #ff00ff;
-    margin: 0;
-    transform-origin: left bottom;
     animation: comboPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-#combo-msg {
-    font-size: 22px;
-    font-weight: 800;
-    color: #00eaff;
-    text-transform: uppercase;
-    text-shadow: 0 0 15px #00eaff;
-    margin-top: -15px;
-    animation: msgSlideUp 0.4s ease-out;
-}
-
-/* Анимация "БАХ" — вылет с пружиной и вспышкой */
 @keyframes comboPop {
     0% { transform: scale(0.3) rotate(-20deg); opacity: 0; filter: brightness(5); }
     50% { transform: scale(1.2) rotate(5deg); opacity: 1; filter: brightness(1.5); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
 }
 
-@keyframes msgSlideUp {
-    0% { transform: translateY(20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
-
-/* Эффект яростной дрожи для высокого комбо */
-.combo-epic {
-    animation: comboPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, epicShake 0.1s infinite !important;
-}
+.combo-epic { animation: comboPop 0.5s forwards, epicShake 0.1s infinite !important; }
 
 @keyframes epicShake {
     0% { transform: translate(2px, 1px); }
@@ -231,35 +179,13 @@ button:active { transform: scale(0.95); }
 
 /* --- МАГАЗИН --- */
 #shop .shop-balance-container {
-    position: absolute;
-    top: 25px; 
-    right: 25px;
-    background: rgba(0,0,0,0.6);
-    padding: 8px 18px;
-    border-radius: 15px;
-    border: 2px solid #ff4fd8;
-    color: white;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 1000;
+    position: absolute; top: 25px; right: 25px;
+    background: rgba(0,0,0,0.6); padding: 8px 18px; border-radius: 15px;
+    border: 2px solid #ff4fd8; color: white; font-weight: 900;
+    display: flex; align-items: center; gap: 10px; z-index: 1000;
 }
 
-.shop-item {
-    background: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(10px);
-    margin: 8px 0; 
-    padding: 15px; 
-    border-radius: 20px; 
-    border: 1px solid rgba(255, 79, 216, 0.4);
-    width: 90%; max-width: 350px;
-    display: flex; justify-content: space-between; align-items: center;
-    color: white; z-index: 5;
-    font-weight: 700;
-}
-
-/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
+/* --- ПЕРСОНАЖ И ЖИВЫЕ ЭФФЕКТЫ --- */
 #player {
     position: absolute; 
     bottom: 18%; 
@@ -273,68 +199,84 @@ button:active { transform: scale(0.95); }
     transition: transform 0.2s ease-out, left 0.3s ease-out;
 }
 
-.shield-aura { 
-    filter: drop-shadow(0 0 15px #00eaff) brightness(1.2) !important; 
-    outline: 3px solid #00eaff; 
-    border-radius: 50%; 
+/* ЖИВОЙ ЩИТ (Пульсирующая сфера вокруг) */
+.shield-aura {
+    filter: none !important;
 }
 
-.magnet-aura { 
-    filter: drop-shadow(0 0 25px #ff00ff) !important; 
-    animation: magnetPulse 1s infinite alternate;
-}
-
-/* --- ПАДАЮЩИЕ ОБЪЕКТЫ --- */
-.menu-falling-ice, .falling-ice {
+.shield-aura::after {
+    content: '';
     position: absolute;
-    width: 30px;
-    height: 30px;
-    background: url('assets/icecream.png') no-repeat center center;
-    background-size: contain;
-    z-index: 1;
+    top: -15px; left: -15px; right: -15px; bottom: -15px;
+    border: 4px solid #00eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #00eaff, inset 0 0 15px #00eaff;
+    animation: shieldPulse 1s infinite ease-in-out;
     pointer-events: none;
+}
+
+@keyframes shieldPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* МАГНИТ (Яркое свечение по фигуре Берри) */
+.magnet-aura { 
+    filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 30px #ff00ff) brightness(1.3) !important; 
+    animation: magnetGlow 0.8s infinite alternate !important;
+}
+
+@keyframes magnetGlow {
+    from { filter: drop-shadow(0 0 10px #ff00ff) brightness(1.1); }
+    to { filter: drop-shadow(0 0 35px #ff00ff) brightness(1.5); }
+}
+
+/* --- ЭФФЕКТ ВЗРЫВА МОРОЖЕНОГО --- */
+.ice-particle {
+    position: absolute;
+    width: 25px; height: 25px;
+    background-size: contain !important;
+    pointer-events: none;
+    z-index: 200;
+    animation: particleExplode 0.6s ease-out forwards;
+}
+
+@keyframes particleExplode {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(360deg); opacity: 0; }
+}
+
+/* --- ОБЪЕКТЫ --- */
+.menu-falling-ice, .falling-ice {
+    position: absolute; width: 30px; height: 30px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain; z-index: 1; pointer-events: none;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
     20% { opacity: 0.8; }
-    80% { opacity: 0.8; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
-/* --- БАФФЫ ПОД БЕРРИ --- */
+/* --- ПАНЕЛЬ БОНУСОВ --- */
 #bonus-panel {
-    position: absolute; 
-    bottom: 35px; 
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex; 
-    flex-direction: row; 
-    gap: 20px; 
-    z-index: 110;
+    position: absolute; bottom: 35px; left: 50%;
+    transform: translateX(-50%); display: flex; gap: 20px; z-index: 110;
 }
 
 .bonus-btn {
-    width: 60px !important; 
-    height: 60px !important;
+    width: 60px !important; height: 60px !important;
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(8px);
     border: 2px solid rgba(255, 79, 216, 0.4) !important;
     border-radius: 50% !important; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    padding: 0 !important;
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; justify-content: center; align-items: center;
+    padding: 0 !important; transition: 0.3s;
     box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
     animation: floatBtn 3s ease-in-out infinite; 
-}
-
-.bonus-btn:active {
-    transform: scale(1.2); 
-    border-color: #00eaff !important;
-    box-shadow: 0 0 20px #00eaff;
 }
 
 @keyframes floatBtn {
