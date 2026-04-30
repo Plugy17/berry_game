@@ -137,10 +137,19 @@ function updateMenuInfo() {
     const totalBal = document.getElementById("total-balance");
     if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
-    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА
+    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА (С АНИМАЦИЕЙ)
     const shopBalValue = document.getElementById("shop-balance");
+    const animTarget = document.getElementById("balance-anim-target");
+
     if(shopBalValue) {
-        shopBalValue.innerText = totalCoins;
+        // Если значение изменилось, добавляем эффект прыжка
+        if (shopBalValue.innerText !== totalCoins.toString()) {
+            shopBalValue.innerText = totalCoins;
+            if(animTarget) {
+                animTarget.classList.add("balance-bump");
+                setTimeout(() => animTarget.classList.remove("balance-bump"), 300);
+            }
+        }
     }
     
     updateBonusUI();
