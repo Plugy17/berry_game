@@ -21,6 +21,9 @@ let magnetActive = false;
 let comboCount = 0;
 let comboMultiplier = 1;
 
+// Переменная для управления дождем
+let rainInterval = null;
+
 // ИСПРАВЛЕННЫЕ ПУТИ
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
@@ -28,19 +31,45 @@ const imgBad = "url('assets/obstacle.png')";
 // Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
+// --- ЭФФЕКТ ПАДАЮЩЕГО МОРОЖЕНОГО (Дождь) ---
+function createRainDrop(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || container.classList.contains('hidden')) return;
+
+    const drop = document.createElement("div");
+    drop.className = "falling-ice-anim"; // Используй этот класс в CSS
+    drop.style.left = Math.random() * 95 + "vw";
+    drop.style.backgroundImage = imgIceCream;
+    
+    const duration = Math.random() * 2 + 3; 
+    drop.style.animationDuration = duration + "s";
+    
+    container.appendChild(drop);
+    setTimeout(() => drop.remove(), duration * 1000);
+}
+
+function startIceRain(id) {
+    stopIceRain();
+    rainInterval = setInterval(() => createRainDrop(id), 300);
+}
+
+function stopIceRain() {
+    if (rainInterval) clearInterval(rainInterval);
+}
+
 // --- ЛЕГЕНДАРНЫЙ ЭФФЕКТ ВЗРЫВА МОРОЖЕНОГО ---
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
     
-    const particleCount = 12; // Больше частиц для сочности
+    const particleCount = 12;
 
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
         
         const angle = Math.random() * Math.PI * 2;
-        const dist = 60 + Math.random() * 80; // Дистанция разлета
+        const dist = 60 + Math.random() * 80; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
         
@@ -55,16 +84,14 @@ function createExplosion(x, y) {
     }
 }
 
-// --- НОВЫЕ ЭФФЕКТЫ ДЛЯ COLLISION ---
 function createIcePop(x, y) {
-    // Всплывающее облачко или быстрый эффект
     createExplosion(x, y); 
 }
 
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     const boom = document.createElement('div');
-    boom.className = 'cube-boom'; // Искры при столкновении
+    boom.className = 'cube-boom';
     boom.style.left = x + 'px';
     boom.style.top = y + 'px';
     layer.appendChild(boom);
@@ -91,27 +118,10 @@ function saveUserData() {
     db.ref('players/' + nick).set({ best, totalCoins, inventory });
 }
 
-function initMenuEffects() {
-    const menu = document.getElementById("menu");
-    if (!menu) return;
-    const oldParticles = menu.querySelectorAll(".menu-falling-ice");
-    oldParticles.forEach(p => p.remove());
-
-    for (let i = 0; i < 12; i++) {
-        const ice = document.createElement("div");
-        ice.className = "menu-falling-ice";
-        ice.style.left = Math.random() * 100 + "vw";
-        ice.style.animationDuration = (Math.random() * 3 + 4) + "s";
-        ice.style.animationDelay = Math.random() * 5 + "s";
-        ice.style.backgroundImage = imgIceCream;
-        menu.appendChild(ice);
-    }
-}
-
 window.onload = () => { 
     if(nick) loadUserData(nick); 
     else updateMenuInfo();
-    initMenuEffects(); 
+    startIceRain("menu"); 
 };
 
 function updateMenuInfo() {
@@ -123,7 +133,10 @@ function updateMenuInfo() {
     document.getElementById("total-balance").innerHTML = `${totalCoins} ${getIceIcon()}`;
     
     const shopBal = document.getElementById("shop-balance");
-    if(shopBal) shopBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
+    if(shopBal) {
+        // Счёт цифрами и рядом две иконки мороженого
+        shopBal.innerHTML = `${totalCoins} ${getIceIcon()}${getIceIcon()}`;
+    }
     
     updateBonusUI();
 }
@@ -141,6 +154,7 @@ function startGame() {
         if (val.length < 2) return alert("Введи имя!");
         nick = val; localStorage.setItem("nick", nick);
     }
+    stopIceRain(); 
     const goScreen = document.getElementById("gameOverScreen");
     if(goScreen) goScreen.classList.add("hidden");
 
@@ -247,7 +261,7 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        createExplosion(centerX, centerY); // ТОТ САМЫЙ ВЗРЫВ ПРИ СБОРЕ
+        createExplosion(centerX, centerY); 
 
         comboCount++;
         let oldMult = comboMultiplier;
@@ -275,7 +289,7 @@ function handleCollision(obs, p) {
         spawnObstacle();
     } else if (obs.dataset.type === "bad") {
         if (shieldActive) {
-            createCubeBoom(centerX, centerY); // ИСКРЫ ПРИ УДАРЕ В ЩИТ
+            createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
             obstacleY = window.innerHeight + 500; 
@@ -283,7 +297,7 @@ function handleCollision(obs, p) {
             updateBonusUI();
             triggerComboFlash(1);
         } else {
-            createCubeBoom(centerX, centerY); // ИСКРЫ ПРИ СМЕРТИ
+            createCubeBoom(centerX, centerY); 
             gameOver();
         }
     }
@@ -303,7 +317,8 @@ function gameOver() {
     const finalScore = document.getElementById("final-score");
     if(goScreen) {
         goScreen.classList.remove("hidden");
-        if(finalScore) finalScore.innerText = "Собрано: " + coins;
+        // Передаем просто цифру, иконка должна быть в HTML
+        if(finalScore) finalScore.innerText = coins; 
     } else {
         alert(`Игра окончена! Собрано: ${coins}`);
         backToMenu();
@@ -319,6 +334,8 @@ function backToMenu() {
 
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
+    
+    startIceRain("menu"); 
     updateMenuInfo();
 }
 
@@ -373,29 +390,15 @@ function useMagnet() {
     }
 }
 
-function createFallingEffects() {
-    const shopScreen = document.getElementById("shop");
-    if(!shopScreen) return;
-    shopScreen.querySelectorAll('.falling-ice').forEach(p => p.remove());
-    for (let i = 0; i < 15; i++) {
-        const ice = document.createElement("div");
-        ice.className = "falling-ice";
-        ice.style.left = Math.random() * 100 + "vw";
-        ice.style.animationDuration = (Math.random() * 3 + 2) + "s";
-        ice.style.backgroundImage = imgIceCream; 
-        ice.style.backgroundSize = "contain";
-        ice.style.height = "25px";
-        shopScreen.appendChild(ice);
-    }
-}
-
 function openShop() { 
     document.getElementById("menu").classList.add("hidden"); 
     document.getElementById("shop").classList.remove("hidden"); 
-    createFallingEffects(); 
+    startIceRain("shop"); 
+    updateMenuInfo();
 }
 
 function closeShop() { 
     document.getElementById("shop").classList.add("hidden"); 
     document.getElementById("menu").classList.remove("hidden"); 
+    startIceRain("menu"); 
 }
