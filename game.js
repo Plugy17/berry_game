@@ -124,6 +124,7 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
+/* ПРАВКА: Обновление информации в меню и магазине (с четкостью и иконками) */
 function updateMenuInfo() {
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
@@ -141,12 +142,13 @@ function updateMenuInfo() {
     const animTarget = document.getElementById("balance-anim-target");
 
     if(shopBalValue) {
-        if (shopBalValue.innerText !== totalCoins.toString()) {
-            shopBalValue.innerText = totalCoins;
-            if(animTarget) {
-                animTarget.classList.add("balance-bump");
-                setTimeout(() => animTarget.classList.remove("balance-bump"), 300);
-            }
+        // Добавляем иконку и в магазин для четкости и стиля
+        shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
+        
+        // Анимация срабатывает, если контейнер найден (при покупке)
+        if(animTarget) {
+            animTarget.classList.add("balance-bump");
+            setTimeout(() => animTarget.classList.remove("balance-bump"), 300);
         }
     }
     
@@ -315,14 +317,15 @@ function handleCollision(obs, p) {
     }
 }
 
-/* ОБНОВЛЕННАЯ ФУНКЦИЯ: Крупный счет и анимация */
+/* ПРАВКА: Уменьшенная полоска счета (под новый компактный CSS) */
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
+        // Упрощенная строка: иконка мороженого, текущий счет и кубок рекорда
         hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
         
-        // Визуальная отдача при получении очков (пульсация)
-        hud.style.transform = "scale(1.15)";
+        // Уменьшенная сила пульсации для компактного вида
+        hud.style.transform = "scale(1.05)";
         setTimeout(() => {
             hud.style.transform = "scale(1)";
         }, 100);
