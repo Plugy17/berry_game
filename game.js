@@ -13,6 +13,12 @@ let nick = localStorage.getItem("nick");
 let coins = 0;
 let best = 0;
 let totalCoins = 0;
+
+// НОВЫЕ ПЕРЕМЕННЫЕ: УРОВНИ И ОПЫТ
+let level = 1;
+let xp = 0;
+const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
+
 let inventory = { magnet: 0, shield: 0 };
 const PRICES = { magnet: 500, shield: 300 };
 
@@ -21,17 +27,14 @@ let magnetActive = false;
 let comboCount = 0;
 let comboMultiplier = 1;
 
-// Переменная для управления дождем
 let rainInterval = null;
 
-// ИСПРАВЛЕННЫЕ ПУТИ
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
 
-// Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
-// --- ЭФФЕКТ ПАДАЮЩЕГО МОРОЖЕНОГО (Дождь) ---
+// --- ЭФФЕКТ ПАДАЮЩЕГО МОРОЖЕНОГО ---
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
     if (!container || container.classList.contains('hidden')) return;
@@ -57,35 +60,27 @@ function stopIceRain() {
     if (rainInterval) clearInterval(rainInterval);
 }
 
-// --- ТОТ САМЫЙ ЭФФЕКТ ВЗРЫВА (БАХ!) ---
+// --- ЭФФЕКТЫ ВЗРЫВА ---
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
     
     const particleCount = 15;
-
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
-        
         const angle = Math.random() * Math.PI * 2;
         const dist = 80 + Math.random() * 120; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
-        
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
         particle.style.left = x + "px";
         particle.style.top = y + "px";
         particle.style.backgroundImage = imgIceCream;
-        
         layer.appendChild(particle);
         setTimeout(() => particle.remove(), 600);
     }
-}
-
-function createIcePop(x, y) {
-    createExplosion(x, y); 
 }
 
 function createCubeBoom(x, y) {
@@ -98,7 +93,7 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// --- FIREBASE ---
+// --- FIREBASE (ОБНОВЛЕНО СОХРАНЕНИЕ) ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -106,6 +101,8 @@ function loadUserData(playerNick) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
+            level = data.level || 1;
+            xp = data.xp || 0;
             inventory.shield = (data.inventory && data.inventory.shield) || 0;
             inventory.magnet = (data.inventory && data.inventory.magnet) || 0;
         }
@@ -115,7 +112,14 @@ function loadUserData(playerNick) {
 
 function saveUserData() {
     if (!nick || !window.db) return;
-    db.ref('players/' + nick).set({ best, totalCoins, inventory });
+    db.ref('players/' + nick).set({ 
+        nick, // Добавляем ник для лидерборда
+        best, 
+        totalCoins, 
+        inventory,
+        level,
+        xp
+    });
 }
 
 window.onload = () => { 
@@ -124,11 +128,10 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
-/* ПРАВКА: Обновление информации в меню и магазине (с четкостью и иконками) */
 function updateMenuInfo() {
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
-        if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b>`;
+        if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b> [LVL ${level}]`;
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
@@ -142,16 +145,13 @@ function updateMenuInfo() {
     const animTarget = document.getElementById("balance-anim-target");
 
     if(shopBalValue) {
-        // Добавляем иконку и в магазин для четкости и стиля
         shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
-        
-        // Анимация срабатывает, если контейнер найден (при покупке)
-        if(animTarget) {
+        if(animTarget && animTarget.classList.contains('balance-bump')) {
+            animTarget.classList.remove("balance-bump");
+            void animTarget.offsetWidth; // trigger reflow
             animTarget.classList.add("balance-bump");
-            setTimeout(() => animTarget.classList.remove("balance-bump"), 300);
         }
     }
-    
     updateBonusUI();
 }
 
@@ -169,9 +169,7 @@ function startGame() {
         nick = val; localStorage.setItem("nick", nick);
     }
     stopIceRain(); 
-    const goScreen = document.getElementById("gameOverScreen");
-    if(goScreen) goScreen.classList.add("hidden");
-
+    document.getElementById("gameOverScreen").classList.add("hidden");
     const mode = document.getElementById("difficulty").value;
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
@@ -184,16 +182,11 @@ function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
-    
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
-    
-    const ui = document.getElementById("combo-ui");
-    ui.classList.add("hidden");
-    ui.classList.remove("combo-epic");
-
+    document.getElementById("combo-ui").classList.add("hidden");
     updateScore(); 
     spawnObstacle();
     updateBonusUI();
@@ -215,10 +208,8 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
-    
     obstacleY += speed;
     speed += difficulty;
-
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
@@ -227,7 +218,6 @@ function update() {
         let currentLeft = parseFloat(obs.style.left);
         let targetX = lanes[targetLane];
         let distY = playerTop - obstacleY;
-
         if (distY < 500 && distY > -30) {
             let newLeft = currentLeft + (targetX - currentLeft) * 0.25;
             obs.style.left = newLeft + "%";
@@ -238,19 +228,14 @@ function update() {
             obstacleY -= (speed * 0.5); 
         }
     }
-
     obs.style.top = obstacleY + "px";
-
     const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
-
     if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
         handleCollision(obs, p);
     }
-
     if (obstacleY > window.innerHeight) {
         if (obs.dataset.type === "good") { 
-            comboCount = 0; 
-            comboMultiplier = 1; 
+            comboCount = 0; comboMultiplier = 1; 
             document.getElementById("combo-ui").classList.add("hidden"); 
         }
         spawnObstacle();
@@ -260,11 +245,7 @@ function update() {
 
 function triggerComboFlash(mult) {
     const flash = document.createElement("div");
-    flash.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: ${mult >= 4 ? 'rgba(0, 234, 255, 0.3)' : 'rgba(255, 79, 216, 0.2)'};
-        pointer-events: none; z-index: 1000; animation: fadeOut 0.3s forwards;
-    `;
+    flash.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: ${mult >= 4 ? 'rgba(0, 234, 255, 0.3)' : 'rgba(255, 79, 216, 0.2)'}; pointer-events: none; z-index: 1000; animation: fadeOut 0.3s forwards;`;
     document.body.appendChild(flash);
     setTimeout(() => flash.remove(), 300);
 }
@@ -276,7 +257,6 @@ function handleCollision(obs, p) {
 
     if (obs.dataset.type === "good") {
         createExplosion(centerX, centerY); 
-
         comboCount++;
         let oldMult = comboMultiplier;
         
@@ -292,13 +272,20 @@ function handleCollision(obs, p) {
             ui.classList.remove("hidden");
             if (comboMultiplier >= 5) ui.classList.add("combo-epic");
             else ui.classList.remove("combo-epic");
-            ui.style.animation = 'none';
-            ui.offsetHeight; 
-            ui.style.animation = null;
             if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
         }
 
-        coins += comboMultiplier; 
+        coins += comboMultiplier;
+        
+        // СИСТЕМА ОПЫТА
+        xp += comboMultiplier;
+        let nextXP = getNextLevelXP(level);
+        if (xp >= nextXP) {
+            xp -= nextXP;
+            level++;
+            // Можно добавить звук или вспышку Level Up
+        }
+
         updateScore(); 
         spawnObstacle();
     } else if (obs.dataset.type === "bad") {
@@ -317,18 +304,12 @@ function handleCollision(obs, p) {
     }
 }
 
-/* ПРАВКА: Уменьшенная полоска счета (под новый компактный CSS) */
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
-        // Упрощенная строка: иконка мороженого, текущий счет и кубок рекорда
-        hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
-        
-        // Уменьшенная сила пульсации для компактного вида
+        hud.innerHTML = `Lvl ${level} | ${getIceIcon()} ${coins} | 🏆 ${best}`;
         hud.style.transform = "scale(1.05)";
-        setTimeout(() => {
-            hud.style.transform = "scale(1)";
-        }, 100);
+        setTimeout(() => hud.style.transform = "scale(1)", 100);
     }
 }
 
@@ -337,28 +318,16 @@ function gameOver() {
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
-    
-    const goScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("final-score");
-    if(goScreen) {
-        goScreen.classList.remove("hidden");
-        if(finalScore) finalScore.innerText = coins; 
-    } else {
-        alert(`Игра окончена! Собрано: ${coins}`);
-        backToMenu();
-    }
+    document.getElementById("gameOverScreen").classList.remove("hidden");
+    document.getElementById("final-score").innerText = coins; 
 }
 
 function backToMenu() {
     gameRunning = false;
     if (loopId) cancelAnimationFrame(loopId);
-    
-    const goScreen = document.getElementById("gameOverScreen");
-    if(goScreen) goScreen.classList.add("hidden");
-
+    document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    
     startIceRain("menu"); 
     updateMenuInfo();
 }
@@ -369,7 +338,6 @@ document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
-
     const p = document.getElementById("player");
     if (diff > 0) {
         targetLane = Math.min(3, targetLane + 1);
@@ -379,15 +347,18 @@ document.addEventListener("touchend", e => {
         p.style.transform = "translateX(-50%) rotate(-15deg) scale(1.1)";
     }
     p.style.left = lanes[targetLane] + "%";
-    setTimeout(() => {
-        if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
-    }, 150);
+    setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)"; }, 150);
 });
 
 function buyItem(type) {
     if (totalCoins >= PRICES[type]) {
         totalCoins -= PRICES[type]; inventory[type]++;
         saveUserData(); updateMenuInfo();
+        const animTarget = document.getElementById("balance-anim-target");
+        if(animTarget) {
+            animTarget.classList.add("balance-bump");
+            setTimeout(()=>animTarget.classList.remove("balance-bump"), 300);
+        }
     } else alert("Недостаточно мороженого!");
 }
 
@@ -414,7 +385,8 @@ function useMagnet() {
     }
 }
 
-function openShop() { 
+// ПЕРЕИМЕНОВАНО В БАФФЫ
+function openBuffs() { 
     document.getElementById("menu").classList.add("hidden"); 
     document.getElementById("shop").classList.remove("hidden"); 
     startIceRain("shop"); 
@@ -425,4 +397,41 @@ function closeShop() {
     document.getElementById("shop").classList.add("hidden"); 
     document.getElementById("menu").classList.remove("hidden"); 
     startIceRain("menu"); 
+}
+
+// НОВЫЙ МАГАЗИН (ПОКА ПУСТОЙ)
+function openShop() {
+    alert("Магазин предметов в разработке! Пока используйте БАФФЫ.");
+}
+
+// ЛИДЕРБОРД
+function openLeaderboard() {
+    document.getElementById("menu").classList.add("hidden");
+    const lbScreen = document.getElementById("leaderboardScreen");
+    lbScreen.classList.remove("hidden");
+    
+    const list = document.getElementById("leaderboard-list");
+    list.innerHTML = "Загрузка героев...";
+
+    if (!window.db) {
+        list.innerHTML = "Ошибка подключения к базе.";
+        return;
+    }
+
+    db.ref('players').orderByChild('level').limitToLast(10).once('value', (snapshot) => {
+        list.innerHTML = "";
+        let players = [];
+        snapshot.forEach(child => { players.push(child.val()); });
+        players.reverse().forEach((p, index) => {
+            const item = document.createElement("div");
+            item.className = "leaderboard-item";
+            item.innerHTML = `<span>${index + 1}. ${p.nick || 'Аноним'}</span><span>Lvl ${p.level || 1}</span>`;
+            list.appendChild(item);
+        });
+    });
+}
+
+function closeLeaderboard() {
+    document.getElementById("leaderboardScreen").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
 }
