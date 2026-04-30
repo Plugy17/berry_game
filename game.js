@@ -62,7 +62,6 @@ function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
     
-    // 15 частиц для сочного эффекта "лопнувшего шарика"
     const particleCount = 15;
 
     for (let i = 0; i < particleCount; i++) {
@@ -70,7 +69,6 @@ function createExplosion(x, y) {
         particle.className = "ice-particle";
         
         const angle = Math.random() * Math.PI * 2;
-        // Увеличил разброс для эффекта "слопал"
         const dist = 80 + Math.random() * 120; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
@@ -82,7 +80,6 @@ function createExplosion(x, y) {
         particle.style.backgroundImage = imgIceCream;
         
         layer.appendChild(particle);
-        // Удаляем через 0.6с, когда анимация в CSS закончится
         setTimeout(() => particle.remove(), 600);
     }
 }
@@ -132,13 +129,16 @@ function updateMenuInfo() {
         document.getElementById("welcome").innerHTML = `Герой <b>${nick}</b>`;
         document.getElementById("nick").style.display = "none";
     }
-    document.getElementById("menuLeaderboard").innerText = "🏆 " + best;
-    document.getElementById("total-balance").innerHTML = `${totalCoins} ${getIceIcon()}`;
+    const menuLb = document.getElementById("menuLeaderboard");
+    if(menuLb) menuLb.innerText = "🏆 " + best;
+
+    const totalBal = document.getElementById("total-balance");
+    if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
-    const shopBal = document.getElementById("shop-balance");
-    if(shopBal) {
-        // Счёт и две иконки мороженого
-        shopBal.innerHTML = `${totalCoins} ${getIceIcon()}${getIceIcon()}`;
+    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА (Чтобы не ломать иконки)
+    const shopBalValue = document.getElementById("shop-balance");
+    if(shopBalValue) {
+        shopBalValue.innerText = totalCoins;
     }
     
     updateBonusUI();
@@ -264,7 +264,6 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        // --- ЗАПУСК ЭФФЕКТА БА-БАХ ---
         createExplosion(centerX, centerY); 
 
         comboCount++;
