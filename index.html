@@ -15,6 +15,7 @@
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
+    <!-- Шапка всегда сверху -->
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
@@ -25,20 +26,25 @@
         </div>
     </div>
 
-    <div class="spacer-middle"></div>
-
+    <!-- Новая область прокрутки для кнопок -->
     <div class="menu-controls">
         <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
+        
+        <label style="color: white; font-weight: 800; font-size: 14px; margin-top: 10px; margin-bottom: -5px;">СЛОЖНОСТЬ:</label>
         <select id="difficulty">
             <option value="easy">🟩 Легко</option>
             <option value="medium" selected>🟨 Средне</option>
             <option value="hard">🟥 Сложно</option>
         </select>
+        
         <button onclick="startGame()">ИГРАТЬ</button>
-        <!-- Новые кнопки для разделения функционала -->
+        <!-- Разделение функционала с поддержкой свайпа -->
         <button onclick="openBuffs()">⚡ Баффы</button>
         <button onclick="openShop()">🛒 Магазин</button>
         <button onclick="openLeaderboard()">🏆 Рейтинг</button>
+        
+        <!-- Дополнительный отступ снизу для удобства прокрутки -->
+        <div style="height: 40px; width: 100%;"></div>
     </div>
 </div>
 
