@@ -106,7 +106,7 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// --- FIREBASE (ЗАГРУЗКА И СОХРАНЕНИЕ) ---
+// --- FIREBASE ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -148,11 +148,9 @@ function updateMenuInfo() {
         if(nickInput) nickInput.style.display = "none";
     }
     
-    // Рекорд в меню
     const menuLb = document.getElementById("menuLeaderboard");
     if(menuLb) menuLb.innerText = "🏆 РЕКОРД: " + best;
 
-    // Баланс в меню
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
         totalBal.innerHTML = `
@@ -242,11 +240,16 @@ function update() {
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
 
+    // --- ДОБАВЛЕНО: ЭФФЕКТ НАКЛОНА ПРИ ДВИЖЕНИИ ---
+    let currentX = parseFloat(p.style.left);
+    let targetX = lanes[targetLane];
+    let tilt = (targetX - currentX) * 1.5; // Наклон зависит от расстояния
+    p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
+
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
-        let targetX = lanes[targetLane];
         let magnetPower = hasVipSkin ? 0.35 : 0.25;
         let newLeft = currentLeft + (targetX - currentLeft) * magnetPower;
         obs.style.left = newLeft + "%";
@@ -254,7 +257,6 @@ function update() {
     
     obs.style.top = obstacleY + "px";
     
-    // Проверка столкновения
     if (obstacleLane === targetLane && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
@@ -277,8 +279,13 @@ function handleCollision(obs, p) {
     if (obs.dataset.type === "good" || obs.dataset.type === "golden") {
         const isGold = obs.dataset.type === "golden";
         createExplosion(centerX, centerY, isGold); 
-        comboCount++;
         
+        // --- ДОБАВЛЕНО: ВИЗУАЛЬНЫЙ ОТКЛИК ПОДБОРА ---
+        p.style.transition = "none";
+        p.style.transform = "translateX(-50%) scale(1.3)";
+        setTimeout(() => { p.style.transition = "left 0.2s, transform 0.2s"; p.style.transform = "translateX(-50%) scale(1)"; }, 100);
+
+        comboCount++;
         if (comboCount % 100 === 0) goldenIce++;
         if (isGold) goldenIce++;
 
@@ -288,6 +295,10 @@ function handleCollision(obs, p) {
         if(comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
+            // --- ДОБАВЛЕНО: АНИМАЦИЯ КОМБО ---
+            ui.style.animation = 'none';
+            ui.offsetHeight; 
+            ui.style.animation = 'comboPop 0.3s ease-out';
         }
 
         coins += comboMultiplier;
@@ -334,7 +345,7 @@ function gameOver() {
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
 }
 
-// --- МАГАЗИН И УЛУЧШЕНИЯ ---
+// --- МАГАЗИН ---
 function convertIceToGold() {
     if (totalCoins >= 5000) {
         totalCoins -= 5000; goldenIce++;
@@ -384,7 +395,6 @@ function useMagnet() {
     }
 }
 
-// --- ЛИДЕРБОРД ---
 function openLeaderboard() {
     const lbScreen = document.getElementById("leaderboardScreen");
     const list = document.getElementById("leaderboard-list");
