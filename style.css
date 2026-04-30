@@ -294,10 +294,19 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 10px #ffea00;
 }
 
-/* --- МЕНЮ --- */
+/* --- МЕНЮ (ИЗМЕНЕНО ДЛЯ ПРОКРУТКИ) --- */
 #menu { 
-    justify-content: flex-start; 
-    padding: 60px 0; 
+    justify-content: flex-start; /* Изменено с center, чтобы контент шел сверху */
+    padding: 40px 0 80px 0; /* Добавлены отступы сверху и снизу */
+    overflow-y: auto !important; /* Включена вертикальная прокрутка */
+    touch-action: pan-y !important; /* Разрешен свайп по вертикали */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Скрываем полосу прокрутки для красоты в Chrome/Safari */
+#menu::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
 }
 
 .top-bar-container {
@@ -306,8 +315,9 @@ button:active { transform: scale(0.95); }
     align-items: center;
     width: 100%;
     gap: 15px;
-    margin-bottom: auto; 
+    margin-bottom: 30px; /* Фиксированный отступ вместо auto */
     z-index: 5;
+    flex-shrink: 0; /* Запрещаем сжатие шапки */
 }
 
 .welcome-text {
@@ -353,9 +363,10 @@ button:active { transform: scale(0.95); }
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 40px; /* Уменьшил отступ, чтобы влезло больше кнопок */
+    margin-bottom: 20px; 
     z-index: 20;
     gap: 10px;
+    flex-shrink: 0; /* Контейнер кнопок сохраняет свой размер */
 }
 
 /* --- ОКНО ПРОИГРЫША --- */
