@@ -21,21 +21,18 @@ body {
     z-index: 10;
     background: url('assets/bg.jpg') no-repeat center center;
     background-size: cover;
-    /* ПРАВКА: элементы распределяются сверху вниз */
     justify-content: flex-start; 
 }
 
 #game.screen {
     background: url('assets/game_bg.jpg') no-repeat center center;
     background-size: cover;
-    /* ФИКС: Чтобы элементы, спавнящиеся за границей экрана (сверху), не обрезались */
     overflow: visible !important;
 }
 
 .hidden { display: none !important; }
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
-/* ПРАВКА: z-index 5, чтобы они были ПОД кнопками и интерфейсом */
 .ice-drop, .falling-ice-anim {
     position: absolute;
     width: 50px !important; 
@@ -45,7 +42,7 @@ body {
     z-index: 5 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
-    opacity: 1 !important; /* Всегда видим */
+    opacity: 1 !important;
 }
 
 .golden-drop {
@@ -65,7 +62,6 @@ body {
     animation: iceFall linear forwards;
 }
 
-/* ФИКС АНИМАЦИИ: Спавн теперь с -20vh (глубоко за верхом), чтобы они вылетали ПЛАВНО, а не телепортировались */
 @keyframes iceFall {
     0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
     10% { opacity: 1; }
@@ -83,7 +79,7 @@ body {
     font-weight: 900;
     color: #ffeb3b;
     text-shadow: 0 0 20px rgba(255, 235, 59, 0.9), 3px 3px 0px #000;
-    z-index: 600; /* Выше всего остального */
+    z-index: 600;
     pointer-events: none;
 }
 
@@ -223,13 +219,12 @@ button:active { transform: scale(0.95); }
     box-sizing: border-box;
 }
 
-/* ЭФФЕКТ ВРАЩЕНИЯ ДЛЯ ЩИТА И МАГНИТА В МАГАЗИНЕ */
 .shop-item img {
     width: 50px;
     height: 50px;
     object-fit: contain;
     margin-bottom: 10px;
-    animation: rotateElement 4s linear infinite; /* ПРАВКА: Вращение */
+    animation: rotateElement 4s linear infinite; 
 }
 
 @keyframes rotateElement {
@@ -269,7 +264,7 @@ button:active { transform: scale(0.95); }
     align-items: center;
     gap: 8px;
     width: 100%;
-    z-index: 1000; /* Панель счета всегда над падающим мороженым */
+    z-index: 1000;
 }
 
 .balance-info, #hud {
@@ -317,7 +312,7 @@ button:active { transform: scale(0.95); }
     background-image: url('assets/golden_ice.png'); 
     filter: drop-shadow(0 0 5px #ffea00);
 }
-/* НОВАЯ ВАЛЮТА ДЛЯ ВОЗРОЖДЕНИЯ */
+
 .diamond-icon-small {
     background-image: url('assets/diamond.png');
     filter: drop-shadow(0 0 5px #00eaff);
@@ -333,7 +328,7 @@ button:active { transform: scale(0.95); }
     transform: translateX(-50%); 
     background: url('assets/berry.png') no-repeat center center !important; 
     background-size: contain !important; 
-    z-index: 100; /* Персонаж под падающим мороженым (чтобы оно «влетало» в него) */
+    z-index: 100; 
     transition: left 0.1s linear, transform 0.1s linear; 
 }
 
@@ -392,32 +387,42 @@ button:active { transform: scale(0.95); }
     text-transform: uppercase;
 }
 
-/* ПРАВКА: VIP МАГАЗИН стал просто МАГАЗИН */
+/* ПРАВКА: МАГАЗИН */
 .vip-btn {
     border-color: #ffd700 !important;
     color: #ffd700 !important;
     text-shadow: 0 0 5px #ffd700;
 }
 
-/* ПРАВКА: Баффы */
+/* --- ПРАВКА: РАЗДЕЛЬНЫЕ КНОПКИ БАФФОВ В ИГРЕ --- */
 #bonus-panel { 
     position: fixed !important; 
     bottom: 30px !important; 
     left: 50% !important; 
     transform: translateX(-50%) !important; 
     display: flex !important; 
-    gap: 20px !important; 
+    gap: 30px !important; /* Увеличенный зазор для разделения */
     z-index: 1000 !important; 
+    background: none !important; /* Удаляем общий фон-полосу */
+    border: none !important;
 }
 
-/* ПУСТЫЕ ЯЧЕЙКИ В БАФФАХ */
-.buff-slot-empty {
-    width: 65px;
-    height: 65px;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 40px;
-    background: rgba(0,0,0,0.3);
+/* Стиль для каждой отдельной кнопки-круга */
+.bonus-btn-wrapper {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ff4fd8;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
+    cursor: pointer;
 }
+
+.bonus-btn-wrapper:active { transform: scale(0.9); }
 
 .lvl-badge, #count-shield, #count-magnet {
     background: #00eaff;
@@ -427,7 +432,7 @@ button:active { transform: scale(0.95); }
     font-size: 14px;
     font-weight: 900;
     position: absolute;
-    bottom: -5px;
+    top: -5px; /* Счетчик теперь сверху справа */
     right: -5px;
 }
 
@@ -440,8 +445,6 @@ button:active { transform: scale(0.95); }
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
-/* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА --- */
 
 .menu-content-wrapper {
     display: flex;
@@ -463,7 +466,6 @@ button:active { transform: scale(0.95); }
     background-position: center !important; 
     pointer-events: none;
     box-sizing: border-box;
-    /* ФИКС: Враги должны быть выше даже мороженого */
     z-index: 510 !important; 
     position: absolute;
 }
@@ -486,8 +488,7 @@ button:active { transform: scale(0.95); }
     margin: 0;
 }
 
-/* --- ФИКС ИНТЕРФЕЙСА БАФФОВ --- */
-
+/* ФИКС ИКОНОК В БАФФАХ И МАГАЗИНЕ */
 #shop .shop-item img, 
 #bonus-panel img, 
 .shop-item img,
@@ -499,30 +500,11 @@ button:active { transform: scale(0.95); }
     min-width: 45px !important;
     min-height: 45px !important;
     object-fit: contain !important;
-    transform: none !important;
-    animation: rotateElement 4s linear infinite; /* ВРАЩЕНИЕ ВЕЗДЕ */
+    animation: rotateElement 4s linear infinite;
     position: relative !important;
-    margin: 0 !important;
-    top: auto !important;
-    left: auto !important;
 }
 
-.bonus-btn {
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.1s active;
-}
-
-#bonus-panel {
-    height: 65px !important;
-    padding: 0 15px !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    border-radius: 40px !important;
-    border: 2px solid rgba(255, 79, 216, 0.4) !important;
-    align-items: center !important;
-}
-
-/* Удаление ауры только внутри кнопок и панелей */
+/* Удаление ауры внутри кнопок */
 #shop .shield-aura::after, 
 #bonus-panel .shield-aura::after,
 .shop-item .shield-aura::after {
@@ -532,10 +514,8 @@ button:active { transform: scale(0.95); }
 button img {
     width: 25px !important;
     height: 25px !important;
-    max-width: 25px !important;
 }
 
-/* ДОБАВЛЕНО: Специфические фиксы для МАГАЗИНА и обмена */
 .vip-card {
     border: 2px solid #ffd700 !important;
 }
@@ -557,7 +537,6 @@ button img {
     border: 1px solid #fff !important;
 }
 
-/* СТИЛЬ ДЛЯ ЯЧЕЙКИ ОБМЕНА В БАФФАХ */
 .exchange-slot-beauty {
     font-weight: 900;
     color: #ffd700;
