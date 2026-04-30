@@ -64,8 +64,9 @@ body {
     animation: iceFall linear forwards;
 }
 
+/* ПРАВКА: Теперь падает с самого верха */
 @keyframes iceFall {
-    0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
+    0% { transform: translateY(-120px) rotate(0deg); opacity: 1; }
     10% { opacity: 1; }
     90% { opacity: 1; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 1; }
@@ -287,23 +288,17 @@ button:active { transform: scale(0.95); }
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 18px;
+    font-size: 18px !important;
     font-weight: 900;
-    color: white;
+    color: white !important;
     white-space: nowrap;
 }
 
-/* ПРАВКА 3: Полное скрытие эмодзи-текста под иконками */
+/* ПРАВКА: Теперь цифры счета ВИДНЫ */
 .currency-row span {
-    font-size: 0 !important;
-    color: transparent !important;
-    display: none; /* Прячем текст внутри иконок */
-}
-
-/* ПРАВКА 3.1: Но реальные цифры счета должны быть видны */
-.currency-row {
     font-size: 18px !important;
     color: white !important;
+    display: inline-block !important; 
 }
 
 .ice-icon, .golden-ice-icon-small, .diamond-icon-small {
@@ -312,9 +307,6 @@ button:active { transform: scale(0.95); }
     background-repeat: no-repeat;
     display: inline-block;
     vertical-align: middle;
-    /* Убираем любые текстовые артефакты */
-    font-size: 0 !important;
-    text-indent: -9999px;
 }
 
 .ice-icon { background-image: url('assets/icecream.png'); }
