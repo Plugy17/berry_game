@@ -29,27 +29,7 @@ body {
 }
 
 .hidden { display: none !important; }
-
 #menuLeaderboard { display: none !important; }
-
-/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ (ВОЗВРАЩЕНО) --- */
-.ice-drop {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    background: url('assets/icecream.png') no-repeat center center;
-    background-size: contain;
-    z-index: 1;
-    pointer-events: none;
-    animation: iceFall linear infinite;
-}
-
-@keyframes iceFall {
-    0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
-    15% { opacity: 0.6; }
-    85% { opacity: 0.6; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-}
 
 /* --- КНОПКИ --- */
 button, select, input {
@@ -131,21 +111,30 @@ button:active { transform: scale(0.95); }
     animation: objectAlive 6s ease-in-out infinite;
 }
 
-/* КРАСИВЫЕ ЦИФРЫ В МАГАЗИНЕ */
-.buy-button span {
-    font-size: 20px !important;
-    font-weight: 900;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-}
-
-/* Убираем лишнее мороженое в магазине */
-.shop-item .ice-icon:nth-of-type(n+2) {
-    display: none !important;
-}
-
 @keyframes objectAlive {
     0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
     50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
+}
+
+.item-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 15px #ff4fd8;
+    margin-bottom: 15px;
+}
+
+.buy-button {
+    background: linear-gradient(45deg, #ff4fd8, #ba55d3) !important;
+    border: none !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+    padding: 14px !important;
+    box-shadow: 0 8px 20px rgba(255, 79, 216, 0.4) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 #shop #backBtn {
@@ -159,7 +148,7 @@ button:active { transform: scale(0.95); }
     flex-shrink: 0;
 }
 
-/* --- МЕНЮ (ЦЕНТРОВКА НА ТЕЛЕФОНЕ) --- */
+/* --- МЕНЮ --- */
 #menu { 
     justify-content: flex-start; 
     padding: 60px 0; 
@@ -186,7 +175,7 @@ button:active { transform: scale(0.95); }
 }
 
 .balance-info {
-    font-size: 24px !important; 
+    font-size: 22px !important; 
     color: #fff; 
     font-weight: 900;
     background: rgba(0, 0, 0, 0.7) !important; 
@@ -197,20 +186,14 @@ button:active { transform: scale(0.95); }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* Отступ между иконкой и цифрами */
     margin: 0 auto !important;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     animation: scorePulse 2s infinite alternate;
+    gap: 10px;
 }
 
-/* ВОЗВРАЩАЕМ ОДНУ КРАСИВУЮ ИКОНКУ В МЕНЮ */
-.balance-info .ice-icon {
-    display: inline-block !important;
-    width: 28px;
-    height: 28px;
-}
-
-/* Скрываем только лишние картинки, если они дублируются */
+/* ПРАВКА: Возвращаем иконку в меню */
+.balance-info .ice-icon { display: inline-block !important; }
 .balance-info img { display: none !important; }
 
 @keyframes scorePulse {
@@ -263,7 +246,7 @@ button:active { transform: scale(0.95); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* --- ПЕРСОНАЖ --- */
+/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
 #player {
     position: absolute; 
     bottom: 18%; 
@@ -276,19 +259,40 @@ button:active { transform: scale(0.95); }
     z-index: 99;
 }
 
+/* СОЧНЫЙ ЩИТ */
 .shield-aura::after {
     content: '';
     position: absolute;
-    top: -15px; left: -15px; right: -15px; bottom: -15px;
+    top: -20px; left: -20px; right: -20px; bottom: -20px;
     border: 4px solid #00eaff;
     border-radius: 50%;
-    box-shadow: 0 0 20px #00eaff, inset 0 0 15px #00eaff;
-    animation: shieldPulse 1s infinite ease-in-out;
+    /* Тройное свечение для сочности */
+    box-shadow: 
+        0 0 15px #00eaff, 
+        inset 0 0 15px #00eaff,
+        0 0 30px rgba(0, 234, 255, 0.5);
+    animation: shieldJuicy 0.6s infinite alternate;
 }
 
-@keyframes shieldPulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.1); opacity: 0.4; }
+@keyframes shieldJuicy {
+    from { transform: scale(1); opacity: 0.9; filter: contrast(1.5); }
+    to { transform: scale(1.15); opacity: 0.5; filter: contrast(1); }
+}
+
+/* ИМБОВЫЙ МАГНИТ (ВОЗВРАЩЕНО) */
+.magnet-aura::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px; right: -40px; bottom: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%);
+    border: 2px dashed rgba(191, 0, 255, 0.6);
+    animation: magnetRotation 1s linear infinite;
+}
+
+@keyframes magnetRotation {
+    from { transform: rotate(0deg) scale(1); }
+    to { transform: rotate(360deg) scale(1.1); }
 }
 
 /* --- БОНУСЫ --- */
