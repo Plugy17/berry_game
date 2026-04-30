@@ -42,7 +42,8 @@ const imgIceCream = "url('assets/icecream.png')";
 const imgGoldenIce = "url('assets/golden_ice.png')"; 
 const imgBad = "url('assets/obstacle.png')";
 
-// ПРАВКА: Иконки теперь корректно отображаются через CSS классы без лишнего текста
+// ПРАВКА: Иконки теперь возвращают пустые span (без текстовых эмодзи внутри), 
+// чтобы CSS подставлял только картинки из assets.
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
@@ -57,7 +58,7 @@ function createRainDrop(containerId) {
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
     drop.style.left = Math.random() * 95 + "vw";
     
-    // ПРАВКА: Убеждаемся, что анимация берет значения из CSS, где прописано -120px для старта
+    // ПРАВКА: Анимация теперь визуально начинается выше за счет настроек в CSS
     drop.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
     
     const duration = Math.random() * 2 + 3; 
@@ -156,7 +157,8 @@ window.onload = () => {
 // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
     const shopBtn = document.getElementById("shop-btn-main");
-    if(shopBtn) shopBtn.innerHTML = `💎 МАГАЗИН`;
+    // ПРАВКА: Убран текстовый эмодзи алмаза, оставляем только текст.
+    if(shopBtn) shopBtn.innerHTML = `МАГАЗИН`;
 
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
@@ -170,7 +172,7 @@ function updateMenuInfo() {
 
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
-        // ПРАВКА: Цифры счета теперь внутри span, который в CSS сделан видимым (display: inline-block)
+        // ПРАВКА: Используем функции get...Icon(), которые теперь возвращают пустые спаны.
         totalBal.innerHTML = `
             <div class="currency-row"><span>${totalCoins}</span> ${getIceIcon()}</div>
             <div class="currency-row gold-highlight" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
@@ -368,7 +370,7 @@ function handleCollision(obs, p) {
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
-        // ПРАВКА: В игровом интерфейсе (HUD) также возвращаем span для отображения цифр счета
+        // ПРАВКА: Убраны текстовые эмодзи, используем графические функции.
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
             <div class="currency-row"><span>${coins}</span> ${getIceIcon()}</div>
