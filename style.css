@@ -87,6 +87,23 @@ body {
     100% { transform: scale(4) rotate(90deg); opacity: 0; }
 }
 
+/* ЭФФЕКТ ПРИ ПОИМКЕ (СТАРЫЙ БА-БАХ) */
+.ice-particle {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    pointer-events: none;
+    z-index: 999;
+    animation: particleOut 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes particleOut {
+    0% { transform: translate(0, 0) scale(1.2) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(360deg); opacity: 0; }
+}
+
 /* --- КНОПКИ --- */
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
@@ -173,7 +190,6 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
-/* Исправлено отображение иконок в магазине */
 #shop-balance {
     display: flex;
     align-items: center;
@@ -301,7 +317,6 @@ button:active { transform: scale(0.95); }
     animation: fadeIn 0.5s ease-out;
 }
 
-/* Карточка внутри окна БА-БАХ */
 .go-card {
     background: rgba(20, 20, 30, 0.9);
     padding: 40px;
@@ -326,7 +341,6 @@ button:active { transform: scale(0.95); }
     display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 
-/* Иконка в окне смерти */
 .ice-icon-big {
     display: inline-block;
     width: 40px; height: 40px;
@@ -400,7 +414,6 @@ button:active { transform: scale(0.95); }
     z-index: 99;
 }
 
-/* СОЧНЫЙ ЩИТ (УЛУЧШЕНО) */
 .shield-aura::after {
     content: '';
     position: absolute;
@@ -419,7 +432,6 @@ button:active { transform: scale(0.95); }
     to { transform: scale(1.15); filter: brightness(0.8) contrast(1); }
 }
 
-/* ИМБОВЫЙ МАГНИТ (УЛУЧШЕНО) */
 .magnet-aura::before {
     content: '';
     position: absolute;
