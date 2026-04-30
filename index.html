@@ -20,7 +20,7 @@
         <div class="menu-stats-container">
             <!-- Основной баланс игрока -->
             <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
-            <!-- Рекорд (убран класс hidden, чтобы JS управлял видимостью через логику) -->
+            <!-- Рекорд -->
             <div id="menuLeaderboard" class="record-info">🏆 0</div>
         </div>
     </div>
@@ -43,9 +43,9 @@
     <!-- Слой для взрывов и частиц -->
     <div id="effects-layer"></div>
 
+    <!-- HUD теперь управляется целиком через JS для компактности -->
     <div id="hud">
-        <!-- Блок счета во время игры (синхронизировано с game.js) -->
-        <div id="score-wrapper">0</div>
+        <span class="ice-icon"></span> 0 | 🏆 0
     </div> 
     
     <button id="backBtn" onclick="backToMenu()">🏠</button>
@@ -88,10 +88,10 @@
     <h2 class="shop-title">МАГАЗИН</h2>
 
     <div class="shop-balance-container">
-        <!-- balance-anim-target для анимации "прыжка" при покупке -->
+        <!-- Обертка для анимации покупки -->
         <div id="balance-anim-target" class="shop-balance-wrapper">
-            <span id="shop-balance">0</span>
-            <span class="ice-icon"></span>
+            <!-- Сюда JS вставит число и иконку -->
+            <span id="shop-balance">0 <span class="ice-icon"></span></span>
         </div>
     </div>
 
@@ -117,7 +117,6 @@
 </div>
 
 <script>
-  // Конфигурация Firebase оставлена без изменений
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
     authDomain: "berry-game-4fa9b.firebaseapp.com",
@@ -131,7 +130,7 @@
   try {
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
-  } catch (e) { window.db = null; }
+  } catch (e) { console.error("Firebase init error:", e); window.db = null; }
 </script>
 <script src="game.js"></script>
 </body>
