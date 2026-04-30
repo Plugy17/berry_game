@@ -99,6 +99,11 @@ function createExplosion(x, y, isGold = false) {
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(!layer) return;
+    
+    // ПРАВКА: Тряска экрана при взрыве
+    layer.classList.add("shake-anim");
+    setTimeout(() => layer.classList.remove("shake-anim"), 300);
+
     const boom = document.createElement('div');
     boom.className = 'cube-boom';
     boom.style.left = x + 'px';
@@ -248,7 +253,6 @@ function update() {
 
     const playerTop = window.innerHeight * 0.75; 
 
-    // --- ПЛАВНОЕ ПЕРЕМЕЩЕНИЕ И НАКЛОН ---
     let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let targetX = lanes[targetLane];
     
@@ -278,6 +282,8 @@ function update() {
             comboCount = 0; comboMultiplier = 1; 
             const cui = document.getElementById("combo-ui");
             if(cui) cui.classList.add("hidden"); 
+            // ПРАВКА: Убираем свечение комбо
+            p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
         }
         spawnObstacle();
     }
@@ -312,6 +318,9 @@ function handleCollision(obs, p) {
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = 'comboPop 0.3s ease-out';
+            
+            // ПРАВКА: Визуальный эффект при высоком комбо
+            if(comboMultiplier >= 5) p.style.filter = "brightness(1.5) drop-shadow(0 0 10px #fff)";
         }
 
         coins += comboMultiplier;
@@ -362,6 +371,26 @@ function gameOver() {
     
     const revBtn = document.getElementById("revive-btn");
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
+}
+
+// ДОБАВЛЕНО: Функция возрождения
+function revivePlayer() {
+    if (goldenIce > 0 && !usedReviveThisRun) {
+        goldenIce--;
+        usedReviveThisRun = true;
+        document.getElementById("gameOverScreen").classList.add("hidden");
+        
+        // Даем временный щит после возрождения
+        shieldActive = true;
+        const p = document.getElementById("player");
+        if(p) p.classList.add("shield-aura");
+        
+        gameRunning = true;
+        spawnObstacle();
+        update();
+        updateScore();
+        saveUserData();
+    }
 }
 
 // --- МАГАЗИН ---
@@ -459,6 +488,13 @@ function closeShop() {
 
 function backToMenu() {
     gameRunning = false;
+    // ДОБАВЛЕНО: Очистка активных частиц при выходе
+    const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    if(layer) {
+        const particles = layer.querySelectorAll('.ice-particle, .cube-boom');
+        particles.forEach(p => p.remove());
+    }
+
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
@@ -480,8 +516,8 @@ document.addEventListener("touchend", e => {
 // ДОБАВЛЕНО: УПРАВЛЕНИЕ КЛАВИАТУРОЙ
 document.addEventListener("keydown", e => {
     if (!gameRunning) return;
-    if (e.key === "ArrowLeft") targetLane = Math.max(0, targetLane - 1);
-    if (e.key === "ArrowRight") targetLane = Math.min(3, targetLane + 1);
+    if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
+    if (e.key === "ArrowRight" || e.key === "d") targetLane = Math.min(3, targetLane + 1);
     if (e.key === "1") useShield();
     if (e.key === "2") useMagnet();
 });
