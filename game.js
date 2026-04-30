@@ -159,7 +159,8 @@ function updateMenuInfo() {
 
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
-        if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b> [LVL ${level}]`;
+        // ПРАВКА: Сделали имя в верхнем регистре для стиля
+        if(welcomeElem) welcomeElem.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
@@ -169,10 +170,10 @@ function updateMenuInfo() {
 
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
-        // ПРАВКА: Обернул числа в span для чистоты верстки
+        // ПРАВКА: Добавлены дополнительные классы для управления через CSS
         totalBal.innerHTML = `
             <div class="currency-row"><span>${totalCoins}</span> ${getIceIcon()}</div>
-            <div class="currency-row" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
+            <div class="currency-row gold-highlight" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
             <div class="currency-row" style="margin-top:5px; color:#00eaff"><span>${diamonds}</span> ${getDiamondIcon()}</div>
         `;
     }
@@ -367,7 +368,7 @@ function handleCollision(obs, p) {
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
-        // ПРАВКА: Очистили строки, добавили span для чисел
+        // ПРАВКА: Очистили строки, добавили span для чисел и сохранили LVL
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
             <div class="currency-row"><span>${coins}</span> ${getIceIcon()}</div>
