@@ -1,4 +1,4 @@
-/* --- КОНСТАНТЫ И НАСТРОЙКИ --- */
+/* --- КОНСТАНТЫ И НАСTРОЙКИ --- */
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
@@ -206,6 +206,7 @@ function resetGame() {
     
     const p = document.getElementById("player");
     p.className = ""; 
+    p.style.filter = "none"; // ПРАВКА: Сброс фильтров при старте
     if(hasVipSkin) p.classList.add("skin-ice"); 
     
     p.style.left = lanes[targetLane] + "%";
@@ -264,10 +265,11 @@ function update() {
 
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     
+    // ПРАВКА: Улучшенное притяжение (к игроку, а не просто к линии)
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
         let magnetPower = hasVipSkin ? 0.35 : 0.25;
-        let newLeft = currentLeft + (targetX - currentLeft) * magnetPower;
+        let newLeft = currentLeft + (newX - currentLeft) * magnetPower;
         obs.style.left = newLeft + "%";
     }
     
@@ -282,8 +284,8 @@ function update() {
             comboCount = 0; comboMultiplier = 1; 
             const cui = document.getElementById("combo-ui");
             if(cui) cui.classList.add("hidden"); 
-            // ПРАВКА: Убираем свечение комбо
-            p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+            // ПРАВКА: Очищаем фильтры, только если не активен магнит
+            if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
         }
         spawnObstacle();
     }
@@ -362,6 +364,13 @@ function gameOver() {
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
+
+    // ПРАВКА: Убираем визуальные баффы при смерти
+    const p = document.getElementById("player");
+    if(p) {
+        p.classList.remove("shield-aura", "magnet-aura");
+        p.style.filter = "none";
+    }
     
     const goScreen = document.getElementById("gameOverScreen");
     if(goScreen) {
@@ -424,6 +433,7 @@ function buyItem(type) {
 }
 
 function useShield() {
+    // ПРАВКА: Защита от повторной активации
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
         inventory.shield--; shieldActive = true;
         const p = document.getElementById("player");
@@ -433,15 +443,22 @@ function useShield() {
 }
 
 function useMagnet() {
+    // ПРАВКА: Защита от повторной активации
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
         inventory.magnet--; magnetActive = true;
         const p = document.getElementById("player");
-        if(p) p.classList.add("magnet-aura");
+        if(p) {
+            p.classList.add("magnet-aura");
+            p.style.filter = "drop-shadow(0 0 15px cyan)";
+        }
         updateBonusUI();
         setTimeout(() => {
             magnetActive = false;
             const pNow = document.getElementById("player");
-            if(pNow) pNow.classList.remove("magnet-aura");
+            if(pNow) {
+                pNow.classList.remove("magnet-aura");
+                if(!shieldActive) pNow.style.filter = "none";
+            }
         }, 10000);
     }
 }
@@ -488,7 +505,6 @@ function closeShop() {
 
 function backToMenu() {
     gameRunning = false;
-    // ДОБАВЛЕНО: Очистка активных частиц при выходе
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(layer) {
         const particles = layer.querySelectorAll('.ice-particle, .cube-boom');
@@ -513,7 +529,7 @@ document.addEventListener("touchend", e => {
     else targetLane = Math.max(0, targetLane - 1);
 });
 
-// ДОБАВЛЕНО: УПРАВЛЕНИЕ КЛАВИАТУРОЙ
+// УПРАВЛЕНИЕ КЛАВИАТУРОЙ
 document.addEventListener("keydown", e => {
     if (!gameRunning) return;
     if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
