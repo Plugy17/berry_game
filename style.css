@@ -175,7 +175,7 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
 
-/* ПРАВКА 1: Увеличиваем домик и его кнопку. Добавлена иконка через фон */
+/* ПРАВКА: Иконка домика home.png */
 #backBtn {
     position: absolute; 
     top: 20px; 
@@ -188,7 +188,7 @@ button:active { transform: scale(0.95); }
     align-items: center;
     border-radius: 15px !important;
     background: rgba(0, 0, 0, 0.6) url('assets/home.png') no-repeat center center !important;
-    background-size: 35px !important; /* Вместо font-size используем картинку */
+    background-size: 35px !important; 
     border: 2px solid #ff4fd8 !important;
     z-index: 100;
     line-height: 1;
@@ -229,12 +229,6 @@ button:active { transform: scale(0.95); }
     height: 50px;
     object-fit: contain;
     margin-bottom: 10px;
-    animation: rotateElement 4s linear infinite; 
-}
-
-@keyframes rotateElement {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
 }
 
 .shop-section-title {
@@ -294,7 +288,6 @@ button:active { transform: scale(0.95); }
     white-space: nowrap;
 }
 
-/* ПРАВКА: Теперь цифры счета ВИДНЫ */
 .currency-row span {
     font-size: 18px !important;
     color: white !important;
@@ -311,12 +304,11 @@ button:active { transform: scale(0.95); }
 
 .ice-icon { background-image: url('assets/icecream.png'); }
 
-/* ПРАВКА 2: Золотое мороженое в счете делаем БОЛЬШЕ */
 .golden-ice-icon-small { 
     background-image: url('assets/golden_ice.png'); 
     filter: drop-shadow(0 0 8px #ffea00) brightness(1.2);
-    width: 32px !important; /* Увеличено */
-    height: 32px !important; /* Увеличено */
+    width: 32px !important; 
+    height: 32px !important; 
 }
 
 .diamond-icon-small {
@@ -344,7 +336,7 @@ button:active { transform: scale(0.95); }
     filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px #00eaff);
 }
 
-/* АУРЫ - Добавлена прозрачность, чтобы не перекрывать скин */
+/* АУРЫ */
 .shield-aura::after { 
     content: ''; 
     position: absolute; 
@@ -387,10 +379,9 @@ button:active { transform: scale(0.95); }
     align-items: center;
     width: 100%;
     margin-top: 20px;
-    gap: 10px; /* ПРАВКА 4: Равномерный зазор между кнопками */
+    gap: 10px; 
 }
 
-/* ПРАВКА 4.1: Скрываем черную надпись Berry Runner */
 .footer-logo, .berry-runner-title-black {
     display: none !important;
 }
@@ -432,11 +423,17 @@ button:active { transform: scale(0.95); }
     cursor: pointer;
 }
 
-/* Добавлены иконки внутрь кнопок баффов через CSS */
-#btn-use-shield { background: rgba(0,0,0,0.7) url('assets/shield.png') no-repeat center center; background-size: 40px; }
-#btn-use-magnet { background: rgba(0,0,0,0.7) url('assets/magnet.png') no-repeat center center; background-size: 40px; }
+/* ПРАВКА: Иконки щита и магнита из твоих ассетов */
+#btn-use-shield { background: rgba(0,0,0,0.7) url('assets/shield_icon.png') no-repeat center center; background-size: 40px; }
+#btn-use-magnet { background: rgba(0,0,0,0.7) url('assets/magnet_icon.png') no-repeat center center; background-size: 40px; }
 
 .bonus-btn-wrapper:active { transform: scale(0.9); }
+
+.bonus-icon-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
 
 #count-shield, #count-magnet {
     background: #00eaff;
@@ -454,18 +451,15 @@ button:active { transform: scale(0.95); }
 #obstacle {
     width: 75px !important; 
     height: 75px !important;
-    max-width: 75px !important;
-    max-height: 75px !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important; 
     pointer-events: none;
-    box-sizing: border-box;
     z-index: 510 !important; 
     position: absolute;
 }
 
-/* ДОБАВЛЕНО: Тряска при столкновении */
+/* Тряска экрана */
 .shake-anim {
     animation: shake 0.3s ease-in-out;
 }
@@ -478,10 +472,8 @@ button:active { transform: scale(0.95); }
     80% { transform: translate(10px, 5px); }
 }
 
-/* --- VIP МАГАЗИН И ОБМЕН --- */
-.vip-card {
-    border: 2px solid #ffd700 !important;
-}
+/* --- VIP МАГАЗИН --- */
+.vip-card { border: 2px solid #ffd700 !important; }
 
 .exchange-card {
     background: rgba(255, 215, 0, 0.1) !important;
@@ -489,11 +481,6 @@ button:active { transform: scale(0.95); }
     border-radius: 20px;
     padding: 10px;
     margin-top: 15px;
-    width: 100%;
-    max-width: 350px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .buy-button.gold {
@@ -502,15 +489,12 @@ button:active { transform: scale(0.95); }
     border: 1px solid #fff !important;
 }
 
-/* ПРАВКА: Фикс для иконок в магазине */
-#shop .shop-item img, 
-#bonus-panel img {
+/* Фикс для иконок в магазине */
+#shop .shop-item img {
     width: 45px !important;
     height: 45px !important;
-    animation: rotateElement 4s linear infinite;
 }
 
-/* ДОБАВЛЕНО: Эффект для кнопки Возрождения */
 #revive-btn {
     background: linear-gradient(180deg, #00eaff, #0077ff) !important;
     border: 2px solid #fff !important;
