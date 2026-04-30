@@ -35,16 +35,17 @@ body {
 .hidden { display: none !important; }
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
-/* ПРАВКА: Поднял z-index до 105, чтобы они были ПОВЕРХ игрока и фона */
+/* ПРАВКА: z-index 500+, чтобы быть ГАРАНТИРОВАННО выше торта и всех эффектов на фоне */
 .ice-drop, .falling-ice-anim {
     position: absolute;
     width: 50px !important; 
     height: 50px !important;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
-    z-index: 105 !important; 
+    z-index: 500 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
+    opacity: 1 !important; /* Всегда видим */
 }
 
 .golden-drop {
@@ -53,19 +54,20 @@ body {
     height: 55px !important;
     background: url('assets/golden_ice.png') no-repeat center center;
     background-size: contain;
-    z-index: 106 !important; 
+    z-index: 501 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
-    filter: drop-shadow(0 0 10px #ffea00);
+    filter: drop-shadow(0 0 15px #ffea00);
+    opacity: 1 !important;
 }
 
 .falling-ice-anim {
     animation: iceFall linear forwards;
 }
 
-/* ФИКС АНИМАЦИИ: Убрал прозрачность (opacity: 0) в начале, чтобы элементы были видны сразу */
+/* ФИКС АНИМАЦИИ: Спавн теперь с -20vh (глубоко за верхом), чтобы они вылетали ПЛАВНО, а не телепортировались */
 @keyframes iceFall {
-    0% { transform: translateY(-15vh) rotate(0deg); opacity: 1; }
+    0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
     10% { opacity: 1; }
     90% { opacity: 1; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 1; }
@@ -81,7 +83,7 @@ body {
     font-weight: 900;
     color: #ffeb3b;
     text-shadow: 0 0 20px rgba(255, 235, 59, 0.9), 3px 3px 0px #000;
-    z-index: 200;
+    z-index: 600; /* Выше всего остального */
     pointer-events: none;
 }
 
@@ -103,7 +105,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 20px #fff, 0 0 40px #ffea00;
     pointer-events: none;
-    z-index: 150;
+    z-index: 550;
     animation: popEffect 0.4s ease-out forwards;
 }
 
@@ -119,7 +121,7 @@ body {
     box-shadow: 0 0 30px #ff0000, 0 0 60px #ffaa00;
     border-radius: 4px;
     pointer-events: none;
-    z-index: 160;
+    z-index: 560;
     animation: boomEffect 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
@@ -166,12 +168,10 @@ button, select, input {
 
 button:active { transform: scale(0.95); }
 
-/* ПРАВКА: Сделали кнопку Играть ярче и выше по слоям */
 .main-btn {
     background: linear-gradient(180deg, #ff4fd8, #ba2891) !important;
     z-index: 110 !important;
     position: relative;
-    /* ФИКС: Делаем акцент на кнопке */
     border: 2px solid #fff !important;
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
@@ -193,7 +193,7 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН (ИСПРАВЛЕНО) --- */
+/* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
     padding: 20px !important;
@@ -262,7 +262,7 @@ button:active { transform: scale(0.95); }
     align-items: center;
     gap: 8px;
     width: 100%;
-    z-index: 150; /* Поднял HUD выше падающих элементов */
+    z-index: 1000; /* Панель счета всегда над падающим мороженым */
 }
 
 .balance-info, #hud {
@@ -277,10 +277,7 @@ button:active { transform: scale(0.95); }
     width: auto !important;
 }
 
-/* ПРАВКА: Скрываем рекорд именно в главном меню через CSS */
-#menu .record-info {
-    display: none !important;
-}
+#menu .record-info { display: none !important; }
 
 .record-info {
     font-weight: 800;
@@ -321,7 +318,7 @@ button:active { transform: scale(0.95); }
     transform: translateX(-50%); 
     background: url('assets/berry.png') no-repeat center center !important; 
     background-size: contain !important; 
-    z-index: 100; /* Игрок чуть ниже падающих элементов (105) */
+    z-index: 100; /* Персонаж под падающим мороженым (чтобы оно «влетало» в него) */
     transition: left 0.1s linear, transform 0.1s linear; 
 }
 
@@ -344,7 +341,6 @@ button:active { transform: scale(0.95); }
     animation: shieldJuicy 0.5s infinite alternate; 
 }
 
-/* ДОБАВЛЕНО: Визуальный эффект магнита вокруг игрока */
 .magnet-aura::before {
     content: '';
     position: absolute;
@@ -387,7 +383,7 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 5px #ffd700;
 }
 
-/* ПРАВКА: Баффы теперь фиксированы в самом низу экрана под Берри */
+/* ПРАВКА: Баффы */
 #bonus-panel { 
     position: fixed !important; 
     bottom: 30px !important; 
@@ -395,10 +391,9 @@ button:active { transform: scale(0.95); }
     transform: translateX(-50%) !important; 
     display: flex !important; 
     gap: 20px !important; 
-    z-index: 110 !important; 
+    z-index: 1000 !important; 
 }
 
-/* Стили для уровней в лидерборде */
 .lvl-badge {
     background: #00eaff;
     color: black;
@@ -408,7 +403,6 @@ button:active { transform: scale(0.95); }
     font-weight: 900;
 }
 
-/* ПРАВКА: Заголовок "Герой BERRY" */
 .welcome-text {
     font-size: 32px !important; 
     font-weight: 900;
@@ -419,7 +413,7 @@ button:active { transform: scale(0.95); }
     letter-spacing: 2px;
 }
 
-/* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА (ДОБАВЛЕНО) --- */
+/* --- НОВЫЕ ПРАВКИ ДЛЯ ФИКСА ИНТЕРФЕЙСА --- */
 
 .menu-content-wrapper {
     display: flex;
@@ -432,26 +426,23 @@ button:active { transform: scale(0.95); }
 }
 
 #obstacle {
-    width: 70px !important; 
-    height: 70px !important;
-    max-width: 70px !important;
-    max-height: 70px !important;
+    width: 75px !important; 
+    height: 75px !important;
+    max-width: 75px !important;
+    max-height: 75px !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important; 
     pointer-events: none;
     box-sizing: border-box;
-    z-index: 107 !important; /* Препятствия выше всего */
+    /* ФИКС: Враги должны быть выше даже мороженого */
+    z-index: 510 !important; 
     position: absolute;
+    animation: iceFall linear forwards;
 }
 
-#nick {
-    text-align: center;
-}
-
-#difficulty {
-    text-align-last: center;
-}
+#nick { text-align: center; }
+#difficulty { text-align-last: center; }
 
 .menu-footer {
     position: absolute;
@@ -468,9 +459,8 @@ button:active { transform: scale(0.95); }
     margin: 0;
 }
 
-/* --- ПРАВКИ: ФИКС ИНТЕРФЕЙСА БАФФОВ (ДОБАВЛЕНО) --- */
+/* --- ФИКС ИНТЕРФЕЙСА БАФФОВ --- */
 
-/* Изолируем иконки в магазине и нижней панели, чтобы они НЕ были огромными */
 #shop .shop-item img, 
 #bonus-panel img, 
 .shop-item img {
@@ -489,7 +479,6 @@ button:active { transform: scale(0.95); }
     left: auto !important;
 }
 
-/* Фиксируем размер панели бонусов, чтобы она не растягивалась */
 #bonus-panel {
     height: 65px !important;
     padding: 0 15px !important;
@@ -499,13 +488,11 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
 }
 
-/* Отключаем ауру щита для иконок в магазине, чтобы она не вылезала на весь экран */
 .shop-item .shield-aura::after, 
 #bonus-panel .shield-aura::after {
     display: none !important;
 }
 
-/* Принудительный сброс для всех картинок внутри кнопок */
 button img {
     width: 25px !important;
     height: 25px !important;
