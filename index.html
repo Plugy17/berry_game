@@ -37,6 +37,8 @@
 </div>
 
 <div id="game" class="screen hidden">
+    <div id="effects-layer"></div>
+
     <div id="hud">
         <span id="score-display">0</span> <span class="ice-icon"></span>
     </div> 
@@ -45,7 +47,8 @@
     
     <div id="combo-container">
         <div id="combo-ui" class="hidden">x2</div>
-        <div id="combo-msg"></div> </div>
+        <div id="combo-msg"></div> 
+    </div>
 
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
@@ -62,9 +65,20 @@
     <div id="obstacle" style="position: absolute; width: 60px; height: 60px; background-size: contain; background-repeat: no-repeat;"></div> 
 </div>
 
+<div id="gameOverScreen" class="hidden">
+    <div class="go-title">БА-БАХ!</div>
+    <div id="final-score" class="go-stats">Счет: 0</div>
+    <div class="go-btn-container">
+        <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
+        <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
+    </div>
+</div>
+
 <div id="shop" class="screen hidden">
     <div class="shop-balance-container">
-        <span id="shop-balance">0</span> <span class="ice-icon"></span>
+        <div class="balance-info">
+            <span id="shop-balance">0</span> <span class="ice-icon"></span>
+        </div>
     </div>
 
     <h2 style="color: white; margin-top: 80px; z-index: 5; text-shadow: 0 0 15px #ff4fd8; text-transform: uppercase;">🛒 МАГАЗИН</h2>
@@ -73,13 +87,17 @@
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
             <div class="item-title">ЩИТ</div>
-            <button class="buy-button" onclick="buyItem('shield')">КУПИТЬ 300 <span class="ice-icon"></span></button>
+            <button class="buy-button" onclick="buyItem('shield')">
+                КУПИТЬ 300 <span class="ice-icon"></span>
+            </button>
         </div>
 
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
             <div class="item-title">МАГНИТ</div>
-            <button class="buy-button" onclick="buyItem('magnet')">КУПИТЬ 500 <span class="ice-icon"></span></button>
+            <button class="buy-button" onclick="buyItem('magnet')">
+                КУПИТЬ 500 <span class="ice-icon"></span>
+            </button>
         </div>
     </div>
 
