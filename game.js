@@ -126,8 +126,10 @@ window.onload = () => {
 
 function updateMenuInfo() {
     if (nick) {
-        document.getElementById("welcome").innerHTML = `Герой <b>${nick}</b>`;
-        document.getElementById("nick").style.display = "none";
+        const welcomeElem = document.getElementById("welcome");
+        if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b>`;
+        const nickInput = document.getElementById("nick");
+        if(nickInput) nickInput.style.display = "none";
     }
     const menuLb = document.getElementById("menuLeaderboard");
     if(menuLb) menuLb.innerText = "🏆 " + best;
@@ -135,7 +137,7 @@ function updateMenuInfo() {
     const totalBal = document.getElementById("total-balance");
     if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
     
-    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА (Чтобы не ломать иконки)
+    // ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ МАГАЗИНА
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) {
         shopBalValue.innerText = totalCoins;
