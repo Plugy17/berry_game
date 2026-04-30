@@ -17,6 +17,7 @@ let totalCoins = 0;
 
 // --- ВАЛЮТА И ПРОГРЕСС ---
 let goldenIce = 0; 
+let diamonds = 0; // ДОБАВЛЕНО: Новая валюта
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
 let usedReviveThisRun = false; 
@@ -28,7 +29,7 @@ const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50;
 
 let inventory = { magnet: 0, shield: 0 };
 const PRICES = { magnet: 500, shield: 300, goldenConvert: 5000 };
-const VIP_PRICES = { skin: 10, slot: 5 };
+const VIP_PRICES = { skin: 10, slot: 5, diamond: 50000 }; // ДОБАВЛЕНО: Цена алмаза
 
 let shieldActive = false;
 let magnetActive = false;
@@ -43,6 +44,7 @@ const imgBad = "url('assets/obstacle.png')";
 
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
+const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`; // ДОБАВЛЕНО: Иконка алмаза
 
 // --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ ---
 function createRainDrop(containerId) {
@@ -121,6 +123,7 @@ function loadUserData(playerNick) {
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
             goldenIce = data.goldenIce || 0;
+            diamonds = data.diamonds || 0; // ДОБАВЛЕНО: Загрузка алмазов
             level = data.level || 1;
             xp = data.xp || 0;
             inventory.shield = (data.inventory && data.inventory.shield) || 0;
@@ -135,7 +138,7 @@ function loadUserData(playerNick) {
 function saveUserData() {
     if (!nick || !window.db) return;
     db.ref('players/' + nick).set({ 
-        nick, best, totalCoins, goldenIce, inventory, level, xp, hasVipSkin, extraShieldSlots
+        nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin, extraShieldSlots
     });
 }
 
@@ -162,12 +165,13 @@ function updateMenuInfo() {
         totalBal.innerHTML = `
             <div class="currency-row">${totalCoins} ${getIceIcon()}</div>
             <div class="currency-row" style="margin-top:5px">${goldenIce} ${getGoldIcon()}</div>
+            <div class="currency-row" style="margin-top:5px; color:#00eaff">${diamonds} ${getDiamondIcon()}</div>
         `;
     }
     
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) {
-        shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()}`;
+        shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
     }
     updateBonusUI();
 }
@@ -177,6 +181,12 @@ function updateBonusUI() {
     const mCount = document.getElementById("count-magnet");
     if(sCount) sCount.innerText = inventory.shield;
     if(mCount) mCount.innerText = inventory.magnet;
+
+    // ПРАВКА: Логика отрисовки слотов (пустые/полные)
+    const bonusPanel = document.getElementById("bonus-panel");
+    if(bonusPanel) {
+        // Здесь можно добавить динамическую отрисовку div.buff-slot.empty, если нужно визуально показать пустые места
+    }
 }
 
 // --- ИГРОВОЙ ПРОЦЕСС ---
@@ -355,7 +365,7 @@ function updateScore() {
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
             <div class="currency-row">${coins} ${getIceIcon()}</div>
-            <div class="currency-row">${goldenIce} ${getGoldIcon()}</div>
+            <div class="currency-row" style="color:#00eaff">${diamonds} ${getDiamondIcon()}</div>
         `;
     }
 }
@@ -381,12 +391,13 @@ function gameOver() {
     }
     
     const revBtn = document.getElementById("revive-btn");
-    if(revBtn) revBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
+    // ПРАВКА: Возрождение теперь за АЛМАЗЫ
+    if(revBtn) revBtn.style.display = (!usedReviveThisRun && diamonds > 0) ? "block" : "none";
 }
 
 function revivePlayer() {
-    if (goldenIce > 0 && !usedReviveThisRun) {
-        goldenIce--;
+    if (diamonds > 0 && !usedReviveThisRun) {
+        diamonds--;
         usedReviveThisRun = true;
         document.getElementById("gameOverScreen").classList.add("hidden");
         
@@ -412,6 +423,16 @@ function convertIceToGold() {
         saveUserData(); updateMenuInfo();
         alert("Обмен успешен!");
     } else alert("Нужно 5000 мороженого!");
+}
+
+// ДОБАВЛЕНО: Покупка алмазов
+function buyDiamond() {
+    if (totalCoins >= VIP_PRICES.diamond) {
+        totalCoins -= VIP_PRICES.diamond;
+        diamonds++;
+        saveUserData(); updateMenuInfo();
+        alert("Алмаз приобретен!");
+    } else alert("Нужно 50,000 мороженого!");
 }
 
 function buyVipItem(type) {
