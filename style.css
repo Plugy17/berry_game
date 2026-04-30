@@ -128,20 +128,20 @@ button:active { transform: scale(0.95); }
     position: absolute; 
     top: 15px; 
     right: 15px; 
-    width: 55px !important; 
-    height: 55px !important; 
+    width: 45px !important; /* Уменьшено для компактности в уровень с HUD */
+    height: 45px !important; 
     padding: 0 !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 15px !important;
-    font-size: 26px !important;
+    border-radius: 12px !important;
+    font-size: 20px !important;
     background: rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 79, 216, 0.6) !important;
     z-index: 100;
 }
 
-/* --- МАГАЗИН (ОБНОВЛЕНО: ЗАГОЛОВОК СВЕРХУ) --- */
+/* --- МАГАЗИН (ЧЕТКИЙ СЧЕТ КАК В МЕНЮ) --- */
 #shop {
     justify-content: flex-start !important; 
     padding: 40px 20px 60px 20px !important;
@@ -153,7 +153,6 @@ button:active { transform: scale(0.95); }
 
 #shop::-webkit-scrollbar { width: 0; background: transparent; }
 
-/* Тот самый эффект МАГАЗИН сверху */
 .shop-title {
     color: white;
     font-size: 42px;
@@ -172,7 +171,6 @@ button:active { transform: scale(0.95); }
     to { transform: scale(1.05); text-shadow: 0 0 20px #ff4fd8, 0 0 40px #00eaff; }
 }
 
-/* Плашка баланса (теперь под заголовком) */
 .shop-balance-container {
     display: flex;
     justify-content: center;
@@ -182,24 +180,27 @@ button:active { transform: scale(0.95); }
 }
 
 .shop-balance-wrapper {
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #00eaff;
-    border-radius: 50px;
-    padding: 10px 25px;
+    background: rgba(0, 0, 0, 0.7) !important; /* Прозрачность как в меню */
+    backdrop-filter: blur(15px);
+    border: 2px solid #ff4fd8 !important; /* Цвет как в меню */
+    border-radius: 30px !important;
+    padding: 12px 25px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
     min-width: 120px;
     justify-content: center;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
 }
 
-/* Добавлен класс для анимации прыжка баланса при покупке */
 .balance-bump {
     transform: scale(1.2);
-    border-color: #ff4fd8;
-    box-shadow: 0 0 30px rgba(255, 79, 216, 0.8);
+    border-color: #00eaff !important;
+    box-shadow: 0 0 30px rgba(0, 234, 255, 0.8) !important;
 }
 
 .shop-container {
@@ -386,60 +387,45 @@ button:active { transform: scale(0.95); }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- HUD (ОБНОВЛЕННЫЙ: КРУПНЫЙ И ЯРКИЙ СЧЕТ) --- */
+/* --- HUD (ОБНОВЛЕННЫЙ: КОМПАКТНАЯ ПОЛОСКА В УРОВЕНЬ С ДОМИКОМ) --- */
 #hud {
     position: absolute; 
-    top: 30px; 
-    left: 20px;
-    background: rgba(0, 0, 0, 0.7); 
-    backdrop-filter: blur(15px);
-    padding: 12px 25px; 
-    border-radius: 25px;
-    border: 3px solid #ff4fd8; 
+    top: 15px; /* Совпадает с top кнопки #backBtn */
+    left: 15px;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(10px);
+    padding: 6px 15px; /* Уменьшены отступы */
+    border-radius: 15px;
+    border: 2px solid #ff4fd8; 
     color: white; 
     z-index: 100;
-    font-size: 32px; 
+    font-size: 18px; /* Уменьшен размер шрифта */
     font-weight: 900;
-    font-family: 'Arial Black', sans-serif;
     display: flex; 
     align-items: center; 
-    gap: 15px;
-    box-shadow: 0 0 20px rgba(255, 79, 216, 0.6), inset 0 0 10px rgba(255, 79, 216, 0.4);
-    text-shadow: 0 0 10px #ff4fd8;
-    transition: transform 0.1s ease-out; /* Для пульсации из JS */
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
+    height: 45px; /* Фиксированная высота как у кнопки #backBtn */
+    box-sizing: border-box;
 }
 
 .ice-icon {
-    width: 35px; /* Увеличен размер для HUD */
-    height: 35px;
+    width: 24px; /* Уменьшен размер иконки для HUD */
+    height: 24px;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
     display: inline-block;
-    filter: drop-shadow(0 0 8px #fff);
 }
 
 /* --- КОМБО --- */
 #combo-container {
-    position: absolute; top: 110px; left: 30px;
+    position: absolute; top: 80px; left: 20px;
     display: flex; flex-direction: column; z-index: 110; pointer-events: none;
 }
 
 #combo-ui {
-    font-size: 68px; font-weight: 900; color: #fff; font-style: italic;
+    font-size: 50px; font-weight: 900; color: #fff; font-style: italic;
     text-shadow: 0 0 15px #fff, 0 0 30px #ff4fd8, 0 0 50px #ff00ff;
-    animation: comboPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-/* Доп. класс для супер-комбо (интеграция с JS) */
-.combo-epic {
-    color: #00eaff !important;
-    text-shadow: 0 0 20px #00eaff, 0 0 40px #fff !important;
-}
-
-@keyframes comboPop {
-    0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
-    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 /* --- ПРЕПЯТСТВИЕ --- */
@@ -451,7 +437,7 @@ button:active { transform: scale(0.95); }
     background-position: center;
     z-index: 90;
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-    transition: left 0.2s ease-out; /* Плавное притяжение магнитом */
+    transition: left 0.2s ease-out;
 }
 
 /* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
@@ -465,7 +451,6 @@ button:active { transform: scale(0.95); }
     background: url('assets/berry.png') no-repeat center center !important;
     background-size: contain !important; 
     z-index: 99;
-    transition: left 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), transform 0.2s;
 }
 
 .shield-aura::after {
@@ -474,16 +459,13 @@ button:active { transform: scale(0.95); }
     top: -20px; left: -20px; right: -20px; bottom: -20px;
     border: 5px solid #00eaff;
     border-radius: 50%;
-    box-shadow: 
-        0 0 20px #00eaff, 
-        inset 0 0 20px #00eaff,
-        0 0 40px rgba(0, 234, 255, 0.5);
+    box-shadow: 0 0 20px #00eaff;
     animation: shieldJuicy 0.5s infinite alternate;
 }
 
 @keyframes shieldJuicy {
-    from { transform: scale(1); filter: brightness(1.2) contrast(1.2); }
-    to { transform: scale(1.15); filter: brightness(0.8) contrast(1); }
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(1.1); opacity: 0.7; }
 }
 
 .magnet-aura::before {
@@ -491,14 +473,14 @@ button:active { transform: scale(0.95); }
     position: absolute;
     top: -45px; left: -45px; right: -45px; bottom: -45px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(191, 0, 255, 0.5) 0%, rgba(191, 0, 255, 0) 70%);
-    border: 3px dashed rgba(191, 0, 255, 0.8);
+    background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%);
+    border: 2px dashed rgba(191, 0, 255, 0.6);
     animation: magnetRotation 0.8s linear infinite;
 }
 
 @keyframes magnetRotation {
-    from { transform: rotate(0deg) scale(1); }
-    to { transform: rotate(360deg) scale(1.2); }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* --- БОНУСЫ --- */
@@ -516,22 +498,15 @@ button:active { transform: scale(0.95); }
     border-radius: 50% !important; 
     display: flex; justify-content: center; align-items: center;
     padding: 0 !important;
-    animation: floatBtn 3s ease-in-out infinite; 
 }
 
-.bonus-btn img { width: 35px !important; height: 35px !important; object-fit: contain !important; }
+.bonus-btn img { width: 35px !important; height: 35px !important; }
 
 .bonus-btn span {
     position: absolute; bottom: -5px; right: -5px; font-size: 14px;
     background: #ff4fd8; padding: 2px 6px; border-radius: 10px; border: 1px solid white;
 }
 
-@keyframes floatBtn {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
-/* Слой для частиц, чтобы они были поверх всего */
 #effects-layer {
     position: absolute;
     top: 0; left: 0;
@@ -540,7 +515,6 @@ button:active { transform: scale(0.95); }
     z-index: 1000;
 }
 
-/* Анимация затухания вспышки при комбо */
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
