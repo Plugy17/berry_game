@@ -59,7 +59,7 @@ function createRainDrop(containerId) {
     drop.style.animationDuration = duration + "s";
     
     container.appendChild(drop);
-    setTimeout(() => drop.remove(), duration * 1000);
+    setTimeout(() => { if(drop.parentNode) drop.remove(); }, duration * 1000);
 }
 
 function startIceRain(id) {
@@ -92,18 +92,19 @@ function createExplosion(x, y, isGold = false) {
         if(isGold) particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
         
         layer.appendChild(particle);
-        setTimeout(() => particle.remove(), 600);
+        setTimeout(() => { if(particle.parentNode) particle.remove(); }, 600);
     }
 }
 
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    if(!layer) return;
     const boom = document.createElement('div');
     boom.className = 'cube-boom';
     boom.style.left = x + 'px';
     boom.style.top = y + 'px';
     layer.appendChild(boom);
-    setTimeout(() => boom.remove(), 500);
+    setTimeout(() => { if(boom.parentNode) boom.remove(); }, 500);
 }
 
 // --- FIREBASE ---
@@ -176,13 +177,15 @@ function updateBonusUI() {
 // --- ИГРОВОЙ ПРОЦЕСС ---
 function startGame() {
     if (!nick) {
-        const val = document.getElementById("nick").value.trim();
+        const nickInput = document.getElementById("nick");
+        const val = nickInput ? nickInput.value.trim() : "";
         if (val.length < 2) return alert("Введи имя!");
         nick = val; localStorage.setItem("nick", nick);
     }
     stopIceRain(); 
     document.getElementById("gameOverScreen").classList.add("hidden");
-    const mode = document.getElementById("difficulty").value;
+    const modeSelect = document.getElementById("difficulty");
+    const mode = modeSelect ? modeSelect.value : "normal";
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
     document.getElementById("menu").classList.add("hidden");
@@ -202,7 +205,8 @@ function resetGame() {
     
     p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
-    document.getElementById("combo-ui").classList.add("hidden");
+    const comboUi = document.getElementById("combo-ui");
+    if(comboUi) comboUi.classList.add("hidden");
     updateScore(); 
     spawnObstacle();
     updateBonusUI();
@@ -212,10 +216,12 @@ function resetGame() {
 
 function spawnObstacle() {
     const obs = document.getElementById("obstacle");
+    if(!obs) return;
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
     
-    const mode = document.getElementById("difficulty").value;
+    const modeSelect = document.getElementById("difficulty");
+    const mode = modeSelect ? modeSelect.value : "normal";
     const rand = Math.random();
     
     if (mode === "hard" && rand < 0.05) {
@@ -238,17 +244,17 @@ function update() {
     
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
+    if(!obs || !p) return;
+
     const playerTop = window.innerHeight * 0.75; 
 
     // --- ПЛАВНОЕ ПЕРЕМЕЩЕНИЕ И НАКЛОН ---
-    let currentX = parseFloat(p.style.left);
+    let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let targetX = lanes[targetLane];
     
-    // Плавное сближение с целевой полосой (интерполяция)
     let newX = currentX + (targetX - currentX) * 0.15;
     p.style.left = newX + "%";
     
-    // Наклон зависит от скорости смены полосы
     let tilt = (targetX - currentX) * 2.5; 
     p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
 
@@ -263,15 +269,15 @@ function update() {
     
     obs.style.top = obstacleY + "px";
     
-    // Улучшенная проверка коллизии (по координатам)
-    if (Math.abs(newX - lanes[obstacleLane]) < 5 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
+    if (Math.abs(newX - parseFloat(obs.style.left)) < 8 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
     
     if (obstacleY > window.innerHeight) {
         if (isPullable) { 
             comboCount = 0; comboMultiplier = 1; 
-            document.getElementById("combo-ui").classList.add("hidden"); 
+            const cui = document.getElementById("combo-ui");
+            if(cui) cui.classList.add("hidden"); 
         }
         spawnObstacle();
     }
@@ -300,7 +306,7 @@ function handleCollision(obs, p) {
         comboMultiplier = comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
 
         const ui = document.getElementById("combo-ui");
-        if(comboMultiplier > 1) { 
+        if(ui && comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
             ui.classList.remove("hidden");
             ui.style.animation = 'none';
@@ -342,15 +348,17 @@ function updateScore() {
 
 function gameOver() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId); // Останавливаем цикл
+    if (loopId) cancelAnimationFrame(loopId); 
     
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
     
     const goScreen = document.getElementById("gameOverScreen");
-    goScreen.classList.remove("hidden");
-    document.getElementById("final-score").innerText = coins; 
+    if(goScreen) {
+        goScreen.classList.remove("hidden");
+        document.getElementById("final-score").innerText = coins; 
+    }
     
     const revBtn = document.getElementById("revive-btn");
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && goldenIce > 0) ? "block" : "none";
@@ -389,7 +397,8 @@ function buyItem(type) {
 function useShield() {
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
         inventory.shield--; shieldActive = true;
-        document.getElementById("player").classList.add("shield-aura");
+        const p = document.getElementById("player");
+        if(p) p.classList.add("shield-aura");
         updateBonusUI();
     }
 }
@@ -397,12 +406,13 @@ function useShield() {
 function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
         inventory.magnet--; magnetActive = true;
-        document.getElementById("player").classList.add("magnet-aura");
+        const p = document.getElementById("player");
+        if(p) p.classList.add("magnet-aura");
         updateBonusUI();
         setTimeout(() => {
             magnetActive = false;
-            if(document.getElementById("player")) 
-                document.getElementById("player").classList.remove("magnet-aura");
+            const pNow = document.getElementById("player");
+            if(pNow) pNow.classList.remove("magnet-aura");
         }, 10000);
     }
 }
@@ -410,12 +420,12 @@ function useMagnet() {
 function openLeaderboard() {
     const lbScreen = document.getElementById("leaderboardScreen");
     const list = document.getElementById("leaderboard-list");
+    if(!lbScreen || !list) return;
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
     list.innerHTML = "<div class='loading'>Загрузка уровней...</div>";
 
     if(window.db) {
-        // СОРТИРОВКА ПО УРОВНЮ (LEVEL)
         db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
             let players = [];
@@ -465,4 +475,13 @@ document.addEventListener("touchend", e => {
     if (Math.abs(diff) < 25) return;
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
+});
+
+// ДОБАВЛЕНО: УПРАВЛЕНИЕ КЛАВИАТУРОЙ
+document.addEventListener("keydown", e => {
+    if (!gameRunning) return;
+    if (e.key === "ArrowLeft") targetLane = Math.max(0, targetLane - 1);
+    if (e.key === "ArrowRight") targetLane = Math.min(3, targetLane + 1);
+    if (e.key === "1") useShield();
+    if (e.key === "2") useMagnet();
 });
