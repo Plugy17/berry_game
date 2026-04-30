@@ -324,7 +324,7 @@ button:active { transform: scale(0.95); }
 }
 
 /* АУРЫ */
-/* ПРАВКА: Ограничили размер ауры щита, чтобы не закрывала экран */
+/* ПРАВКА: Ограничили размер ауры щита и магнита, чтобы не закрывала экран */
 .shield-aura::after { 
     content: ''; 
     position: absolute; 
@@ -337,6 +337,22 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px #00eaff; 
     pointer-events: none;
     animation: shieldJuicy 0.5s infinite alternate; 
+}
+
+/* ДОБАВЛЕНО: Визуальный эффект магнита вокруг игрока */
+.magnet-aura::before {
+    content: '';
+    position: absolute;
+    top: -15px; left: -15px; right: -15px; bottom: -15px;
+    border: 2px dashed #00e5ff;
+    border-radius: 50%;
+    animation: rotateMagnet 2s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes rotateMagnet {
+    from { transform: rotate(0deg); opacity: 0.7; }
+    to { transform: rotate(360deg); opacity: 0.3; }
 }
 
 @keyframes shieldJuicy { from { opacity: 0.5; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
@@ -421,6 +437,7 @@ button:active { transform: scale(0.95); }
     background-repeat: no-repeat !important;
     background-position: center !important; 
     pointer-events: none;
+    box-sizing: border-box; /* Чтобы padding не раздувал объект */
 }
 
 /* ПРАВКА: ЩИТ в игровом процессе (чтобы не был гигантским) */
