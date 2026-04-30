@@ -35,14 +35,14 @@ body {
 .hidden { display: none !important; }
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
-/* ПРАВКА: z-index 500+, чтобы быть ГАРАНТИРОВАННО выше торта и всех эффектов на фоне */
+/* ПРАВКА: z-index 5, чтобы они были ПОД кнопками и интерфейсом */
 .ice-drop, .falling-ice-anim {
     position: absolute;
     width: 50px !important; 
     height: 50px !important;
     background: url('assets/icecream.png') no-repeat center center;
     background-size: contain;
-    z-index: 500 !important; 
+    z-index: 5 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
     opacity: 1 !important; /* Всегда видим */
@@ -54,7 +54,7 @@ body {
     height: 55px !important;
     background: url('assets/golden_ice.png') no-repeat center center;
     background-size: contain;
-    z-index: 501 !important; 
+    z-index: 6 !important; 
     pointer-events: none;
     animation: iceFall linear forwards;
     filter: drop-shadow(0 0 15px #ffea00);
@@ -223,11 +223,18 @@ button:active { transform: scale(0.95); }
     box-sizing: border-box;
 }
 
+/* ЭФФЕКТ ВРАЩЕНИЯ ДЛЯ ЩИТА И МАГНИТА В МАГАЗИНЕ */
 .shop-item img {
     width: 50px;
     height: 50px;
     object-fit: contain;
     margin-bottom: 10px;
+    animation: rotateElement 4s linear infinite; /* ПРАВКА: Вращение */
+}
+
+@keyframes rotateElement {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .shop-section-title {
@@ -296,7 +303,7 @@ button:active { transform: scale(0.95); }
     white-space: nowrap;
 }
 
-.ice-icon, .golden-ice-icon-small {
+.ice-icon, .golden-ice-icon-small, .diamond-icon-small {
     width: 24px; height: 24px;
     background-size: contain;
     background-repeat: no-repeat;
@@ -306,6 +313,11 @@ button:active { transform: scale(0.95); }
 .golden-ice-icon-small { 
     background-image: url('assets/golden_ice.png'); 
     filter: drop-shadow(0 0 5px #ffea00);
+}
+/* НОВАЯ ВАЛЮТА ДЛЯ ВОЗРОЖДЕНИЯ */
+.diamond-icon-small {
+    background-image: url('assets/diamond.png');
+    filter: drop-shadow(0 0 5px #00eaff);
 }
 
 /* --- ПЕРСОНАЖ --- */
@@ -377,6 +389,7 @@ button:active { transform: scale(0.95); }
     text-transform: uppercase;
 }
 
+/* ПРАВКА: VIP МАГАЗИН стал просто МАГАЗИН */
 .vip-btn {
     border-color: #ffd700 !important;
     color: #ffd700 !important;
@@ -392,6 +405,15 @@ button:active { transform: scale(0.95); }
     display: flex !important; 
     gap: 20px !important; 
     z-index: 1000 !important; 
+}
+
+/* ПУСТЫЕ ЯЧЕЙКИ В БАФФАХ */
+.buff-slot-empty {
+    width: 65px;
+    height: 65px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    background: rgba(0,0,0,0.3);
 }
 
 .lvl-badge, #count-shield, #count-magnet {
@@ -475,7 +497,7 @@ button:active { transform: scale(0.95); }
     min-height: 45px !important;
     object-fit: contain !important;
     transform: none !important;
-    animation: none !important;
+    animation: rotateElement 4s linear infinite; /* ВРАЩЕНИЕ ВЕЗДЕ */
     position: relative !important;
     margin: 0 !important;
     top: auto !important;
@@ -510,18 +532,34 @@ button img {
     max-width: 25px !important;
 }
 
-/* ДОБАВЛЕНО: Специфические фиксы для VIP магазина и обмена */
+/* ДОБАВЛЕНО: Специфические фиксы для МАГАЗИНА и обмена */
 .vip-card {
     border: 2px solid #ffd700 !important;
 }
 
 .exchange-card {
     background: rgba(255, 215, 0, 0.1) !important;
-    border: 1px dashed #ffd700 !important;
+    border: 2px dashed #ffd700 !important;
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
 }
 
 .buy-button.gold {
     background: linear-gradient(180deg, #ffd700, #b8860b) !important;
     color: black !important;
     border: 1px solid #fff !important;
+}
+
+/* СТИЛЬ ДЛЯ ЯЧЕЙКИ ОБМЕНА В БАФФАХ */
+.exchange-slot-beauty {
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
