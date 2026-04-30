@@ -63,7 +63,7 @@ body {
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
-/* --- КОМБО ЭФФЕКТЫ (ДОБАВЛЕНО) --- */
+/* --- КОМБО ЭФФЕКТЫ --- */
 #combo-ui {
     position: absolute;
     top: 20%;
@@ -75,6 +75,11 @@ body {
     text-shadow: 0 0 20px rgba(255, 235, 59, 0.9), 3px 3px 0px #000;
     z-index: 200;
     pointer-events: none;
+}
+
+/* Добавлена анимация для плавного появления комбо */
+.combo-active {
+    animation: comboPop 0.3s ease-out forwards;
 }
 
 @keyframes comboPop {
@@ -171,78 +176,93 @@ button:active { transform: scale(0.95); }
     z-index: 100;
 }
 
-/* --- МАГАЗИН И VIP --- */
+/* --- МАГАЗИН (ИСПРАВЛЕНО) --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
-    padding: 40px 20px 60px 20px !important;
+    padding: 20px !important;
     box-sizing: border-box;
     overflow-y: auto !important; 
     touch-action: pan-y !important; 
-    -webkit-overflow-scrolling: touch;
 }
 
-.shop-title {
-    color: white;
-    font-size: 42px;
-    font-weight: 900;
-    margin: 20px 0 10px 0;
-    text-transform: uppercase;
-    text-align: center;
-    letter-spacing: 4px;
-    text-shadow: 0 0 15px #ff4fd8, 0 0 30px #ff4fd8;
-    z-index: 20;
-    animation: neonGlow 2s infinite alternate;
+.shop-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+    max-width: 350px;
+    margin-top: 10px;
 }
 
 .shop-item {
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255, 79, 216, 0.3);
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 79, 216, 0.4);
     border-radius: 15px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 45%;
-    min-width: 140px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.vip-card {
-    border: 2px solid #ffd700 !important;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+.shop-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-bottom: 10px;
 }
 
-.buy-button.gold {
-    background: linear-gradient(180deg, #ffd700, #ff8c00) !important;
-    color: black !important;
-    border: none !important;
+.shop-section-title {
+    color: #ff4fd8;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 20px 0 10px 0;
+    text-transform: uppercase;
 }
 
-/* --- БАЛАНС И HUD (ФИКС НАЛОЖЕНИЯ) --- */
+/* --- ЛИДЕРБОРД --- */
+.leaderboard-item {
+    background: rgba(255, 255, 255, 0.05);
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 20px;
+    margin: 5px 0;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- БАЛАНС И HUD --- */
 .top-bar-container {
+    position: absolute;
+    top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
     width: 100%;
+    z-index: 100;
 }
 
 .balance-info, #hud {
-    background: rgba(0, 0, 0, 0.7) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
     border: 2px solid #ff4fd8 !important;
-    border-radius: 15px !important;
-    padding: 10px 20px !important;
+    border-radius: 20px !important;
+    padding: 8px 15px !important;
     display: flex !important;
-    flex-direction: row !important; /* В одну строку */
-    gap: 15px !important;
+    flex-direction: row !important;
+    gap: 20px !important;
     align-items: center !important;
-    width: fit-content !important;
-    max-width: 90%;
+    width: auto !important;
 }
 
 .currency-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 18px;
     font-weight: 900;
     color: white;
@@ -250,7 +270,7 @@ button:active { transform: scale(0.95); }
 }
 
 .ice-icon, .golden-ice-icon-small {
-    width: 22px; height: 22px;
+    width: 24px; height: 24px;
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -272,7 +292,8 @@ button:active { transform: scale(0.95); }
     background: url('assets/berry.png') no-repeat center center !important; 
     background-size: contain !important; 
     z-index: 99; 
-    transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s ease-out; 
+    /* Плавный переход для движения и поворота */
+    transition: left 0.1s linear, transform 0.1s linear; 
 }
 
 #player.skin-ice {
@@ -299,4 +320,22 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 5px #ffd700;
 }
 
-#bonus-panel { position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 110; }
+#bonus-panel { 
+    position: absolute; 
+    bottom: 35px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    display: flex; 
+    gap: 20px; 
+    z-index: 110; 
+}
+
+/* Стили для уровней в лидерборде */
+.lvl-badge {
+    background: #00eaff;
+    color: black;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 900;
+}
