@@ -742,3 +742,30 @@ button:active { transform: scale(0.95); }
     margin-bottom: 10px !important;
 }
 
+/* --- ФИКС КНОПОК "НАЗАД" ИЗ HTML --- */
+/* Находим кнопки по классу .sub-btn, которые стоят в конце экранов (Магазин, Баффы, Рейтинг) */
+#shop .sub-btn, 
+#realShop .sub-btn, 
+#leaderboardScreen .sub-btn,
+#gameOverScreen .sub-btn {
+    width: 260px !important;    /* Увеличиваем ширину */
+    height: 60px !important;    /* Увеличиваем высоту */
+    font-size: 20px !important; /* Делаем текст крупнее */
+    margin: 30px auto !important; /* Добавляем отступ сверху */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 15px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+}
+
+/* Эффект при нажатии на "НАЗАД" */
+#shop .sub-btn:active, 
+#realShop .sub-btn:active, 
+#leaderboardScreen .sub-btn:active {
+    transform: scale(0.95) !important;
+}
+
