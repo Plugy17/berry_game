@@ -175,6 +175,40 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
 
+#pauseBtn {
+    position: absolute; 
+    top: 20px; 
+    left: 20px; /* В левом углу */
+    width: 75px !important;
+    height: 75px !important; 
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    border: none !important; 
+    background-color: transparent !important; 
+    box-shadow: none !important;
+    outline: none !important;
+
+    /* По умолчанию стоит иконка паузы */
+    background: url('assets/pause.png') no-repeat center center !important;
+    background-size: contain !important; 
+    
+    z-index: 1000; /* Поверх всего */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#pauseBtn:active {
+    transform: scale(0.9);
+}
+
+/* Класс, который мы будем добавлять через JS, когда игра на паузе */
+#pauseBtn.is-paused {
+    background: url('assets/play.png') no-repeat center center !important;
+    background-size: contain !important;
+}
 /* ПРАВКА: Иконка домика home.png */
 #backBtn {
     position: absolute; 
