@@ -519,8 +519,50 @@ button:active { transform: scale(0.95); }
     80% { transform: translate(10px, 5px); }
 }
 
-/* --- VIP МАГАЗИН --- */
+/* --- VIP МАГАЗИН И ПРАВКИ ЯЧЕЕК --- */
 .vip-card { border: 2px solid #ffd700 !important; }
+
+/* ПРАВКА 1: Ячейка с ценой (компактные кнопки вместо квадратов) */
+.vip-card button, .shop-item button {
+    width: 80% !important;
+    height: auto !important;
+    padding: 10px 15px !important;
+    margin: 10px auto !important;
+    font-size: 1.2rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 12px !important;
+}
+
+/* Стили для иконок внутри кнопок */
+.vip-card button .diamond-icon-small,
+.vip-card button .golden-ice-icon-small {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* ПРАВКА 2: Ячейки дилеров (темный фон и тени) */
+.dealer-card {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(5px);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    margin-top: 15px;
+}
+
+.dealer-card h3 {
+    color: #ffeb3b;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
 
 .exchange-card {
     background: rgba(255, 215, 0, 0.1) !important;
@@ -549,7 +591,7 @@ button:active { transform: scale(0.95); }
     margin-top: 15px;
 }
 
-/* Иконки ресурсов (алмаз, голд мороженое и т.д.) */
+/* Иконки ресурсов */
 .resource-icon {
     width: 20px;
     height: 20px;
@@ -559,7 +601,7 @@ button:active { transform: scale(0.95); }
     pointer-events: none;
 }
 
-/* Кнопка паузы и домика (из предыдущих правок) */
+/* Кнопка паузы и домика */
 #pauseBtn, #backBtn {
     position: absolute;
     top: 20px;
