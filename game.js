@@ -11,7 +11,7 @@ let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
 
-// Переменные профиля
+// Переменные профиля - ТУТ ОСТАВЛЯЕМ let
 let nick = "Игрок";
 let playerID = "Guest"; 
 let coins = 0;
@@ -22,7 +22,7 @@ let goldenIce = 0;
 let diamonds = 0; 
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
-let usedReviveThisRun = false; 
+let usedReviveThisRun = false;
 
 let inventory = JSON.parse(localStorage.getItem('inventory')) || {
     coins: 0,
@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        // УБРАЛИ 'let' ПЕРЕД playerID и nick! Просто присваиваем значение.
         playerID = tg.initDataUnsafe.user.id.toString();
         nick = tg.initDataUnsafe.user.first_name || "Игрок";
         loadUserData(playerID);
@@ -72,8 +73,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!savedNick) {
             document.getElementById('auth-screen')?.classList.remove('hidden'); 
         } else {
-            nick = savedNick;
-            playerID = localStorage.getItem('playerID') || savedNick;
+            nick = savedNick; // БЕЗ let
+            playerID = localStorage.getItem('playerID') || savedNick; // БЕЗ let
             loadUserData(playerID);
             showLoaderAndGoToMenu(savedNick);
         }
