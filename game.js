@@ -36,8 +36,8 @@ let level = 1;
 let xp = 0;
 const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
 
-const PRICES = { magnet: 30, shield: 50, goldenConvert: 5000 };
-const VIP_PRICES = { skin: 3, slot: 5, diamond: 50000 };
+const PRICES = { magnet: 200, shield: 400, goldenConvert: 1500 };
+const VIP_PRICES = { skin: 3, slot: 3, diamond: 10000 };
 
 let shieldActive = false;
 let magnetActive = false;
@@ -57,7 +57,7 @@ const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 /* --- ФУНКЦИИ МАГАЗИНА И ИНВЕНТАРЯ --- */
 
 function buyItem(item) {
-    const prices = { shield: 50, magnet: 30 };
+    const prices = { shield: 400, magnet: 200 };
     const price = prices[item];
 
     if (totalCoins >= price) {
@@ -154,7 +154,7 @@ function updateShopUI() {
         <div class="dealer-card gold-card translucent-glass">
             <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
             <div class="price-row">
-                <span class="price-val">5000</span> <div class="ice-icon"></div> 
+                <span class="price-val">1500</span> <div class="ice-icon"></div> 
                 <span class="equal-sign">=</span> 
                 <span class="price-val">1</span> <div class="golden-ice-icon-small"></div>
             </div>
@@ -163,7 +163,7 @@ function updateShopUI() {
         <div class="dealer-card diamond-card translucent-glass">
             <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
             <div class="price-row">
-                <span class="price-val">50,000</span> <div class="ice-icon"></div> 
+                <span class="price-val">10000</span> <div class="ice-icon"></div> 
                 <span class="equal-sign">=</span> 
                 <span class="price-val">1</span> <div class="diamond-icon-small"></div>
             </div>
