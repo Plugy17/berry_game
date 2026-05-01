@@ -175,72 +175,6 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
 
-#pauseBtn {
-    position: absolute; 
-    top: 20px; 
-    left: 20px; /* В левом углу */
-    width: 75px !important;
-    height: 75px !important; 
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    border: none !important; 
-    background-color: transparent !important; 
-    box-shadow: none !important;
-    outline: none !important;
-
-    /* По умолчанию стоит иконка паузы */
-    background: url('assets/pause.png') no-repeat center center !important;
-    background-size: contain !important; 
-    
-    z-index: 1000; /* Поверх всего */
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-#pauseBtn:active {
-    transform: scale(0.9);
-}
-
-/* Класс, который мы будем добавлять через JS, когда игра на паузе */
-#pauseBtn.is-paused {
-    background: url('assets/play.png') no-repeat center center !important;
-    background-size: contain !important;
-}
-/* ПРАВКА: Иконка домика home.png */
-#backBtn {
-    position: absolute; 
-    top: 20px; 
-    right: 20px; 
-    /* ПРАВКА: Твой размер 75px */
-    width: 75px !important;
-    height: 75px !important; 
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* ПРАВКА: Убираем ВСЁ лишнее (рамки, фон, тени) */
-    border: none !important; 
-    background-color: transparent !important; 
-    box-shadow: none !important;
-    outline: none !important; /* Убирает контур при нажатии */
-
-    /* Указываем картинку */
-    background: url('assets/home.png') no-repeat center center !important;
-    background-size: contain !important; /* contain гарантирует, что 75px будет по большей стороне */
-    
-    z-index: 100;
-    cursor: pointer;
-    transition: transform 0.2s ease; /* Добавим мягкий эффект при нажатии */
-}
-
-/* Эффект нажатия, раз уж у нас нет рамок */
-#backBtn:active {
-    transform: scale(0.9);
-}
 /* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
@@ -271,33 +205,12 @@ button:active { transform: scale(0.95); }
     box-sizing: border-box;
 }
 
-.shop-item img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    margin-bottom: 10px;
-}
-
 .shop-section-title {
     color: #ff4fd8;
     font-size: 18px;
     font-weight: 800;
     margin: 20px 0 10px 0;
     text-transform: uppercase;
-}
-
-/* --- ЛИДЕРБОРД --- */
-.leaderboard-item {
-    background: rgba(255, 255, 255, 0.05);
-    width: 100%;
-    max-width: 300px;
-    padding: 12px 20px;
-    margin: 5px 0;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* --- БАЛАНС И HUD --- */
@@ -335,27 +248,14 @@ button:active { transform: scale(0.95); }
     white-space: nowrap;
 }
 
-.currency-row span {
-    font-size: 18px !important;
-    color: white !important;
-    display: inline-block !important; 
-}
-
-.ice-icon, .golden-ice-icon-small, .diamond-icon-small {
-    width: 24px; height: 24px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.ice-icon { background-image: url('assets/icecream.png'); }
-
 .golden-ice-icon-small { 
     background-image: url('assets/golden_ice.png'); 
     filter: drop-shadow(0 0 8px #ffea00) brightness(1.2);
     width: 32px !important; 
     height: 32px !important; 
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
 }
 
 .diamond-icon-small {
@@ -363,6 +263,9 @@ button:active { transform: scale(0.95); }
     filter: drop-shadow(0 0 5px #00eaff);
     width: 28px !important;
     height: 28px !important;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
 }
 
 /* --- ПЕРСОНАЖ --- */
@@ -379,229 +282,81 @@ button:active { transform: scale(0.95); }
     transition: left 0.1s linear, transform 0.1s linear; 
 }
 
-#player.skin-ice {
-    filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px #00eaff);
+/* --- НОВЫЕ ПРАВКИ: ДИЛЕРЫ И УНИФИКАЦИЯ --- */
+
+/* Эффект прозрачного стекла и теней для дилеров */
+.translucent-glass {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
+                inset 0 0 10px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 12px !important;
+    margin-top: 15px;
 }
 
-/* АУРЫ */
-.shield-aura::after { 
-    content: ''; 
-    position: absolute; 
-    top: -10px !important; 
-    left: -10px !important; 
-    right: -10px !important; 
-    bottom: -10px !important; 
-    border: 4px solid #00eaff; 
-    border-radius: 50%; 
-    box-shadow: 0 0 20px #00eaff; 
-    pointer-events: none;
-    animation: shieldJuicy 0.5s infinite alternate; 
-    z-index: -1;
-}
-
-.magnet-aura::before {
-    content: '';
-    position: absolute;
-    top: -15px; left: -15px; right: -15px; bottom: -15px;
-    border: 2px dashed #00e5ff;
-    border-radius: 50%;
-    animation: rotateMagnet 2s linear infinite;
-    pointer-events: none;
-    z-index: -1;
-}
-
-@keyframes rotateMagnet {
-    from { transform: rotate(0deg); opacity: 0.7; }
-    to { transform: rotate(360deg); opacity: 0.3; }
-}
-
-@keyframes shieldJuicy { from { opacity: 0.5; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
-
-/* --- МЕНЮ --- */
-.menu-controls {
-    position: relative;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.dealers-wrapper {
+    grid-column: 1 / -1;
     width: 100%;
-    margin-top: 20px;
-    gap: 10px; 
 }
 
-.footer-logo, .berry-runner-title-black {
-    display: none !important;
-}
-
-.welcome-text {
-    font-size: 32px !important; 
+.dealer-title {
+    font-size: 14px !important;
+    margin: 0 0 8px 0 !important;
+    letter-spacing: 1px;
     font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 15px #ff4fd8, 0 0 5px #000, 2px 2px 5px #000 !important; 
-    margin-bottom: 25px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    text-align: center;
+}
+.gold-text { color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
+.diamond-text { color: #00eaff; text-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
+
+/* Компактные кнопки */
+.compact-btn {
+    width: auto !important;
+    min-width: 100px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+    padding: 0 15px !important;
+    line-height: 28px !important;
+    border-radius: 8px !important;
+    margin: 5px auto 0 auto !important;
+    display: block;
+    box-shadow: none !important;
 }
 
-/* --- КНОПКИ БАФФОВ В ИГРЕ --- */
-#bonus-panel { 
-    position: fixed !important; 
-    bottom: 30px !important; 
-    left: 50% !important; 
-    transform: translateX(-50%) !important; 
-    display: flex !important; 
-    gap: 30px !important; 
-    z-index: 1000 !important; 
-    background: none !important; 
-    border: none !important;
+.diamond-bg {
+    background: linear-gradient(180deg, #00eaff, #0077ff) !important;
 }
 
-.bonus-btn-wrapper {
-    position: relative;
-    width: 70px;
-    height: 70px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid #ff4fd8;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
-    cursor: pointer;
-}
-
-/* ПРАВКА: Иконки щита и магнита из твоих ассетов */
-#btn-use-shield { background: rgba(0,0,0,0.7) url('assets/shield_icon.png') no-repeat center center; background-size: 40px; }
-#btn-use-magnet { background: rgba(0,0,0,0.7) url('assets/magnet_icon.png') no-repeat center center; background-size: 40px; }
-
-.bonus-btn-wrapper:active { transform: scale(0.9); }
-
-.bonus-icon-img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-}
-
-#count-shield, #count-magnet {
-    background: #00eaff;
-    color: black;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 900;
-    position: absolute;
-    top: -5px; 
-    right: -5px;
-}
-
-/* --- ОБЪЕКТЫ --- */
-#obstacle {
-    width: 75px !important; 
-    height: 75px !important;
-    background-size: contain !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important; 
-    pointer-events: none;
-    z-index: 510 !important; 
-    position: absolute;
-}
-
-/* Тряска экрана */
-.shake-anim {
-    animation: shake 0.3s ease-in-out;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translate(0, 0); }
-    20% { transform: translate(-10px, 5px); }
-    40% { transform: translate(10px, -5px); }
-    60% { transform: translate(-10px, -5px); }
-    80% { transform: translate(10px, 5px); }
-}
-
-/* --- VIP МАГАЗИН И ПРАВКИ ЯЧЕЕК --- */
-.vip-card { border: 2px solid #ffd700 !important; }
-
-/* ПРАВКА 1: Ячейка с ценой (компактные кнопки вместо квадратов) */
-.vip-card button, .shop-item button {
-    width: 80% !important;
-    height: auto !important;
-    padding: 10px 15px !important;
-    margin: 10px auto !important;
-    font-size: 1.2rem !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border-radius: 12px !important;
-}
-
-/* Стили для иконок внутри кнопок */
-.vip-card button .diamond-icon-small,
-.vip-card button .golden-ice-icon-small {
-    width: 24px;
-    height: 24px;
+/* Унификация иконок (чтобы icecream.png был везде) */
+.ice-icon {
+    width: 18px;
+    height: 18px;
     display: inline-block;
+    background-image: url('assets/icecream.png');
     background-size: contain;
     background-repeat: no-repeat;
-}
-
-/* ПРАВКА 2: Ячейки дилеров (темный фон и тени) */
-.dealer-card {
-    background: rgba(0, 0, 0, 0.4) !important;
-    backdrop-filter: blur(5px);
-    border: 2px dashed rgba(255, 255, 255, 0.3);
-    border-radius: 15px;
-    padding: 15px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    margin-top: 15px;
-}
-
-.dealer-card h3 {
-    color: #ffeb3b;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-}
-
-.exchange-card {
-    background: rgba(255, 215, 0, 0.1) !important;
-    border: 2px dashed #ffd700 !important;
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 15px;
-}
-
-.buy-button.gold {
-    background: linear-gradient(180deg, #ffd700, #b8860b) !important;
-    color: black !important;
-    border: 1px solid #fff !important;
-}
-
-/* Фикс для иконок в магазине */
-#shop .shop-item img {
-    width: 45px !important;
-    height: 45px !important;
-}
-
-#revive-btn {
-    background: linear-gradient(180deg, #00eaff, #0077ff) !important;
-    border: 2px solid #fff !important;
-    box-shadow: 0 0 20px #00eaff !important;
-    margin-top: 15px;
-}
-
-/* Иконки ресурсов */
-.resource-icon {
-    width: 20px;
-    height: 20px;
     vertical-align: middle;
-    margin: 0 4px;
-    object-fit: contain;
-    pointer-events: none;
 }
 
-/* Кнопка паузы и домика */
+.price-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.equal-sign {
+    opacity: 0.7;
+    margin: 0 4px;
+}
+
+/* УПРАВЛЕНИЕ: ПАУЗА И ДОМ */
 #pauseBtn, #backBtn {
     position: absolute;
     top: 20px;
@@ -613,6 +368,7 @@ button:active { transform: scale(0.95); }
     cursor: pointer;
     z-index: 1000;
     outline: none !important;
+    box-shadow: none !important;
 }
 #pauseBtn { left: 20px; background-image: url('assets/pause.png') !important; }
 #backBtn { right: 20px; background-image: url('assets/home.png') !important; }
