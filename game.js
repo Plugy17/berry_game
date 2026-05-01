@@ -461,37 +461,46 @@ function updateBonusUI() {
     if(mCount) mCount.innerText = inventory.magnet;
 }
 
-function startGame() {
-    console.log("Игра запускается..."); // Для отладки в консоли
+// Универсальная функция переключения экранов
+function showScreen(screenId) {
+    const allScreens = ['menu', 'game', 'shop', 'leaderboardScreen', 'gameOverScreen', 'auth-screen'];
     
-    // 1. Скрываем вообще все возможные окна
-    const screens = ['menu', 'shop', 'leaderboardScreen', 'gameOverScreen', 'auth-screen', 'welcomeScreen'];
-    screens.forEach(id => {
+    allScreens.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
+        if (el) {
+            el.classList.add('hidden');
+            el.style.display = 'none'; // Дублируем для надежности
+        }
     });
 
-    // 2. Показываем игровой холст
-    const gameScreen = document.getElementById("game");
-    if (gameScreen) {
-        gameScreen.classList.remove("hidden");
-        gameScreen.style.display = "block"; // Гарантируем видимость
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.classList.remove('hidden');
+        // Для игры используем flex или block, в зависимости от твоей верстки
+        target.style.display = (screenId === 'game') ? 'block' : 'flex';
     }
+}
 
-    // 3. Показываем кнопки управления
+// Теперь функция запуска игры выглядит так:
+function startGame() {
+    console.log("Запуск игрового процесса...");
+    
+    showScreen('game'); // Прячем всё, показываем игру
+    
+    // Показываем кнопки управления (пауза и т.д.)
     document.getElementById("pauseBtn")?.classList.remove("hidden");
     document.getElementById("backBtn")?.classList.remove("hidden");
 
     stopIceRain(); 
     isPaused = false;
     
+    // Настройка сложности
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
+    baseSpeed = (mode === "easy") ? 5 : (mode === "hard") ? 9 : 7;
+    difficulty = (mode === "easy") ? 0.001 : (mode === "hard") ? 0.003 : 0.002;
     
-    baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
-    difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-    
-    resetGame();
+    resetGame(); // Запуск цикла отрисовки
 }
 
 function togglePause() {
