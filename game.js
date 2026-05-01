@@ -59,26 +59,29 @@ const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 /* --- [НОВОЕ] ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
 
 window.onload = function() {
+    // 1. Сначала запускаем визуальные эффекты (дождь), чтобы меню ожило
     startIceRain("menu");
 
-    // Пытаемся получить данные из Telegram WebApp
-    const tg = window.Telegram?.WebApp;
+    // 2. Безопасная проверка Telegram
+    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        // Если мы в Telegram
         playerID = tg.initDataUnsafe.user.id.toString();
         nick = tg.initDataUnsafe.user.first_name || "Игрок";
-        
-        // Автоматический вход для Telegram
+        localStorage.setItem('playerID', playerID);
+        localStorage.setItem('playerNick', nick);
         loadUserData(playerID);
         showLoaderAndGoToMenu(nick);
     } else {
-        // Логика для браузера (старая)
+        // Если мы в обычном браузере
         const savedNick = localStorage.getItem('playerNick');
         if (!savedNick) {
-            if(document.getElementById('welcomeScreen')) document.getElementById('welcomeScreen').classList.remove('hidden');
-            document.getElementById('menu').classList.add('hidden');
+            // Показываем экран ввода ника, если его нет
+            document.getElementById('welcomeScreen')?.classList.remove('hidden');
         } else {
             nick = savedNick;
-            playerID = savedNick; // В браузере ID равен нику
+            playerID = localStorage.getItem('playerID') || savedNick;
             loadUserData(playerID);
             showLoaderAndGoToMenu(savedNick);
         }
@@ -190,12 +193,13 @@ function updateShopUI() {
     const goldElem = document.getElementById("gold-count");
     const diamElem = document.getElementById("diamond-count");
     
+    // Безопасное обновление текста
     if(coinElem) coinElem.innerText = totalCoins;
     if(goldElem) goldElem.innerText = goldenIce;
     if(diamElem) diamElem.innerText = diamonds;
 
     const shopScreen = document.getElementById('shop'); 
-    if (!shopScreen) return;
+    if (!shopScreen) return; // Если экрана магазина нет в HTML, выходим
 
     let dealersBlock = document.getElementById('dealers-block');
     if (!dealersBlock) {
@@ -205,26 +209,25 @@ function updateShopUI() {
         shopScreen.appendChild(dealersBlock);
     }
 
-    dealersBlock.innerHTML = `
-        <div class="dealer-card gold-card translucent-glass">
-            <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
-            <div class="price-row">
-                <span class="price-val">1500</span> <div class="ice-icon"></div> 
-                <span class="equal-sign">=</span> 
-                <span class="price-val">1</span> <div class="golden-ice-icon-small"></div>
+    // Добавляем проверку перед отрисовкой контента внутри блока
+    if (dealersBlock) {
+        dealersBlock.innerHTML = `
+            <div class="dealer-card gold-card translucent-glass">
+                <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
+                <div class="price-row">
+                    <span class="price-val">1500</span> <div class="ice-icon"></div> = <span class="price-val">1</span> <div class="golden-ice-icon-small"></div>
+                </div>
+                <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
             </div>
-            <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-        </div>
-        <div class="dealer-card diamond-card translucent-glass">
-            <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
-            <div class="price-row">
-                <span class="price-val">10000</span> <div class="ice-icon"></div> 
-                <span class="equal-sign">=</span> 
-                <span class="price-val">1</span> <div class="diamond-icon-small"></div>
+            <div class="dealer-card diamond-card translucent-glass">
+                <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
+                <div class="price-row">
+                    <span class="price-val">10000</span> <div class="ice-icon"></div> = <span class="price-val">1</span> <div class="diamond-icon-small"></div>
+                </div>
+                <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
             </div>
-            <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
-        </div>
-    `;
+        `;
+    }
 }
 
 function saveData() {
@@ -363,23 +366,44 @@ function stopIceRain() {
 
 function createExplosion(x, y, isGold = false) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    // Если слой для эффектов не найден, выходим, чтобы не вызвать ошибку
     if (!layer) return;
+
     const particleCount = 15;
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
+        
         const angle = Math.random() * Math.PI * 2;
         const dist = 80 + Math.random() * 120; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
+        
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
         particle.style.left = x + "px";
         particle.style.top = y + "px";
-        particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
-        if(isGold) particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
-        layer.appendChild(particle);
-        setTimeout(() => { if(particle.parentNode) particle.remove(); }, 600);
+
+        // Проверка: используем картинку, только если переменная определена
+        if (typeof imgGoldenIce !== 'undefined' && typeof imgIceCream !== 'undefined') {
+            particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
+        }
+
+        if (isGold) {
+            particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
+        }
+
+        // Безопасное добавление
+        if (layer) {
+            layer.appendChild(particle);
+        }
+
+        // Безопасное удаление через 600мс
+        setTimeout(() => { 
+            if (particle && particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, 600);
     }
 }
 
@@ -435,14 +459,18 @@ function saveUserData() {
 function updateMenuInfo() {
     const shopBtn = document.getElementById("shop-btn-main");
     if(shopBtn) shopBtn.innerHTML = `МАГАЗИН`;
+
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
         if(welcomeElem) welcomeElem.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
+        
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
+
     const menuLb = document.getElementById("menuLeaderboard");
     if(menuLb) menuLb.innerText = "🏆 РЕКОРД: " + best;
+
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
         totalBal.innerHTML = `
@@ -451,16 +479,20 @@ function updateMenuInfo() {
             <div class="currency-row" style="margin-top:5px; color:#00eaff"><span>${diamonds}</span> ${getDiamondIcon()}</div>
         `;
     }
+
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) {
         shopBalValue.innerHTML = `<span>${totalCoins}</span> ${getIceIcon()} | <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
+
     const vipBalInfo = document.getElementById("vip-balance-info");
     if(vipBalInfo) {
         vipBalInfo.innerHTML = `Баланс: <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
-    updateBonusUI();
-    updateShopUI();
+
+    // Вызываем только если функции существуют
+    if (typeof updateBonusUI === "function") updateBonusUI();
+    if (typeof updateShopUI === "function") updateShopUI();
 }
 
 function updateBonusUI() {
