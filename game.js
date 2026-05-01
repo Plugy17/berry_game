@@ -1,409 +1,77 @@
-/* --- КОНСТАНТЫ И НАСТРОЙКИ --- */
-let isPaused = false;
-let laneCount = 4;
-let lanes = [12.5, 37.5, 62.5, 87.5];
-let targetLane = 1;
-let gameRunning = false;
-let obstacleLane = 0;
-let obstacleY = -150;
-let loopId = null;
-let speed = 7;
-let baseSpeed = 7;
-let difficulty = 0.002;
+// --- ИНИЦИАЛИЗАЦИЯ TG ---
+const tg = window.Telegram?.WebApp;
+if (tg) tg.expand();
 
-// Переменные профиля
-let nick = "Игрок";
-let playerID = "Guest";
-let coins = 0;
-let best = 0;
-let totalCoins = 0;
-let goldenIce = 0;
-let diamonds = 0;
-let hasVipSkin = false;
-let extraShieldSlots = 0;
-let usedReviveThisRun = false;
-
-// Инициализация инвентаря с фиксом undefined
-let inventory = JSON.parse(localStorage.getItem('inventory')) || {
-    shield: 0,
-    magnet: 0,
-    maxShieldSlots: 3,
-    maxMagnetSlots: 3
+// --- ДАННЫЕ ИГРОКА ---
+let player = {
+    uid: "guest",
+    nick: "Игрок",
+    coins: 0,
+    diamonds: 0,
+    best: 0,
+    inv: { shield: 0, magnet: 0 }
 };
 
-// Жесткая проверка данных (Fix Patch)
-if (!inventory) inventory = { shield: 0, magnet: 0, maxShieldSlots: 3, maxMagnetSlots: 3 };
-inventory.shield = inventory.shield || 0;
-inventory.magnet = inventory.magnet || 0;
-
-let level = 1;
-let xp = 0;
-const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50;
-
-const PRICES = { magnet: 200, shield: 400, goldenConvert: 1500 };
-const VIP_PRICES = { skin: 3, slot: 3, diamond: 10000 };
-
-let shieldActive = false;
-let magnetActive = false;
-let comboCount = 0;
-let comboMultiplier = 1;
-let rainInterval = null;
-
-const imgIceCream = "url('assets/icecream.png')";
-const imgGoldenIce = "url('assets/golden_ice.png')";
-const imgBad = "url('assets/obstacle.png')";
-
-// Фикс синтаксиса иконок (оборачиваем в кавычки для корректной вставки в innerHTML)
-const getIceIcon = () => `<span class="ice-icon"></span>`;
-const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
-const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
-
-/* --- ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
-document.addEventListener("DOMContentLoaded", function() {
-    startIceRain("menu");
-
-    const backButtons = document.querySelectorAll('.sub-btn');
-    backButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.getElementById('shop')?.classList.add('hidden');
-            document.getElementById('realShop')?.classList.add('hidden');
-            document.getElementById('leaderboardScreen')?.classList.add('hidden');
-            document.getElementById('menu')?.classList.remove('hidden');
-        });
-    });
-
-    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        playerID = tg.initDataUnsafe.user.id.toString();
-        nick = tg.initDataUnsafe.user.first_name || "Игрок";
-        loadUserData(playerID);
-        showLoaderAndGoToMenu(nick);
-    } else {
-        const savedNick = localStorage.getItem('playerNick');
-        if (!savedNick) {
-            document.getElementById('auth-screen')?.classList.remove('hidden');
-        } else {
-            nick = savedNick;
-            playerID = localStorage.getItem('playerID') || savedNick;
-            loadUserData(playerID);
-            showLoaderAndGoToMenu(savedNick);
-        }
+// --- СИСТЕМА ЭКРАНОВ ---
+const ui = {
+    show(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        this.update();
+    },
+    update() {
+        document.getElementById('ui-nick').innerText = `ГЕРОЙ: ${player.nick}`;
+        document.getElementById('ui-balance').innerText = `${player.coins} 🍦 | ${player.diamonds} 💎`;
+        document.getElementById('inv-shield').innerText = player.inv.shield;
+        document.getElementById('inv-magnet').innerText = player.inv.magnet;
     }
-});
+};
 
-/* --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (FIX PATCH) --- */
-function updateBonusUI() {
-    const shieldCount = document.getElementById("count-shield");
-    const magnetCount = document.getElementById("count-magnet");
-    if (shieldCount) shieldCount.innerText = inventory.shield || 0;
-    if (magnetCount) magnetCount.innerText = inventory.magnet || 0;
-}
+// --- БАЗОВАЯ ИГРОВАЯ ЛОГИКА ---
+const game = {
+    running: false,
+    score: 0,
+    speed: 7,
+    lanes: [12.5, 37.5, 62.5, 87.5],
+    currentLane: 1,
 
-function closeShop() {
-    document.getElementById("shop")?.classList.add("hidden");
-    document.getElementById("menu")?.classList.remove("hidden");
-}
+    start() {
+        this.running = true;
+        this.score = 0;
+        ui.show('screen-game');
+        this.resetObstacle();
+        this.loop();
+    },
 
-function closeLeaderboard() {
-    document.getElementById("leaderboardScreen")?.classList.add("hidden");
-    document.getElementById("menu")?.classList.remove("hidden");
-}
+    resetObstacle() {
+        const obs = document.getElementById('obstacle');
+        this.obsX = this.lanes[Math.floor(Math.random() * 4)];
+        this.obsY = -100;
+        obs.style.left = this.obsX + "%";
+    },
 
-/* --- ОСТАЛЬНАЯ ЛОГИКА --- */
-function saveInitialNick() {
-    const nickInput = document.getElementById('usernameInput');
-    const val = nickInput ? nickInput.value.trim() : "";
-    if (val.length < 2) { alert("Ник слишком короткий!"); return; }
-    localStorage.setItem('playerNick', val);
-    localStorage.setItem('playerID', val);
-    nick = val; playerID = val;
-    showLoaderAndGoToMenu(val);
-}
+    loop() {
+        if (!this.running) return;
+        this.obsY += this.speed;
+        const obs = document.getElementById('obstacle');
+        obs.style.top = this.obsY + "px";
 
-function showLoaderAndGoToMenu(playerNick) {
-    const loader = document.getElementById('loadingOverlay');
-    const menu = document.getElementById('menu');
-    if(loader) loader.classList.remove('hidden');
-    setTimeout(() => {
-        if(loader) loader.classList.add('hidden');
-        if(menu) menu.classList.remove('hidden');
-        updateMenuInfo();
-    }, 1500);
-}
-
-/* --- МАГАЗИН --- */
-function buyItem(item) {
-    const price = (item === 'shield') ? 400 : 200;
-    if (totalCoins >= price) {
-        if (item === 'shield') {
-            if (inventory.shield < inventory.maxShieldSlots) {
-                inventory.shield++;
-                totalCoins -= price;
-            } else { alert("Все слоты для щитов заняты!"); return; }
-        } else {
-            if (inventory.magnet < inventory.maxMagnetSlots) {
-                inventory.magnet++;
-                totalCoins -= price;
-            } else { alert("Все слоты для магнитов заняты!"); return; }
-        }
-        saveUserData();
-        updateMenuInfo();
-    } else { alert("Не хватает мороженого!"); }
-}
-
-function updateShopUI() {
-    const ids = {"coin-count": totalCoins, "gold-count": goldenIce, "diamond-count": diamonds};
-    for (let [id, val] of Object.entries(ids)) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = val;
-    }
-}
-
-/* --- ИГРОВАЯ ЛОГИКА --- */
-function startGame() {
-    document.getElementById('menu')?.classList.add('hidden');
-    const gameScreen = document.getElementById('game');
-    if (gameScreen) {
-        gameScreen.classList.remove('hidden');
-        gameScreen.style.display = 'block';
-    }
-    resetGame();
-}
-
-function resetGame() {
-    coins = 0; comboCount = 0; comboMultiplier = 1;
-    shieldActive = false; magnetActive = false;
-    usedReviveThisRun = false; targetLane = 1; 
-    speed = baseSpeed; gameRunning = true;
-    const p = document.getElementById("player");
-    if(p) {
-        p.className = "";
-        if(hasVipSkin) p.classList.add("skin-ice");
-        p.style.left = lanes[targetLane] + "%";
-    }
-    updateScore();
-    spawnObstacle();
-    updateBonusUI();
-    if (loopId) cancelAnimationFrame(loopId);
-    update();
-}
-
-function spawnObstacle() {
-    const obs = document.getElementById("obstacle");
-    if(!obs) return;
-    obstacleLane = Math.floor(Math.random() * laneCount);
-    obstacleY = -80; // Фикс: Плотнее спавн
-    obs.style.left = lanes[obstacleLane] + "%";
-    const rand = Math.random();
-    if (rand < 0.08) {
-        obs.dataset.type = "golden";
-        obs.style.backgroundImage = imgGoldenIce;
-    } else {
-        const isGood = rand < 0.65;
-        obs.dataset.type = isGood ? "good" : "bad";
-        obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
-    }
-}
-
-function update() {
-    if (!gameRunning || isPaused) {
-        if(gameRunning) loopId = requestAnimationFrame(update);
-        return;
-    }
-    obstacleY += speed;
-    speed += difficulty;
-    const obs = document.getElementById("obstacle");
-    const p = document.getElementById("player");
-    if(!obs || !p) return;
-
-    let currentX = parseFloat(p.style.left) || lanes[targetLane];
-    let newX = currentX + (lanes[targetLane] - currentX) * 0.2;
-    p.style.left = newX + "%";
-    p.style.transform = `translateX(-50%) rotate(${(lanes[targetLane] - currentX) * 2.5}deg)`;
-
-    const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
-    if (magnetActive && isPullable) {
-        let obsX = parseFloat(obs.style.left);
-        obs.style.left = (obsX + (newX - obsX) * (hasVipSkin ? 0.4 : 0.28)) + "%";
-    }
-    obs.style.top = obstacleY + "px";
-
-    // Увеличенный хитбокс (Fix Patch)
-    if (Math.abs(newX - parseFloat(obs.style.left)) < 15 && Math.abs(obstacleY - (window.innerHeight * 0.75)) < 90) {
-        handleCollision(obs, p);
-    }
-
-    if (obstacleY > window.innerHeight) {
-        spawnObstacle();
-    }
-    loopId = requestAnimationFrame(update);
-}
-
-function handleCollision(obs, p) {
-    const rect = obs.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    if (obs.dataset.type !== "bad") {
-        createExplosion(cx, cy, obs.dataset.type === "golden");
-        comboCount++;
-        if (comboCount % 50 === 0 || obs.dataset.type === "golden") goldenIce++;
-        comboMultiplier = hasVipSkin ? 
-            (comboCount >= 25 ? 7 : comboCount >= 18 ? 6 : comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1) :
-            (comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1);
+        if (this.obsY > window.innerHeight) this.resetObstacle();
         
-        const ui = document.getElementById("combo-ui");
-        if(ui && comboMultiplier > 1) {
-            ui.innerText = "x" + comboMultiplier;
-            ui.classList.remove("hidden");
-        }
-        coins += comboMultiplier;
-        xp += hasVipSkin ? Math.floor(comboMultiplier * 1.5) : comboMultiplier;
-        if (xp >= getNextLevelXP(level)) { xp -= getNextLevelXP(level); level++; }
-        updateScore(); spawnObstacle();
-    } else {
-        if (shieldActive) {
-            createCubeBoom(cx, cy);
-            shieldActive = false;
-            p.classList.remove("shield-aura");
-            spawnObstacle();
-        } else { gameOver(); }
+        requestAnimationFrame(() => this.loop());
     }
-}
+};
 
-/* --- ЭФФЕКТЫ --- */
-function createExplosion(x, y, isGold) {
-    const container = document.getElementById('game');
-    if (!container) return;
-    const pop = document.createElement("div");
-    pop.className = "ice-pop";
-    pop.style.left = x + "px"; pop.style.top = y + "px";
-    if (isGold) pop.style.backgroundColor = "#ffea00";
-    container.appendChild(pop);
-    setTimeout(() => pop.remove(), 400);
-}
-
-function createCubeBoom(x, y) {
-    const container = document.getElementById('game');
-    if (!container) return;
-    for (let i = 0; i < 8; i++) {
-        const shard = document.createElement("div");
-        shard.className = "cube-boom";
-        shard.style.left = x + "px"; shard.style.top = y + "px";
-        const angle = (Math.PI * 2 / 8) * i;
-        shard.style.setProperty('--tx', Math.cos(angle) * 100 + "px");
-        shard.style.setProperty('--ty', Math.sin(angle) * 100 + "px");
-        container.appendChild(shard);
-        setTimeout(() => shard.remove(), 500);
+// --- ЗАГРУЗКА ---
+window.onload = () => {
+    // Авторизация из старого кода
+    if (tg?.initDataUnsafe?.user) {
+        player.uid = tg.initDataUnsafe.user.id.toString();
+        player.nick = tg.initDataUnsafe.user.first_name;
     }
-}
 
-/* --- СИСТЕМА СОХРАНЕНИЙ --- */
-function saveUserData() {
-    const data = { nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin };
-    localStorage.setItem('inventory', JSON.stringify(data));
-}
+    // Здесь будет вызов Firebase (GetDoc)
+    // loadFromFirebase(player.uid); 
 
-function loadUserData(id) {
-    const local = JSON.parse(localStorage.getItem('inventory'));
-    if(local) {
-        totalCoins = local.totalCoins || 0;
-        goldenIce = local.goldenIce || 0;
-        diamonds = local.diamonds || 0;
-        level = local.level || 1;
-        xp = local.xp || 0;
-        best = local.best || 0;
-        if (local.inventory) inventory = local.inventory;
-    }
-    updateMenuInfo();
-}
-
-/* --- ОБНОВЛЕНИЕ UI --- */
-function updateScore() {
-    const hud = document.getElementById("hud");
-    if(hud) hud.innerHTML = `<div>LVL ${level}</div><div>${coins} ${getIceIcon()}</div><div style="color:cyan">${diamonds} ${getDiamondIcon()}</div>`;
-}
-
-function updateMenuInfo() {
-    const wel = document.getElementById("welcome");
-    if(wel) wel.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
-    const lb = document.getElementById("menuLeaderboard");
-    if(lb) lb.innerText = "🏆 РЕКОРД: " + best;
-    const bal = document.getElementById("total-balance");
-    if(bal) bal.innerHTML = `${totalCoins} ${getIceIcon()} | ${goldenIce} ${getGoldIcon()} | ${diamonds} ${getDiamondIcon()}`;
-    updateBonusUI();
-    updateShopUI();
-}
-
-function useShield() {
-    if (inventory.shield > 0 && !shieldActive && gameRunning) {
-        inventory.shield--; shieldActive = true;
-        document.getElementById("player")?.classList.add("shield-aura");
-        updateBonusUI(); saveUserData();
-    }
-}
-
-function useMagnet() {
-    if (inventory.magnet > 0 && !magnetActive && gameRunning) {
-        inventory.magnet--; magnetActive = true;
-        document.getElementById("player")?.classList.add("magnet-aura");
-        updateBonusUI(); saveUserData();
-        setTimeout(() => {
-            magnetActive = false;
-            document.getElementById("player")?.classList.remove("magnet-aura");
-        }, hasVipSkin ? 15000 : 10000);
-    }
-}
-
-function gameOver() {
-    gameRunning = false;
-    totalCoins += coins;
-    if (coins > best) best = coins;
-    saveUserData();
-    document.getElementById("gameOverScreen")?.classList.remove("hidden");
-    document.getElementById("final-score") && (document.getElementById("final-score").innerText = coins);
-}
-
-function backToMenu() {
-    gameRunning = false;
-    document.getElementById("game")?.classList.add("hidden");
-    document.getElementById("gameOverScreen")?.classList.add("hidden");
-    document.getElementById("menu")?.classList.remove("hidden");
-    updateMenuInfo();
-    startIceRain("menu");
-}
-
-function togglePause() { isPaused = !isPaused; }
-
-function startIceRain(screenId) {
-    const container = document.getElementById(screenId);
-    if (!container) return;
-    if (rainInterval) clearInterval(rainInterval);
-    rainInterval = setInterval(() => {
-        if (container.classList.contains('hidden')) return;
-        const drop = document.createElement("div");
-        drop.className = "falling-ice-anim";
-        drop.style.left = Math.random() * 100 + "vw";
-        container.appendChild(drop);
-        setTimeout(() => drop.remove(), 4000);
-    }, 400);
-}
-
-/* УПРАВЛЕНИЕ */
-let startX = 0;
-document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
-document.addEventListener("touchend", e => {
-    if (!gameRunning || isPaused) return;
-    let diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) < 30) return;
-    targetLane = diff > 0 ? Math.min(3, targetLane + 1) : Math.max(0, targetLane - 1);
-});
-document.addEventListener("keydown", e => {
-    if (!gameRunning || isPaused) return;
-    if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
-    if (e.key === "ArrowRight" || e.key === "d") targetLane = Math.min(3, targetLane + 1);
-});
-
-function openBuffs() { 
-    document.getElementById("menu")?.classList.add("hidden"); 
-    document.getElementById("shop")?.classList.remove("hidden"); 
-}
+    ui.update();
+};
