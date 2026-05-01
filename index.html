@@ -39,6 +39,15 @@
         .falling-ice-anim, .golden-drop {
             top: -100px !important;
         }
+        /* НОВАЯ ПРАВКА: Стили для иконок ресурсов в кнопках */
+        .resource-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin: 0 4px;
+            object-fit: contain;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -101,14 +110,12 @@
     <div id="bonus-panel">
         <div class="bonus-btn-wrapper" onclick="useShield()" id="btn-use-shield">
             <div class="bonus-btn">
-                <!-- ИЗМЕНЕНО: Название файла на shield_icon.png -->
                 <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
                 <span id="count-shield">0</span>
             </div>
         </div>
         <div class="bonus-btn-wrapper" onclick="useMagnet()" id="btn-use-magnet">
             <div class="bonus-btn">
-                <!-- ИЗМЕНЕНО: Название файла на magnet_icon.png -->
                 <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
                 <span id="count-magnet">0</span>
             </div>
@@ -141,13 +148,11 @@
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">0 🍦 | 0 <span class="golden-ice-icon-small"></span> | 0 💎</div>
     <div class="shop-container">
         <div class="shop-item">
-            <!-- ИЗМЕНЕНО: Название файла на shield_icon.png -->
             <img src="assets/shield_icon.png" alt="Shield" style="width: 50px; height: 50px;">
             <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">ЩИТ</div>
             <button class="buy-button" onclick="buyItem('shield')">300 🍦</button>
         </div>
         <div class="shop-item">
-            <!-- ИЗМЕНЕНО: Название файла на magnet_icon.png -->
             <img src="assets/magnet_icon.png" alt="Magnet" style="width: 50px; height: 50px;">
             <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">МАГНИТ</div>
             <button class="buy-button" onclick="buyItem('magnet')">500 🍦</button>
@@ -168,21 +173,39 @@
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит сильнее на 10%</p>
             <button class="buy-button gold" onclick="buyVipItem('skin')">10 <span class="golden-ice-icon-small"></span></button>
         </div>
+
+        <!-- ПРАВКА: Покупка СЛОТА для Щита (изменена кнопка и цена) -->
         <div class="shop-item vip-card">
-            <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ</div>
+            <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ ЩИТ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Увеличить запас щитов</p>
-            <button class="buy-button gold" onclick="buyVipItem('slot')">5 <span class="golden-ice-icon-small"></span></button>
+            <button class="buy-button gold" onclick="buySlot('shield')">
+                5 <img src="assets/golden_ice.png" class="resource-icon">
+            </button>
+        </div>
+
+        <!-- ПРАВКА: Покупка СЛОТА для Магнита (НОВАЯ ЯЧЕЙКА) -->
+        <div class="shop-item vip-card">
+            <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ МАГНИТ</div>
+            <p style="color: #eee; font-size: 12px; text-align: center;">Увеличить запас магнитов</p>
+            <button class="buy-button gold" onclick="buySlot('magnet')">
+                5 <img src="assets/golden_ice.png" class="resource-icon">
+            </button>
         </div>
         
-        <div class="shop-item exchange-card" style="grid-column: span 2; width: 100%;">
+        <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%;">
             <div class="item-title" style="color: #ffd700; font-weight: 800;">ЗОЛОТОЙ ДИЛЕР</div>
             <p style="color: white; margin: 5px 0;">5000 🍦 = 1 <span class="golden-ice-icon-small"></span></p>
             <button class="buy-button gold" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
         </div>
-        <div class="shop-item exchange-card" style="grid-column: span 2; width: 100%; margin-top: 10px; border-color: #00eaff !important;">
+
+        <!-- ПРАВКА: Алмазный дилер с новой иконкой и балансом -->
+        <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%; border-color: #00eaff !important;">
             <div class="item-title" style="color: #00eaff; font-weight: 800;">АЛМАЗНЫЙ ДИЛЕР</div>
-            <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 <span class="diamond-icon-small"></span></p>
-            <button class="buy-button gold" style="background: linear-gradient(180deg, #0088a8, #004e63) !important; color: white !important;" onclick="buyDiamond()">КУПИТЬ 💎</button>
+            <p style="color: white; margin: 5px 0;">50,000 🍦 = 1 <img src="assets/diamond.png" class="resource-icon"></p>
+            <button class="buy-button gold" style="background: linear-gradient(180deg, #0088a8, #004e63) !important; color: white !important;" onclick="buyDiamond()">КУПИТЬ</button>
+            <div class="currency" style="margin-top:5px; color: #00eaff; font-size: 12px;">
+                У вас: <span id="diamond-count">0</span> <img src="assets/diamond.png" class="resource-icon">
+            </div>
         </div>
     </div>
     <button class="sub-btn" style="margin-top: 30px;" onclick="document.getElementById('realShop').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');">НАЗАД</button>
