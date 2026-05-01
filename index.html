@@ -2,385 +2,54 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>БАФФ БЕРРИ ONLINE</title> 
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- ПОДКЛЮЧЕНИЕ TELEGRAM SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Berry Runner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- ОБНОВЛЕННЫЙ FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    <style>
-        #obstacle {
-            width: 80px !important;
-            height: 80px !important;
-            background-size: contain !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-        }
-        .ice-icon::after { content: ''; } 
-        .golden-ice-icon-small { 
-            background-image: url('assets/golden_ice.png');
-            background-size: contain;
-            width: 25px;
-            height: 25px;
-            display: inline-block;
-            vertical-align: middle;
-        } 
-        .diamond-icon-small { 
-            background-image: url('assets/diamond.png');
-            background-size: contain;
-            width: 24px;
-            height: 24px;
-            display: inline-block;
-            vertical-align: middle;
-        } 
-        .falling-ice-anim, .golden-drop {
-            top: -100px !important;
-        }
-        .resource-icon {
-            width: 20px;
-            height: 20px;
-            vertical-align: middle;
-            margin: 0 4px;
-            object-fit: contain;
-            pointer-events: none;
-        }
-
-        #leaderboard-list {
-            padding: 10px;
-            gap: 10px;
-        }
-
-        .leaderboard-item {
-            width: 90%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 20px;
-            margin-bottom: 8px;
-            color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .leader-name {
-            font-weight: 800;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #00eaff;
-            text-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
-        }
-
-        .leader-score {
-            font-weight: 900;
-            font-size: 20px;
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .leaderboard-item:first-child {
-            background: rgba(255, 215, 0, 0.2);
-            border: 2px solid #ffd700;
-            transform: scale(1.02);
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top: 5px solid #00eaff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .translucent-glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 20px;
-            margin: 20px 0;
-            width: 80%;
-            max-width: 300px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ЭКРАН ВХОДА -->
-<div id="auth-screen" class="screen">
-    <div class="welcome-text">ВХОД В СИСТЕМУ</div>
-    <div class="spinner"></div>
-    <div class="translucent-glass" style="text-align: center;">
-        <p style="color: white; margin: 0; font-weight: 800;">ID ИГРОКА:</p>
-        <div id="tg-id-display" style="color: #00eaff; font-weight: 900; font-size: 20px; margin-top: 10px;">Загрузка...</div>
-    </div>
-    <button id="entry-btn" class="main-btn hidden" onclick="startGameSession()">ВОЙТИ В ИГРУ</button>
-</div>
-
-<!-- ГЛАВНОЕ МЕНЮ -->
-<div id="menu" class="screen hidden">
-    <div id="menu-particles" style="position: absolute; width: 100%; height: 100%; pointer-events: none;"></div>
-    <div class="menu-content-wrapper" style="z-index: 20; display: flex; flex-direction: column; align-items: center;">
-        <div class="top-bar-container">
-            <div id="welcome" class="welcome-text">ПРИВЕТ, ИГРОК!</div> 
-            <div id="total-balance" class="balance-info"></div>
-            <div id="menuLeaderboard" class="best-score" style="color: #ffd700; font-size: 18px; margin-top: 5px; font-weight: 900; text-shadow: 1px 1px 2px #000;">🏆 РЕКОРД: 0</div>
+    <!-- Меню -->
+    <div id="screen-menu" class="screen">
+        <div class="top-bar">
+            <div id="ui-nick">ГЕРОЙ: ---</div>
+            <div id="ui-balance">0 🍦 | 0 💎</div>
         </div>
-        <div class="menu-controls">
-            <input id="nick" type="hidden" />
-            <div class="difficulty-container" style="width: 100%; max-width: 280px;">
-                <label class="difficulty-label" style="color: white; font-weight: 800; font-size: 14px;">СЛОЖНОСТЬ:</label>
-                <select id="difficulty">
-                    <option value="easy">🟩 Легко</option>
-                    <option value="medium" selected>🟨 Средне</option>
-                    <option value="hard">🟥 Сложно</option>
-                </select>
-            </div>
-            <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
-            <button class="sub-btn" onclick="openBuffs()">Баффы</button>
-            <button id="shop-btn-main" class="sub-btn vip-btn" style="border: 2px solid #ffd700 !important;" onclick="openShop()">💎 Магазин</button>
-            <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
-        </div>
-    </div>
-    <div class="menu-footer">
-         <h1 class="footer-logo">БАФФ БЕРРИ</h1>
-    </div>
-</div>
-
-<!-- ИГРОВОЙ ЭКРАН -->
-<div id="game" class="screen hidden">
-    <div id="effects-layer" style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 550;"></div>
-    <div class="top-bar-container">
-        <div id="hud"></div> 
-    </div>
-    <button id="backBtn" onclick="backToMenu()"></button>
-    <button id="pauseBtn" class="hidden" onclick="togglePause()"></button>
-    <div id="combo-container">
-        <div id="combo-ui" class="hidden">x2</div>
-        <div id="combo-msg" style="position: absolute; top: 25%; left: 50%; transform: translateX(-50%); pointer-events: none;"></div> 
-    </div>
-    <div id="bonus-panel">
-        <div class="bonus-btn-wrapper" onclick="useShield()" id="btn-use-shield">
-            <div class="bonus-btn">
-                <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
-                <span id="count-shield">0</span>
-            </div>
-        </div>
-        <div class="bonus-btn-wrapper" onclick="useMagnet()" id="btn-use-magnet">
-            <div class="bonus-btn">
-                <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
-                <span id="count-magnet">0</span>
+        
+        <div class="menu-layout">
+            <h1 class="logo">BERRY RUNNER</h1>
+            <button class="btn-play" onclick="game.start()">ИГРАТЬ</button>
+            <div class="menu-row">
+                <button class="btn-sub" onclick="ui.show('screen-shop')">МАГАЗИН</button>
+                <button class="btn-sub" onclick="ui.show('screen-lead')">РЕЙТИНГ</button>
             </div>
         </div>
     </div>
-    <div id="player"></div> 
-    <div id="obstacle"></div> 
-</div>
 
-<!-- GAME OVER -->
-<div id="gameOverScreen" class="screen hidden" style="background: rgba(0,0,0,0.85); z-index: 1000;">
-    <div class="go-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-        <div class="shop-title" style="font-size: 60px; color: #ff4fd8; font-weight: 900; text-shadow: 0 0 20px #ff4fd8;">БА-БАХ!</div>
-        <div class="currency-row" style="font-size: 32px; margin: 20px 0;">
-            <span id="final-score">0</span> <span class="ice-icon" style="background-image: url('assets/icecream.png'); width: 40px; height: 40px; background-size: contain; display: inline-block;"></span>
+    <!-- Игра -->
+    <div id="screen-game" class="screen hidden">
+        <div class="game-hud">
+            <div id="game-score">0</div>
+            <div class="game-bonuses">
+                <div class="bonus-slot" onclick="items.use('shield')">🛡️ <span id="inv-shield">0</span></div>
+                <div class="bonus-slot" onclick="items.use('magnet')">🧲 <span id="inv-magnet">0</span></div>
+            </div>
         </div>
-        <div class="menu-controls" style="width: 280px; position: relative; z-index: 1001;">
-            <button id="revive-btn" class="buy-button gold" onclick="revivePlayer()" style="display:none; width: 100%; margin-bottom: 10px;">
-                ✨ ВОСКРЕСНУТЬ (1 💎)
-            </button>
-            <button class="main-btn" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
-            <button class="sub-btn" onclick="backToMenu()">В МЕНЮ</button>
+        <div id="world">
+            <div id="player"></div>
+            <div id="obstacle"></div>
         </div>
     </div>
-</div>
 
-<!-- ЭКРАН БАФФОВ (ОБЫЧНЫЙ МАГАЗИН) -->
-<div id="shop" class="screen hidden">
-    <h2 class="shop-title">БАФФЫ</h2>
-    <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;"></div>
-    <div class="shop-container">
-        <div class="shop-item">
-            <img src="assets/shield_icon.png" alt="Shield" style="width: 50px; height: 50px;">
-            <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">ЩИТ</div>
-            <button class="buy-button" onclick="buyItem('shield')">400 <img src="assets/icecream.png" class="resource-icon"></button>
+    <!-- Магазин (Сетка 2х2) -->
+    <div id="screen-shop" class="screen hidden">
+        <h2>МАГАЗИН</h2>
+        <div class="shop-grid" id="shop-items-container">
+            <!-- Сюда JS вставит карточки -->
         </div>
-        <div class="shop-item">
-            <img src="assets/magnet_icon.png" alt="Magnet" style="width: 50px; height: 50px;">
-            <div class="item-title" style="color: white; margin-bottom: 5px; font-weight: 800;">МАГНИТ</div>
-            <button class="buy-button" onclick="buyItem('magnet')">200 <img src="assets/icecream.png" class="resource-icon"></button>
-        </div>
+        <button class="btn-back" onclick="ui.show('screen-menu')">НАЗАД</button>
     </div>
-    <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
-</div>
 
-<!-- МАГАЗИН VIP (РЕАЛЬНЫЙ МАГАЗИН) -->
-<div id="realShop" class="screen hidden">
-    <h2 class="shop-title">МАГАЗИН</h2>
-    <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;"></div>
-    <div class="shop-container">
-        <div class="shop-item vip-card" style="border: 2px solid #00eaff !important;">
-            <div class="item-title" style="color: #00eaff; font-weight: 800;">БАФФ БЕРРИ</div>
-            <p style="color: #eee; font-size: 12px; text-align: center;">Магнит +5с, Опыт x1.5, Комбо до x7</p>
-            <button class="buy-button gold" style="background: linear-gradient(180deg, #0088a8, #004e63) !important;" onclick="buyVipItem('skin')">
-                3 <img src="assets/diamond.png" class="resource-icon">
-            </button>
-        </div>
-        <div class="shop-item vip-card">
-            <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ ЩИТ</div>
-            <button class="buy-button gold" onclick="buySlot('shield')">
-                3 <img src="assets/golden_ice.png" class="resource-icon">
-            </button>
-        </div>
-        <div class="shop-item vip-card">
-            <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ МАГНИТ</div>
-            <button class="buy-button gold" onclick="buySlot('magnet')">
-                3 <img src="assets/golden_ice.png" class="resource-icon">
-            </button>
-        </div>
-        <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%;">
-            <div class="item-title" style="color: #ffd700; font-weight: 800;">ЗОЛОТОЙ ДИЛЕР</div>
-            <p style="color: white; margin: 5px 0;">5000 <img src="assets/icecream.png" class="resource-icon"> = 1 <img src="assets/golden_ice.png" class="resource-icon"></p>
-            <button class="buy-button gold" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-        </div>
-        <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%; border-color: #00eaff !important;">
-            <div class="item-title" style="color: #00eaff; font-weight: 800;">АЛМАЗНЫЙ ДИЛЕР</div>
-            <p style="color: white; margin: 5px 0;">50,000 <img src="assets/icecream.png" class="resource-icon"> = 1 <img src="assets/diamond.png" class="resource-icon"></p>
-            <button class="buy-button gold" style="background: linear-gradient(180deg, #0088a8, #004e63) !important; color: white !important;" onclick="buyDiamond()">КУПИТЬ</button>
-        </div>
-    </div>
-    <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
-</div>
-
-<!-- РЕЙТИНГ -->
-<div id="leaderboardScreen" class="screen hidden">
-    <h2 class="shop-title">РЕЙТИНГ</h2>
-    <div id="leaderboard-list"></div>
-    <button class="sub-btn" style="margin-top: 30px;" onclick="closeLeaderboard()">НАЗАД</button>
-</div>
-
-<script>
-    // FIREBASE CONFIG
-    const firebaseConfig = {
-        apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
-        authDomain: "berry-game-4fa9b.firebaseapp.com",
-        databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com",
-        projectId: "berry-game-4fa9b",
-        storageBucket: "berry-game-4fa9b.firebasestorage.app",
-        messagingSenderId: "736707445306",
-        appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
-        measurementId: "G-LLJ9L848G0"
-    };
-    
-    try {
-        firebase.initializeApp(firebaseConfig);
-        window.db = firebase.database();
-    } catch (e) { console.error("Firebase error", e); }
-
-    const tg = window.Telegram.WebApp;
-
-    function initTelegramAuth() {
-        if (typeof tg !== 'undefined') {
-            tg.expand();
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                // Передаем данные в глобальные переменные game.js
-                window.playerID = tg.initDataUnsafe.user.id.toString();
-                window.nick = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username || "Игрок";
-            }
-        }
-        
-        const idDisplay = document.getElementById('tg-id-display');
-        if(idDisplay) idDisplay.innerText = window.playerID || "Guest";
-        
-        // Вызываем загрузку данных из game.js
-        if (typeof loadUserData === "function") {
-            loadUserData(window.playerID);
-        }
-
-        setTimeout(() => {
-            const spinner = document.querySelector('#auth-screen .spinner');
-            const entryBtn = document.getElementById('entry-btn');
-            if(spinner) spinner.style.display = 'none';
-            if(entryBtn) entryBtn.classList.remove('hidden');
-        }, 1500);
-    }
-
-    document.addEventListener("DOMContentLoaded", initTelegramAuth);
-
-    function startGameSession() {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('menu').classList.remove('hidden');
-        
-        if (typeof updateMenuInfo === "function") updateMenuInfo();
-        if (typeof startIceRain === "function") startIceRain("menu");
-    }
-
-    function openBuffs() {
-        document.getElementById('menu').classList.add('hidden');
-        document.getElementById('shop').classList.remove('hidden');
-        if (typeof updateMenuInfo === "function") updateMenuInfo();
-    }
-    function openShop() {
-        document.getElementById('menu').classList.add('hidden');
-        document.getElementById('realShop').classList.remove('hidden');
-        if (typeof updateMenuInfo === "function") updateMenuInfo();
-    }
-    function closeShop() {
-        document.getElementById('shop').classList.add('hidden');
-        document.getElementById('realShop').classList.add('hidden');
-        document.getElementById('menu').classList.remove('hidden');
-        if(typeof startIceRain === 'function') startIceRain('menu');
-    }
-    function openLeaderboard() {
-        document.getElementById('menu').classList.add('hidden');
-        document.getElementById('leaderboardScreen').classList.remove('hidden');
-        // Если в game.js есть функция загрузки топа, вызови её здесь
-    }
-    function closeLeaderboard() {
-        document.getElementById('leaderboardScreen').classList.add('hidden');
-        document.getElementById('menu').classList.remove('hidden');
-    }
-
-    // Заглушки для функций обмена, если они не прописаны в game.js
-    function convertIceToGold() {
-        if(typeof totalCoins !== 'undefined' && totalCoins >= 5000) {
-            totalCoins -= 5000;
-            goldenIce += 1;
-            saveUserData();
-            updateMenuInfo();
-            alert("Обмен успешно выполнен!");
-        } else alert("Недостаточно мороженого!");
-    }
-    function buyDiamond() {
-        if(typeof totalCoins !== 'undefined' && totalCoins >= 50000) {
-            totalCoins -= 50000;
-            diamonds += 1;
-            saveUserData();
-            updateMenuInfo();
-            alert("Алмаз куплен!");
-        } else alert("Недостаточно мороженого!");
-    }
-</script>
-<script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
