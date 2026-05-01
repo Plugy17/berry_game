@@ -175,72 +175,6 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px rgba(255, 79, 216, 0.6) !important;
 }
 
-#pauseBtn {
-    position: absolute; 
-    top: 20px; 
-    left: 20px; /* В левом углу */
-    width: 75px !important;
-    height: 75px !important; 
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    border: none !important; 
-    background-color: transparent !important; 
-    box-shadow: none !important;
-    outline: none !important;
-
-    /* По умолчанию стоит иконка паузы */
-    background: url('assets/pause.png') no-repeat center center !important;
-    background-size: contain !important; 
-    
-    z-index: 1000; /* Поверх всего */
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-#pauseBtn:active {
-    transform: scale(0.9);
-}
-
-/* Класс, который мы будем добавлять через JS, когда игра на паузе */
-#pauseBtn.is-paused {
-    background: url('assets/play.png') no-repeat center center !important;
-    background-size: contain !important;
-}
-/* ПРАВКА: Иконка домика home.png */
-#backBtn {
-    position: absolute; 
-    top: 20px; 
-    right: 20px; 
-    /* ПРАВКА: Твой размер 75px */
-    width: 75px !important;
-    height: 75px !important; 
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* ПРАВКА: Убираем ВСЁ лишнее (рамки, фон, тени) */
-    border: none !important; 
-    background-color: transparent !important; 
-    box-shadow: none !important;
-    outline: none !important; /* Убирает контур при нажатии */
-
-    /* Указываем картинку */
-    background: url('assets/home.png') no-repeat center center !important;
-    background-size: contain !important; /* contain гарантирует, что 75px будет по большей стороне */
-    
-    z-index: 100;
-    cursor: pointer;
-    transition: transform 0.2s ease; /* Добавим мягкий эффект при нажатии */
-}
-
-/* Эффект нажатия, раз уж у нас нет рамок */
-#backBtn:active {
-    transform: scale(0.9);
-}
 /* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
@@ -470,7 +404,6 @@ button:active { transform: scale(0.95); }
     cursor: pointer;
 }
 
-/* ПРАВКА: Иконки щита и магнита из твоих ассетов */
 #btn-use-shield { background: rgba(0,0,0,0.7) url('assets/shield_icon.png') no-repeat center center; background-size: 40px; }
 #btn-use-magnet { background: rgba(0,0,0,0.7) url('assets/magnet_icon.png') no-repeat center center; background-size: 40px; }
 
@@ -522,7 +455,6 @@ button:active { transform: scale(0.95); }
 /* --- VIP МАГАЗИН И ПРАВКИ ЯЧЕЕК --- */
 .vip-card { border: 2px solid #ffd700 !important; }
 
-/* ПРАВКА 1: Ячейка с ценой (компактные кнопки вместо квадратов) */
 .vip-card button, .shop-item button {
     width: 80% !important;
     height: auto !important;
@@ -536,17 +468,6 @@ button:active { transform: scale(0.95); }
     border-radius: 12px !important;
 }
 
-/* Стили для иконок внутри кнопок */
-.vip-card button .diamond-icon-small,
-.vip-card button .golden-ice-icon-small {
-    width: 24px;
-    height: 24px;
-    display: inline-block;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-/* ПРАВКА 2: Ячейки дилеров (темный фон и тени) */
 .dealer-card {
     background: rgba(0, 0, 0, 0.4) !important;
     backdrop-filter: blur(5px);
@@ -578,12 +499,6 @@ button:active { transform: scale(0.95); }
     border: 1px solid #fff !important;
 }
 
-/* Фикс для иконок в магазине */
-#shop .shop-item img {
-    width: 45px !important;
-    height: 45px !important;
-}
-
 #revive-btn {
     background: linear-gradient(180deg, #00eaff, #0077ff) !important;
     border: 2px solid #fff !important;
@@ -591,7 +506,6 @@ button:active { transform: scale(0.95); }
     margin-top: 15px;
 }
 
-/* Иконки ресурсов */
 .resource-icon {
     width: 20px;
     height: 20px;
@@ -601,7 +515,7 @@ button:active { transform: scale(0.95); }
     pointer-events: none;
 }
 
-/* Кнопка паузы и домика */
+/* --- ПАУЗА И ДОМИК --- */
 #pauseBtn, #backBtn {
     position: absolute;
     top: 20px;
@@ -610,16 +524,19 @@ button:active { transform: scale(0.95); }
     border: none !important;
     background-color: transparent !important;
     background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
     cursor: pointer;
     z-index: 1000;
     outline: none !important;
+    box-shadow: none !important;
 }
+
 #pauseBtn { left: 20px; background-image: url('assets/pause.png') !important; }
 #backBtn { right: 20px; background-image: url('assets/home.png') !important; }
 #pauseBtn.is-paused { background-image: url('assets/play.png') !important; }
 
-ТВОИ ПРАВКИ
-/* Эффект прозрачного стекла и теней для дилеров */
+/* --- ЭФФЕКТ СТЕКЛА И ДИЛЕРЫ --- */
 .translucent-glass {
     background: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(8px);
@@ -638,21 +555,20 @@ button:active { transform: scale(0.95); }
     margin-top: 15px;
 }
 
-/* Стили заголовков дилеров */
 .dealer-title {
     font-size: 14px !important;
     margin: 0 0 8px 0 !important;
     letter-spacing: 1px;
     font-weight: 900;
 }
+
 .gold-text { color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
 .diamond-text { color: #00eaff; text-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
 
-/* Компактные кнопки */
 .compact-btn {
     width: auto !important;
     min-width: 100px !important;
-    height: 28px !important; /* Очень маленькая высота */
+    height: 28px !important;
     font-size: 12px !important;
     padding: 0 15px !important;
     line-height: 28px !important;
@@ -665,17 +581,6 @@ button:active { transform: scale(0.95); }
     background: linear-gradient(180deg, #00eaff, #0077ff) !important;
 }
 
-/* Унификация иконок (чтобы icecream.png был везде) */
-.ice-icon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    background-image: url('assets/icecream.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    vertical-align: middle;
-}
-
 .price-row {
     display: flex;
     align-items: center;
@@ -686,18 +591,14 @@ button:active { transform: scale(0.95); }
     color: #fff;
 }
 
-.equal-sign {
-    opacity: 0.7
-    margin: 0 4px;
-}
+.equal-sign { margin: 0 4px; opacity: 0.7; }
 
 /* --- ТОЧЕЧНЫЕ ПРАВКИ МАГАЗИНА --- */
-/* 1. Уменьшаем кнопки покупки в магазине (делаем их аккуратными) */
-#shop button, #realShop button, .shop-item button {
-    width: 140px !important;    /* Узкая ширина */
-    height: 40px !important;    /* Небольшая высота */
-    padding: 0 10px !important; /* Убираем гигантские отступы */
-    font-size: 14px !important; /* Читабельный, но компактный шрифт */
+#shop button, #realShop button, .shop-item button:not(.sub-btn) {
+    width: 140px !important; 
+    height: 40px !important; 
+    padding: 0 10px !important; 
+    font-size: 14px !important; 
     margin: 10px auto !important;
     border-radius: 12px !important;
     display: flex !important;
@@ -705,8 +606,7 @@ button:active { transform: scale(0.95); }
     justify-content: center;
 }
 
-/* Находим ВСЕ элементы, которые содержат слово dealer в классе */
-[class*="dealer"], .shop-item:has(button:contains("ОБМЕНЯТЬ")), .translucent-glass {
+[class*="dealer"], .translucent-glass {
     background: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(15px) !important;
     -webkit-backdrop-filter: blur(15px) !important;
@@ -721,12 +621,8 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
 }
 
-/* --- ФИКС ДИЛЕРОВ В МАГАЗИНЕ --- */
-/* Если в баффах сработало, а в магазине нет — значит в магазине это .shop-item */
 #shop .shop-item, 
-#realShop .shop-item,
-.shop-container > div:nth-child(n+3) { 
-    /* Допустим, дилеры идут после первых двух товаров */
+#realShop .shop-item { 
     background: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
@@ -735,23 +631,12 @@ button:active { transform: scale(0.95); }
     border-radius: 20px !important;
 }
 
-/* Специально для заголовков дилера в магазине */
-#shop h3, #shop .dealer-title {
-    font-size: 18px !important;
-    color: #ffeb3b !important; /* Золотистый цвет */
-    margin-bottom: 10px !important;
-}
-
-/* --- ФИКС КНОПОК "НАЗАД" ИЗ HTML --- */
-/* Находим кнопки по классу .sub-btn, которые стоят в конце экранов (Магазин, Баффы, Рейтинг) */
-#shop .sub-btn, 
-#realShop .sub-btn, 
-#leaderboardScreen .sub-btn,
-#gameOverScreen .sub-btn {
-    width: 260px !important;    /* Увеличиваем ширину */
-    height:95px !important;    /* Увеличиваем высоту */
-    font-size: 25px !important; /* Делаем текст крупнее */
-    margin: 40px auto !important; /* Добавляем отступ сверху */
+/* --- КНОПКИ "НАЗАД" --- */
+.sub-btn {
+    width: 260px !important; 
+    height: 95px !important; 
+    font-size: 25px !important; 
+    margin: 40px auto !important; 
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -759,16 +644,11 @@ button:active { transform: scale(0.95); }
     border: 2px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 15px !important;
     font-weight: 900 !important;
-    text-transform: uppercase;
 }
 
-/* Эффект при нажатии на "НАЗАД" */
-#shop .sub-btn:active, 
-#realShop .sub-btn:active, 
-#leaderboardScreen .sub-btn:active {
-    transform: scale(0.95) !important;
-}
+.sub-btn:active { transform: scale(0.95) !important; }
 
+/* --- АВТОРИЗАЦИЯ И СПИННЕР --- */
 #usernameInput {
     padding: 15px;
     font-size: 20px;
@@ -782,11 +662,8 @@ button:active { transform: scale(0.95); }
     outline: none;
 }
 
-#usernameInput:focus {
-    box-shadow: 0 0 15px #00eaff;
-}
+#usernameInput:focus { box-shadow: 0 0 15px #00eaff; }
 
-/* Спиннер загрузки */
 .spinner {
     width: 50px;
     height: 50px;
@@ -801,4 +678,3 @@ button:active { transform: scale(0.95); }
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
