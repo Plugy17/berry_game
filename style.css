@@ -749,7 +749,7 @@ button:active { transform: scale(0.95); }
 #leaderboardScreen .sub-btn,
 #gameOverScreen .sub-btn {
     width: 260px !important;    /* Увеличиваем ширину */
-    height: 60px !important;    /* Увеличиваем высоту */
+    height: 90px !important;    /* Увеличиваем высоту */
     font-size: 20px !important; /* Делаем текст крупнее */
     margin: 30px auto !important; /* Добавляем отступ сверху */
     display: flex !important;
