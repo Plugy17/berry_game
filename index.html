@@ -2,54 +2,136 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Berry Runner</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BERRY RUNNER ONLINE</title>
+    <!-- Обновлена ссылка на стили для стабильной загрузки -->
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <!-- Меню -->
-    <div id="screen-menu" class="screen">
-        <div class="top-bar">
-            <div id="ui-nick">ГЕРОЙ: ---</div>
-            <div id="ui-balance">0 🍦 | 0 💎</div>
-        </div>
-        
-        <div class="menu-layout">
-            <h1 class="logo">BERRY RUNNER</h1>
-            <button class="btn-play" onclick="game.start()">ИГРАТЬ</button>
-            <div class="menu-row">
-                <button class="btn-sub" onclick="ui.show('screen-shop')">МАГАЗИН</button>
-                <button class="btn-sub" onclick="ui.show('screen-lead')">РЕЙТИНГ</button>
-            </div>
+<div id="menu" class="screen">
+    <div id="menu-particles"></div>
+
+    <div class="top-bar-container">
+        <div id="welcome" class="welcome-text">Герой BERRY</div>
+        <div class="menu-stats-container">
+            <!-- Основной баланс игрока -->
+            <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
+            <!-- Рекорд -->
+            <div id="menuLeaderboard" class="record-info">🏆 0</div>
         </div>
     </div>
 
-    <!-- Игра -->
-    <div id="screen-game" class="screen hidden">
-        <div class="game-hud">
-            <div id="game-score">0</div>
-            <div class="game-bonuses">
-                <div class="bonus-slot" onclick="items.use('shield')">🛡️ <span id="inv-shield">0</span></div>
-                <div class="bonus-slot" onclick="items.use('magnet')">🧲 <span id="inv-magnet">0</span></div>
-            </div>
+    <div class="spacer-middle"></div>
+
+    <div class="menu-controls">
+        <input id="nick" type="text" placeholder="Имя героя..." maxlength="12" />
+        <select id="difficulty">
+            <option value="easy">🟩 Легко</option>
+            <option value="medium" selected>🟨 Средне</option>
+            <option value="hard">🟥 Сложно</option>
+        </select>
+        <button onclick="startGame()">ИГРАТЬ</button>
+        <button onclick="openShop()">🛒 Магазин</button>
+    </div>
+</div>
+
+<div id="game" class="screen hidden">
+    <!-- Слой для взрывов и частиц -->
+    <div id="effects-layer"></div>
+
+    <!-- HUD теперь управляется целиком через JS для компактности -->
+    <div id="hud">
+        <span class="ice-icon"></span> 0 | 🏆 0
+    </div> 
+    
+    <button id="backBtn" onclick="backToMenu()">🏠</button>
+    
+    <div id="combo-container">
+        <div id="combo-ui" class="hidden">x2</div>
+        <div id="combo-msg"></div> 
+    </div>
+
+    <div id="bonus-panel">
+        <div class="bonus-btn" onclick="useShield()">
+            <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
+            <span id="count-shield">0</span>
         </div>
-        <div id="world">
-            <div id="player"></div>
-            <div id="obstacle"></div>
+        <div class="bonus-btn" onclick="useMagnet()">
+            <img src="assets/magnet_icon.png" class="bonus-icon-img" alt="Magnet">
+            <span id="count-magnet">0</span>
+        </div>
+    </div>
+    
+    <div id="player"></div> 
+    <div id="obstacle"></div> 
+</div>
+
+<div id="gameOverScreen" class="hidden">
+    <div class="go-card">
+        <div class="go-title">БА-БАХ!</div>
+        <div class="go-stats">
+            <span class="ice-icon-big"></span>
+            <span id="final-score">0</span>
+        </div>
+        <div class="go-btn-container">
+            <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
+            <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
+        </div>
+    </div>
+</div>
+
+<div id="shop" class="screen hidden">
+    <h2 class="shop-title">МАГАЗИН</h2>
+
+    <div class="shop-balance-container">
+        <!-- Обертка для анимации покупки -->
+        <div id="balance-anim-target" class="shop-balance-wrapper">
+            <!-- Сюда JS вставит число и иконку -->
+            <span id="shop-balance">0 <span class="ice-icon"></span></span>
         </div>
     </div>
 
-    <!-- Магазин (Сетка 2х2) -->
-    <div id="screen-shop" class="screen hidden">
-        <h2>МАГАЗИН</h2>
-        <div class="shop-grid" id="shop-items-container">
-            <!-- Сюда JS вставит карточки -->
+    <div class="shop-container">
+        <div class="shop-item">
+            <img src="assets/shield_icon.png" alt="Shield">
+            <div class="item-title">ЩИТ</div>
+            <button class="buy-button" onclick="buyItem('shield')">
+                КУПИТЬ 300 <span class="ice-icon"></span>
+            </button>
         </div>
-        <button class="btn-back" onclick="ui.show('screen-menu')">НАЗАД</button>
+
+        <div class="shop-item">
+            <img src="assets/magnet_icon.png" alt="Magnet">
+            <div class="item-title">МАГНИТ</div>
+            <button class="buy-button" onclick="buyItem('magnet')">
+                КУПИТЬ 500 <span class="ice-icon"></span>
+            </button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
+    authDomain: "berry-game-4fa9b.firebaseapp.com",
+    databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com",
+    projectId: "berry-game-4fa9b",
+    storageBucket: "berry-game-4fa9b.firebasestorage.app",
+    messagingSenderId: "736707445306",
+    appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
+    measurementId: "G-LLJ9L848G0"
+  };
+  try {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  } catch (e) { console.error("Firebase init error:", e); window.db = null; }
+</script>
+<script src="game.js"></script>
 </body>
 </html>
