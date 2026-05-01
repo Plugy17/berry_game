@@ -1,48 +1,521 @@
-:root {
-    --pink: #ff4fd8;
-    --cyan: #00d2ff;
+/* --- БАЗОВЫЕ НАСТРОЙКИ --- */
+body {
+    margin: 0; 
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden; 
+    height: 100vh; 
+    width: 100vw;
+    touch-action: none; 
+    background-color: #020205;
 }
 
-body, html { 
-    margin: 0; padding: 0; width: 100%; height: 100%; 
-    background: #000; color: #fff; font-family: sans-serif; overflow: hidden;
+.screen {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    z-index: 10;
+    background: url('assets/bg.jpg') no-repeat center center;
+    background-size: cover;
 }
 
-.screen { 
-    position: absolute; width: 100%; height: 100%; 
-    display: flex; flex-direction: column; align-items: center;
-    background: url('assets/background.jpg') center/cover; /* Твой фон */
+#game.screen {
+    background: url('assets/game_bg.jpg') no-repeat center center;
+    background-size: cover;
 }
 
 .hidden { display: none !important; }
+#menuLeaderboard { display: none !important; }
 
-/* Сетка магазина */
-.shop-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    width: 90%; padding: 20px;
+/* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
+.ice-drop, .falling-ice-anim {
+    position: absolute;
+    width: 25px; height: 25px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    z-index: 1;
+    pointer-events: none;
+    animation: iceFall linear infinite;
 }
 
-.shop-card {
-    background: rgba(255,255,255,0.1); border-radius: 15px;
-    padding: 15px; text-align: center; border: 1px solid var(--pink);
+.falling-ice-anim {
+    animation: iceFall linear forwards;
 }
 
-/* Игровые объекты */
-#world { position: relative; width: 100%; max-width: 500px; height: 80vh; overflow: hidden; }
-
-#player {
-    position: absolute; bottom: 100px; width: 60px; height: 60px;
-    background: url('assets/icecream.png') no-repeat center/contain; /* Твое мороженое */
-    transform: translateX(-50%); z-index: 10;
+@keyframes iceFall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.8; }
+    85% { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
+/* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
+.ice-pop {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #fff, 0 0 40px #ffea00;
+    pointer-events: none;
+    z-index: 150;
+    animation: popEffect 0.4s ease-out forwards;
+}
+
+@keyframes popEffect {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(6); opacity: 0; }
+}
+
+.cube-boom {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: #ff4f00;
+    box-shadow: 0 0 30px #ff0000, 0 0 60px #ffaa00;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 160;
+    animation: boomEffect 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes boomEffect {
+    0% { transform: scale(0.5) rotate(0deg); opacity: 1; }
+    100% { transform: scale(4) rotate(90deg); opacity: 0; }
+}
+
+.ice-particle {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    pointer-events: none;
+    z-index: 999;
+    animation: particleOut 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes particleOut {
+    0% { transform: translate(0, 0) scale(1.2) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(360deg); opacity: 0; }
+}
+
+/* --- КНОПКИ --- */
+button, select, input {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    padding: 15px 20px !important;
+    border-radius: 20px;
+    font-size: 18px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: 0.3s all ease;
+    cursor: pointer;
+    width: 100% !important;
+    max-width: 280px;
+    box-sizing: border-box;
+    margin: 5px 0;
+    box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
+}
+
+button:active { transform: scale(0.95); }
+
+#backBtn {
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    width: 45px !important; /* Уменьшено для компактности в уровень с HUD */
+    height: 45px !important; 
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px !important;
+    font-size: 20px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 79, 216, 0.6) !important;
+    z-index: 100;
+}
+
+/* --- МАГАЗИН (ЧЕТКИЙ СЧЕТ КАК В МЕНЮ) --- */
+#shop {
+    justify-content: flex-start !important; 
+    padding: 40px 20px 60px 20px !important;
+    box-sizing: border-box;
+    overflow-y: scroll !important; 
+    touch-action: pan-y !important; 
+    -webkit-overflow-scrolling: touch;
+}
+
+#shop::-webkit-scrollbar { width: 0; background: transparent; }
+
+.shop-title {
+    color: white;
+    font-size: 42px;
+    font-weight: 900;
+    margin: 20px 0 10px 0;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px #ff4fd8, 0 0 30px #ff4fd8;
+    z-index: 20;
+    animation: neonGlow 2s infinite alternate;
+}
+
+@keyframes neonGlow {
+    from { transform: scale(1); text-shadow: 0 0 10px #ff4fd8, 0 0 20px #ff4fd8; }
+    to { transform: scale(1.05); text-shadow: 0 0 20px #ff4fd8, 0 0 40px #00eaff; }
+}
+
+.shop-balance-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px;
+    z-index: 15;
+}
+
+.shop-balance-wrapper {
+    background: rgba(0, 0, 0, 0.7) !important; /* Прозрачность как в меню */
+    backdrop-filter: blur(15px);
+    border: 2px solid #ff4fd8 !important; /* Цвет как в меню */
+    border-radius: 30px !important;
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
+    min-width: 120px;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.balance-bump {
+    transform: scale(1.2);
+    border-color: #00eaff !important;
+    box-shadow: 0 0 30px rgba(0, 234, 255, 0.8) !important;
+}
+
+.shop-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.shop-item {
+    background: none !important; 
+    border: none !important;
+    padding: 10px;
+    width: 90%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.shop-item img {
+    width: 140px !important; 
+    height: 140px !important;
+    object-fit: contain !important;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 25px rgba(255, 79, 216, 0.7));
+    animation: objectAlive 6s ease-in-out infinite;
+}
+
+.item-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 15px #ff4fd8;
+    margin-bottom: 15px;
+}
+
+.buy-button {
+    background: linear-gradient(45deg, #ff4fd8, #ba55d3) !important;
+    border: none !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+    padding: 14px !important;
+    box-shadow: 0 8px 20px rgba(255, 79, 216, 0.4) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+@keyframes objectAlive {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(255, 79, 216, 0.6)); }
+    50% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 40px rgba(0, 234, 255, 0.8)); }
+}
+
+.shop-exit-btn {
+    margin: 40px 0 80px 0 !important;
+    max-width: 220px;
+}
+
+/* --- МЕНЮ --- */
+#menu { 
+    justify-content: flex-start; 
+    padding: 60px 0; 
+}
+
+.top-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: auto; 
+    z-index: 5;
+}
+
+.welcome-text {
+    width: 100%;
+    font-size: 32px; 
+    font-weight: 900;
+    text-shadow: 0 0 15px #ff4fd8;
+    color: white; 
+    text-align: center;
+    margin: 0;
+}
+
+.balance-info {
+    font-size: 24px !important; 
+    color: #fff; 
+    font-weight: 900;
+    background: rgba(0, 0, 0, 0.7) !important; 
+    backdrop-filter: blur(15px);
+    padding: 12px 25px !important; 
+    border-radius: 30px !important; 
+    border: 2px solid #ff4fd8 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto !important;
+    box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
+    animation: scorePulse 2s infinite alternate;
+    gap: 12px;
+}
+
+.balance-info .ice-icon { 
+    display: inline-block !important; 
+    width: 30px; height: 30px;
+}
+
+@keyframes scorePulse {
+    from { box-shadow: 0 0 10px rgba(255, 79, 216, 0.4); border-color: #ff4fd8; }
+    to { box-shadow: 0 0 25px rgba(0, 234, 255, 0.6); border-color: #00eaff; }
+}
+
+.menu-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 120px; 
+    z-index: 20;
+}
+
+/* --- ОКНО ПРОИГРЫША --- */
+#gameOverScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.go-card {
+    background: rgba(20, 20, 30, 0.9);
+    padding: 40px;
+    border-radius: 30px;
+    border: 3px solid #ff4fd8;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 79, 216, 0.5);
+    max-width: 320px;
+    width: 80%;
+}
+
+.go-title {
+    font-size: 50px; font-weight: 900;
+    color: #fff; text-shadow: 0 0 20px #ff4fd8;
+    margin-bottom: 15px;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.go-stats {
+    font-size: 32px; color: #00eaff;
+    font-weight: 900; margin-bottom: 30px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+
+.ice-icon-big {
+    display: inline-block;
+    width: 40px; height: 40px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+}
+
+.go-btn-container {
+    display: flex; flex-direction: column;
+    gap: 15px; width: 100%; align-items: center;
+}
+
+.btn-restart { 
+    background: linear-gradient(45deg, #00ff88, #00ba63) !important; 
+    color: #000 !important;
+}
+
+.btn-exit { 
+    background: rgba(255, 255, 255, 0.1) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- HUD (ОБНОВЛЕННЫЙ: КОМПАКТНАЯ ПОЛОСКА В УРОВЕНЬ С ДОМИКОМ) --- */
+#hud {
+    position: absolute; 
+    top: 15px; /* Совпадает с top кнопки #backBtn */
+    left: 15px;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(10px);
+    padding: 6px 15px; /* Уменьшены отступы */
+    border-radius: 15px;
+    border: 2px solid #ff4fd8; 
+    color: white; 
+    z-index: 100;
+    font-size: 18px; /* Уменьшен размер шрифта */
+    font-weight: 900;
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
+    height: 45px; /* Фиксированная высота как у кнопки #backBtn */
+    box-sizing: border-box;
+}
+
+.ice-icon {
+    width: 24px; /* Уменьшен размер иконки для HUD */
+    height: 24px;
+    background: url('assets/icecream.png') no-repeat center center;
+    background-size: contain;
+    display: inline-block;
+}
+
+/* --- КОМБО --- */
+#combo-container {
+    position: absolute; top: 80px; left: 20px;
+    display: flex; flex-direction: column; z-index: 110; pointer-events: none;
+}
+
+#combo-ui {
+    font-size: 50px; font-weight: 900; color: #fff; font-style: italic;
+    text-shadow: 0 0 15px #fff, 0 0 30px #ff4fd8, 0 0 50px #ff00ff;
+}
+
+/* --- ПРЕПЯТСТВИЕ --- */
 #obstacle {
-    position: absolute; width: 50px; height: 50px;
-    background: url('assets/obstacle.png') no-repeat center/contain; /* Твое препятствие */
+    position: absolute;
+    width: 70px; height: 70px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 90;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+    transition: left 0.2s ease-out;
 }
 
-.btn-play {
-    width: 250px; padding: 20px; border-radius: 30px; border: none;
-    background: var(--pink); color: white; font-size: 24px; font-weight: bold;
-    box-shadow: 0 0 20px var(--pink); margin-bottom: 20px;
+/* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
+#player {
+    position: absolute; 
+    bottom: 18%; 
+    left: 50%; 
+    width: 85px; 
+    height: 85px;
+    transform: translateX(-50%); 
+    background: url('assets/berry.png') no-repeat center center !important;
+    background-size: contain !important; 
+    z-index: 99;
+}
+
+.shield-aura::after {
+    content: '';
+    position: absolute;
+    top: -20px; left: -20px; right: -20px; bottom: -20px;
+    border: 5px solid #00eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #00eaff;
+    animation: shieldJuicy 0.5s infinite alternate;
+}
+
+@keyframes shieldJuicy {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(1.1); opacity: 0.7; }
+}
+
+.magnet-aura::before {
+    content: '';
+    position: absolute;
+    top: -45px; left: -45px; right: -45px; bottom: -45px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(191, 0, 255, 0.4) 0%, rgba(191, 0, 255, 0) 70%);
+    border: 2px dashed rgba(191, 0, 255, 0.6);
+    animation: magnetRotation 0.8s linear infinite;
+}
+
+@keyframes magnetRotation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* --- БОНУСЫ --- */
+#bonus-panel {
+    position: absolute; bottom: 35px; left: 50%;
+    transform: translateX(-50%); display: flex; gap: 20px; z-index: 110;
+}
+
+.bonus-btn {
+    position: relative; 
+    width: 60px !important; height: 60px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 79, 216, 0.4) !important;
+    border-radius: 50% !important; 
+    display: flex; justify-content: center; align-items: center;
+    padding: 0 !important;
+}
+
+.bonus-btn img { width: 35px !important; height: 35px !important; }
+
+.bonus-btn span {
+    position: absolute; bottom: -5px; right: -5px; font-size: 14px;
+    background: #ff4fd8; padding: 2px 6px; border-radius: 10px; border: 1px solid white;
+}
+
+#effects-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
