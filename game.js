@@ -321,3 +321,23 @@ function closeShop() {
     document.getElementById("menu").classList.remove("hidden"); 
     startIceRain("menu"); 
 }
+
+// --- МЕХАНИКА УПРАВЛЕНИЯ КЛАВИАТУРОЙ ---
+document.addEventListener("keydown", (e) => {
+    // Если игра не запущена, кнопки не работают
+    if (!gameRunning) return;
+
+    const p = document.getElementById("player");
+    if (!p) return;
+
+    // Управление через Стрелки или A/D (для удобства)
+    if (e.key === "ArrowLeft" || e.code === "KeyA") {
+        targetLane = Math.max(0, targetLane - 1);
+    } 
+    else if (e.key === "ArrowRight" || e.code === "KeyD") {
+        targetLane = Math.min(laneCount - 1, targetLane + 1);
+    }
+
+    // Применяем позицию к персонажу
+    p.style.left = lanes[targetLane] + "%";
+});
