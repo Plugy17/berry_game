@@ -138,28 +138,36 @@ function updateShopUI() {
     if(sStat) sStat.innerText = `${inventory.shield}/${inventory.maxShieldSlots}`;
     if(mStat) mStat.innerText = `${inventory.magnet}/${inventory.maxMagnetSlots}`;
 
-    // ПРАВКА: Отрисовка дилеров внутри магазина при обновлении UI
     const shopContainer = document.querySelector('.shop-container');
     if (shopContainer) {
-        // Проверяем, есть ли уже блок дилеров, если нет — создаем
         let dealersBlock = document.getElementById('dealers-block');
         if (!dealersBlock) {
             dealersBlock = document.createElement('div');
             dealersBlock.id = 'dealers-block';
-            dealersBlock.style.gridColumn = "1 / -1"; // На всю ширину сетки
+            dealersBlock.className = "dealers-wrapper"; 
             shopContainer.appendChild(dealersBlock);
         }
 
+        // ПРАВКА: Полное соответствие фото_2026-05-01 06.49.47.jpeg
+        // Используем иконки PNG везде вместо текстовых эмодзи
         dealersBlock.innerHTML = `
-            <div class="dealer-card">
-                <h3>Золотой дилер</h3>
-                <p>5000 ${getIceIcon()} = 1 ${getGoldIcon()}</p>
-                <button onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+            <div class="dealer-card gold-card translucent-glass">
+                <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
+                <div class="price-row">
+                    <span class="price-val">5000</span> ${getIceIcon()} 
+                    <span class="equal-sign">=</span> 
+                    <span class="price-val">1</span> ${getGoldIcon()}
+                </div>
+                <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
             </div>
-            <div class="dealer-card" style="margin-top: 10px; border-color: #00eaff;">
-                <h3>Алмазный дилер</h3>
-                <p>50,000 ${getIceIcon()} = 1 ${getDiamondIcon()}</p>
-                <button onclick="buyDiamond()" style="background: linear-gradient(180deg, #00eaff, #0077ff) !important;">КУПИТЬ</button>
+            <div class="dealer-card diamond-card translucent-glass">
+                <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
+                <div class="price-row">
+                    <span class="price-val">50,000</span> ${getIceIcon()} 
+                    <span class="equal-sign">=</span> 
+                    <span class="price-val">1</span> ${getDiamondIcon()}
+                </div>
+                <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
             </div>
         `;
     }
