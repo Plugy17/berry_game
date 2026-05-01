@@ -462,16 +462,29 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    stopIceRain(); 
-    document.getElementById("menu")?.classList.add("hidden");
-    document.getElementById("game")?.classList.remove("hidden");
-    document.getElementById("gameOverScreen")?.classList.add("hidden");
+    console.log("Игра запускается..."); // Для отладки в консоли
     
-    // Показываем кнопки управления игрой
+    // 1. Скрываем вообще все возможные окна
+    const screens = ['menu', 'shop', 'leaderboardScreen', 'gameOverScreen', 'auth-screen', 'welcomeScreen'];
+    screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 2. Показываем игровой холст
+    const gameScreen = document.getElementById("game");
+    if (gameScreen) {
+        gameScreen.classList.remove("hidden");
+        gameScreen.style.display = "block"; // Гарантируем видимость
+    }
+
+    // 3. Показываем кнопки управления
     document.getElementById("pauseBtn")?.classList.remove("hidden");
     document.getElementById("backBtn")?.classList.remove("hidden");
 
+    stopIceRain(); 
     isPaused = false;
+    
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
     
