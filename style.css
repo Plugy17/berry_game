@@ -188,7 +188,7 @@ button:active { transform: scale(0.95); }
     align-items: center;
     border-radius: 15px !important;
     background: rgba(0, 0, 0, 0.6) url('assets/home.png') no-repeat center center !important;
-    background-size: 50px !important; 
+    background-size: 75px !important; 
     border: 2px solid #ff4fd8 !important;
     z-index: 100;
     line-height: 1;
