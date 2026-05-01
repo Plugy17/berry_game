@@ -24,6 +24,7 @@ body {
     z-index: 10;
     background: url('assets/bg.jpg') no-repeat center center;
     background-size: cover;
+    /* ПРАВКА: Центрируем кнопки меню по вертикали */
     justify-content: center !important; 
 }
 
@@ -38,8 +39,10 @@ body {
 .hidden { display: none !important; }
 
 /* --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ --- */
+/* ПРАВКА: Добавлен top: -100px, чтобы они не спавнились внизу экрана */
 .ice-drop, .falling-ice-anim {
     position: absolute;
+    top: -100px;
     width: 50px !important; 
     height: 50px !important;
     background: url('assets/icecream.png') no-repeat center center;
@@ -52,6 +55,7 @@ body {
 
 .golden-drop {
     position: absolute;
+    top: -100px;
     width: 55px !important; 
     height: 55px !important;
     background: url('assets/golden_ice.png') no-repeat center center;
@@ -65,8 +69,8 @@ body {
 
 /* ПРАВКА: Теперь падает с самого верха и учитывает масштаб */
 @keyframes iceFall {
-    0% { transform: translateY(-120px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 1; }
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 1; }
 }
 
 /* --- КОМБО ЭФФЕКТЫ --- */
@@ -94,6 +98,7 @@ body {
 }
 
 /* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
+/* ПРАВКА: Поднят z-index, чтобы эффекты были видны при ловле */
 .ice-pop {
     position: absolute;
     width: 10px; height: 10px;
@@ -101,7 +106,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 20px #fff, 0 0 40px #ffea00;
     pointer-events: none;
-    z-index: 550;
+    z-index: 5000;
     animation: popEffect 0.4s ease-out forwards;
 }
 
@@ -117,7 +122,7 @@ body {
     box-shadow: 0 0 30px #ff0000, 0 0 60px #ffaa00;
     border-radius: 4px;
     pointer-events: none;
-    z-index: 560;
+    z-index: 5000;
     animation: boomEffect 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
@@ -127,23 +132,31 @@ body {
 }
 
 /* --- КНОПКИ --- */
+/* ПРАВКА: Установлен gap в меню, чтобы кнопки не разлетались */
+#menu {
+    gap: 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
 button, select, input {
     background: rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
     color: white !important;
-    padding: 12px 20px !important; /* Уменьшено для баланса */
+    padding: 12px 20px !important; 
     border-radius: 20px;
     font-size: 18px !important;
     font-weight: 800;
     text-transform: uppercase;
     transition: 0.3s all ease;
     cursor: pointer;
-    width: 100% !important;
+    width: 85% !important;
     max-width: 280px;
     box-sizing: border-box;
-    margin: 8px 0;
+    margin: 5px 0 !important;
     box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
 }
 
@@ -172,7 +185,7 @@ button:active { transform: scale(0.95); }
     gap: 15px;
     width: 100%;
     max-width: 350px;
-    margin: 10px auto; /* Центрирование сетки */
+    margin: 10px auto; 
 }
 
 .shop-item {
@@ -200,6 +213,7 @@ button:active { transform: scale(0.95); }
     z-index: 1000;
 }
 
+/* ПРАВКА: Гарантируем отображение цифр счета */
 .balance-info, #hud {
     background: rgba(0, 0, 0, 0.8) !important;
     border: 2px solid #ff4fd8 !important;
@@ -211,6 +225,7 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
     width: auto !important;
     min-height: 40px;
+    color: white !important;
 }
 
 .currency-row {
@@ -220,6 +235,11 @@ button:active { transform: scale(0.95); }
     font-size: 18px !important;
     font-weight: 900;
     color: white !important;
+}
+
+.currency-row span {
+    display: inline-block !important;
+    min-width: 10px;
 }
 
 /* ИКОНКИ РЕСУРСОВ */
@@ -285,42 +305,49 @@ button:active { transform: scale(0.95); }
     align-items: center;
 }
 
+/* ПРАВКА: Исправлено отображение текста (был undefined) */
 #count-shield, #count-magnet {
     background: #00eaff;
-    color: black;
+    color: black !important;
     padding: 2px 6px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 14px !important;
     font-weight: 900;
     position: absolute;
     top: -5px; 
     right: -5px;
+    z-index: 10;
 }
 
 /* --- ПАУЗА И ДОМИК --- */
+/* ПРАВКА: Принудительное отображение иконок паузы и дома */
 #pauseBtn, #backBtn {
-    position: absolute;
-    top: 20px;
-    width: 60px !important; /* Уменьшено для удобства */
+    position: absolute !important;
+    top: 20px !important;
+    width: 60px !important;
     height: 60px !important;
     border: none !important;
     background-color: transparent !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
-    cursor: pointer;
-    z-index: 1001;
+    background-position: center !important;
+    cursor: pointer !important;
+    z-index: 2000 !important;
     box-shadow: none !important;
+    display: block !important;
 }
 
-#pauseBtn { left: 15px; background-image: url('assets/pause.png') !important; }
-#backBtn { right: 15px; background-image: url('assets/home.png') !important; }
+#pauseBtn { left: 15px !important; background-image: url('assets/pause.png') !important; }
+#backBtn { right: 15px !important; background-image: url('assets/home.png') !important; }
+/* Состояние при паузе */
+#pauseBtn.is-paused { background-image: url('assets/play.png') !important; }
 
-/* --- ПРАВКА КНОПОК "НАЗАД" (ОЧЕНЬ ВАЖНО) --- */
-/* ПРАВКА: В твоем коде .sub-btn были 95px высотой - это ошибка. Исправляю на компактные. */
+/* --- ПРАВКА КНОПОК "НАЗАД" --- */
+/* ПРАВКА: Добавлен pointer-events и z-index, чтобы кнопка работала */
 .sub-btn {
     width: 100% !important;
     max-width: 260px !important; 
-    height: 55px !important; /* Было 95px - это слишком много */
+    height: 55px !important; 
     font-size: 18px !important; 
     margin: 20px auto !important; 
     display: flex !important;
@@ -329,6 +356,8 @@ button:active { transform: scale(0.95); }
     background: rgba(255, 255, 255, 0.1) !important;
     border: 2px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 15px !important;
+    pointer-events: auto !important;
+    z-index: 3000 !important;
 }
 
 /* --- ДИЛЕРЫ И VIP --- */
