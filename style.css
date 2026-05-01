@@ -705,19 +705,18 @@ button:active { transform: scale(0.95); }
     justify-content: center;
 }
 
-/* --- СТРОГИЙ ФИКС ДИЛЕРОВ ВНУТРИ МАГАЗИНА --- */
-
-/* 1. Находим контейнер дилеров именно в магазине и даем эффект стекла */
-#shop .dealer-card, 
-#shop .shop-item[class*="dealer"],
-#realShop .dealer-card {
-    background: rgba(255, 255, 255, 0.07) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+/* Находим ВСЕ элементы, которые содержат слово dealer в классе */
+[class*="dealer"], .shop-item:has(button:contains("ОБМЕНЯТЬ")), .translucent-glass {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
-    border-radius: 20px !important;
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6) !important;
+    border-radius: 24px !important;
     padding: 20px !important;
     margin: 15px auto !important;
-    width: 90% !important;
+    width: 92% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
 }
