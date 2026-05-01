@@ -720,3 +720,21 @@ button:active { transform: scale(0.95); }
     flex-direction: column !important;
     align-items: center !important;
 }
+
+/* Находим кнопку по тексту или классу, если она вложенная */
+.screen button:first-of-type, 
+button#back-to-menu, 
+.back-button {
+    width: 220px !important;      /* Делаем её достаточно широкой */
+    height: 55px !important;      /* Увеличиваем высоту для удобства */
+    font-size: 18px !important;   /* Крупный, читабельный текст */
+    margin: 20px auto !important; /* Добавляем отступы, чтобы не липла к краю */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2) !important; /* Делаем чуть заметнее */
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 15px !important;
+    text-transform: uppercase;
+    font-weight: 800;
+}
