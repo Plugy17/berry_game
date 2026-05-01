@@ -16,20 +16,31 @@ let coins = 0;
 let best = 0;
 let totalCoins = 0;
 
-// --- ВАЛЮТА И ПРОГРЕСС ---
+// --- ВАЛЮТА И ПРОГРЕСС (Интеграция ПРАВКИ 1) ---
 let goldenIce = 0; 
 let diamonds = 0; 
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
 let usedReviveThisRun = false; 
 
+// ПРАВКА 1: Новый объект инвентаря (объединен с существующим)
+let inventory = JSON.parse(localStorage.getItem('inventory')) || {
+    coins: 0,
+    diamonds: 0,
+    goldenIce: 0, 
+    shield: 0,
+    magnet: 0,
+    maxShieldSlots: 3, // Начальные слоты щита
+    maxMagnetSlots: 3  // Начальные слоты магнита
+};
+
 // УРОВНИ И ОПЫТ
 let level = 1;
 let xp = 0;
 const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
 
-let inventory = { magnet: 0, shield: 0 };
-const PRICES = { magnet: 500, shield: 300, goldenConvert: 5000 };
+// Цены для совместимости (обновлены согласно ПРАВКЕ 2)
+const PRICES = { magnet: 30, shield: 50, goldenConvert: 5000 };
 const VIP_PRICES = { skin: 10, slot: 5, diamond: 50000 };
 
 let shieldActive = false;
@@ -43,32 +54,103 @@ const imgIceCream = "url('assets/icecream.png')";
 const imgGoldenIce = "url('assets/golden_ice.png')"; 
 const imgBad = "url('assets/obstacle.png')";
 
-// ПРАВКА: Иконки теперь возвращают пустые span (без текстовых эмодзи внутри), 
-// чтобы CSS подставлял только картинки из assets.
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
-// --- ЭФФЕКТ ПАДАЮЩИХ МОРОЖЕНЫХ ---
+/* --- ФУНКЦИИ ИЗМЕНЕНИЯ (ПРАВКИ 2, 3, 4) --- */
+
+// ПРАВКА 2: Покупка предметов с раздельной проверкой слотов
+function buyItem(item) {
+    const prices = { shield: 50, magnet: 30 };
+    const price = prices[item];
+
+    if (totalCoins >= price) { // Используем totalCoins для совместимости с базой
+        if (item === 'shield') {
+            if (inventory.shield < inventory.maxShieldSlots) {
+                inventory.shield++;
+                totalCoins -= price;
+            } else {
+                alert("Все слоты для щитов заняты!");
+                return;
+            }
+        } else if (item === 'magnet') {
+            if (inventory.magnet < inventory.maxMagnetSlots) {
+                inventory.magnet++;
+                totalCoins -= price;
+            } else {
+                alert("Все слоты для магнитов заняты!");
+                return;
+            }
+        }
+        saveUserData(); // Сохраняем в Firebase/Локально
+        updateMenuInfo(); // Обновляем UI
+        updateShopUI(); // ПРАВКА 4
+    } else {
+        alert("Не хватает обычного мороженого!");
+    }
+}
+
+// ПРАВКА 3: Покупка слотов отдельно для щита и магнита
+function buySlot(type) {
+    const slotPrice = 5; // Цена: 5 золотых мороженых
+
+    if (goldenIce >= slotPrice) {
+        if (type === 'shield') {
+            inventory.maxShieldSlots++;
+            alert("Куплен слот для щита!");
+        } else if (type === 'magnet') {
+            inventory.maxMagnetSlots++;
+            alert("Куплен слот для магнита!");
+        }
+        
+        goldenIce -= slotPrice;
+        saveUserData();
+        updateMenuInfo();
+        updateShopUI(); // ПРАВКА 4
+    } else {
+        alert("Нужно 5 золотых мороженых!");
+    }
+}
+
+// ПРАВКА 4: Обновление специфических элементов магазина
+function updateShopUI() {
+    const coinElem = document.getElementById("coin-count");
+    const goldElem = document.getElementById("gold-count");
+    const diamElem = document.getElementById("diamond-count");
+    const sStat = document.getElementById("shield-status");
+    const mStat = document.getElementById("magnet-status");
+
+    if(coinElem) coinElem.innerText = totalCoins;
+    if(goldElem) goldElem.innerText = goldenIce;
+    if(diamElem) diamElem.innerText = diamonds;
+    
+    if(sStat) sStat.innerText = `${inventory.shield}/${inventory.maxShieldSlots}`;
+    if(mStat) mStat.innerText = `${inventory.magnet}/${inventory.maxMagnetSlots}`;
+}
+
+// Вспомогательная функция сохранения (синхронизация локального инвентаря)
+function saveData() {
+    inventory.coins = totalCoins;
+    inventory.goldenIce = goldenIce;
+    inventory.diamonds = diamonds;
+    localStorage.setItem('inventory', JSON.stringify(inventory));
+}
+
+/* --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ УДАЛЕНИЙ) --- */
+
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
     if (!container || container.classList.contains('hidden')) return;
-
     const drop = document.createElement("div");
     const isGold = Math.random() < 0.1;
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
-    
-    // ПРАВКА: Принудительно задаем начальную позицию выше экрана
     drop.style.position = "absolute";
     drop.style.top = "-100px"; 
     drop.style.left = Math.random() * 95 + "vw";
-    
-    // ПРАВКА: Анимация теперь визуально начинается выше за счет настроек в CSS
     drop.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
-    
     const duration = Math.random() * 2 + 3; 
     drop.style.animationDuration = duration + "s";
-    
     container.appendChild(drop);
     setTimeout(() => { if(drop.parentNode) drop.remove(); }, duration * 1000);
 }
@@ -82,11 +164,9 @@ function stopIceRain() {
     if (rainInterval) clearInterval(rainInterval);
 }
 
-// --- ЭФФЕКТЫ ВЗРЫВА ---
 function createExplosion(x, y, isGold = false) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
-    
     const particleCount = 15;
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
@@ -101,7 +181,6 @@ function createExplosion(x, y, isGold = false) {
         particle.style.top = y + "px";
         particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
         if(isGold) particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
-        
         layer.appendChild(particle);
         setTimeout(() => { if(particle.parentNode) particle.remove(); }, 600);
     }
@@ -110,13 +189,11 @@ function createExplosion(x, y, isGold = false) {
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(!layer) return;
-    
     const gameContainer = document.getElementById("game");
     if(gameContainer) {
         gameContainer.classList.add("shake-anim");
         setTimeout(() => gameContainer.classList.remove("shake-anim"), 300);
     }
-
     const boom = document.createElement('div');
     boom.className = 'cube-boom';
     boom.style.left = x + 'px';
@@ -125,7 +202,6 @@ function createCubeBoom(x, y) {
     setTimeout(() => { if(boom.parentNode) boom.remove(); }, 500);
 }
 
-// --- FIREBASE ---
 function loadUserData(playerNick) {
     if (!window.db) return updateMenuInfo();
     db.ref('players/' + playerNick).once('value').then((snapshot) => {
@@ -137,8 +213,10 @@ function loadUserData(playerNick) {
             diamonds = data.diamonds || 0; 
             level = data.level || 1;
             xp = data.xp || 0;
-            inventory.shield = (data.inventory && data.inventory.shield) || 0;
-            inventory.magnet = (data.inventory && data.inventory.magnet) || 0;
+            // Синхронизация инвентаря с БД
+            if(data.inventory) {
+                inventory = {...inventory, ...data.inventory};
+            }
             hasVipSkin = data.hasVipSkin || false;
             extraShieldSlots = data.extraShieldSlots || 0;
         }
@@ -147,7 +225,11 @@ function loadUserData(playerNick) {
 }
 
 function saveUserData() {
-    if (!nick || !window.db) return;
+    if (!nick || !window.db) {
+        saveData();
+        return;
+    }
+    saveData();
     db.ref('players/' + nick).set({ 
         nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin, extraShieldSlots
     });
@@ -159,57 +241,35 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
-function togglePause() {
-    if (!gameActive) return; // Не ставим на паузу, если игра еще не началась или уже окончена
-
-    isPaused = !isPaused;
-    const btn = document.getElementById('pauseBtn');
-
-    if (isPaused) {
-        btn.classList.add('is-paused');
-        // Здесь можно добавить надпись "PAUSE" на экран, если хочешь
-    } else {
-        btn.classList.remove('is-paused');
-    }
-}
-
-// --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
     const shopBtn = document.getElementById("shop-btn-main");
-    // ПРАВКА: Убран текстовый эмодзи алмаза, оставляем только текст.
     if(shopBtn) shopBtn.innerHTML = `МАГАЗИН`;
-
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
         if(welcomeElem) welcomeElem.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
-    
     const menuLb = document.getElementById("menuLeaderboard");
     if(menuLb) menuLb.innerText = "🏆 РЕКОРД: " + best;
-
     const totalBal = document.getElementById("total-balance");
     if(totalBal) {
-        // ПРАВКА: Используем функции get...Icon(), которые теперь возвращают пустые спаны.
         totalBal.innerHTML = `
             <div class="currency-row"><span>${totalCoins}</span> ${getIceIcon()}</div>
             <div class="currency-row gold-highlight" style="margin-top:5px"><span>${goldenIce}</span> ${getGoldIcon()}</div>
             <div class="currency-row" style="margin-top:5px; color:#00eaff"><span>${diamonds}</span> ${getDiamondIcon()}</div>
         `;
     }
-    
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) {
         shopBalValue.innerHTML = `<span>${totalCoins}</span> ${getIceIcon()} | <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
-
     const vipBalInfo = document.getElementById("vip-balance-info");
     if(vipBalInfo) {
         vipBalInfo.innerHTML = `Баланс: <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
-
     updateBonusUI();
+    updateShopUI();
 }
 
 function updateBonusUI() {
@@ -219,7 +279,6 @@ function updateBonusUI() {
     if(mCount) mCount.innerText = inventory.magnet;
 }
 
-// --- ИГРОВОЙ ПРОЦЕСС ---
 function startGame() {
     if (!nick) {
         const nickInput = document.getElementById("nick");
@@ -228,52 +287,34 @@ function startGame() {
         nick = val; 
         localStorage.setItem("nick", nick);
     }
-    
     stopIceRain(); 
     document.getElementById("gameOverScreen").classList.add("hidden");
-    
-    // ПРАВКА: Сбрасываем состояние паузы при старте
     isPaused = false;
     const pBtn = document.getElementById("pauseBtn");
     if (pBtn) {
-        pBtn.classList.remove("hidden");    // Показываем кнопку паузы в игре
-        pBtn.classList.remove("is-paused"); // Убеждаемся, что иконка "Pause", а не "Play"
+        pBtn.classList.remove("hidden");
+        pBtn.classList.remove("is-paused");
     }
-
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
-    
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-    
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
-    
-    // Показываем кнопку домика (на всякий случай)
     const bBtn = document.getElementById("backBtn");
     if (bBtn) bBtn.classList.remove("hidden");
-
     resetGame();
 }
 
 function togglePause() {
-    // Если игра не запущена (мы в меню), пауза не должна работать
     if (!gameRunning) return;
-
-    // Переключаем значение: если было false, станет true, и наоборот
     isPaused = !isPaused;
-
     const btn = document.getElementById('pauseBtn');
     if (!btn) return;
-
     if (isPaused) {
-        // Добавляем класс, который в CSS меняет фон на play.png
         btn.classList.add('is-paused');
-        console.log("Игра на паузе");
     } else {
-        // Убираем класс, возвращается фон pause.png
         btn.classList.remove('is-paused');
-        console.log("Игра продолжается");
     }
 }
 
@@ -282,12 +323,10 @@ function resetGame() {
     shieldActive = false; magnetActive = false;
     usedReviveThisRun = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
-    
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.filter = "none"; 
     if(hasVipSkin) p.classList.add("skin-ice"); 
-    
     p.style.left = lanes[targetLane] + "%";
     p.style.transform = "translateX(-50%) rotate(0deg)"; 
     const comboUi = document.getElementById("combo-ui");
@@ -304,13 +343,10 @@ function spawnObstacle() {
     if(!obs) return;
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
-    
     obs.style.left = lanes[obstacleLane] + "%";
-
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
     const rand = Math.random();
-    
     if (mode === "hard" && rand < 0.05) {
         obs.dataset.type = "golden";
         obs.style.backgroundImage = imgGoldenIce;
@@ -319,62 +355,39 @@ function spawnObstacle() {
         obs.dataset.type = isGood ? "good" : "bad";
         obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     }
-
     obs.style.display = "block";
 }
 
 function update() {
-    // 1. Проверка на полное завершение игры
     if (!gameRunning) return;
-
-    // 2. Проверка на ПАУЗУ
-    // Если игра на паузе, мы просто зацикливаем выполнение, 
-    // но не меняем координаты и не считаем столкновения.
     if (isPaused) {
         loopId = requestAnimationFrame(update);
         return; 
     }
-
-    // --- ДВИЖЕНИЕ И ЛОГИКА (выполняется, если нет паузы) ---
     obstacleY += speed;
     speed += difficulty;
-    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     if(!obs || !p) return;
-
     const playerTop = window.innerHeight * 0.75; 
-
     let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let targetX = lanes[targetLane];
-    
-    // Плавное перемещение игрока
     let newX = currentX + (targetX - currentX) * 0.18;
     p.style.left = newX + "%";
-    
-    // Наклон персонажа при движении
     let tilt = (targetX - currentX) * 2.5; 
     p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
-
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
-    
-    // Логика магнита
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
         let magnetPower = hasVipSkin ? 0.35 : 0.25;
         let newLeft = currentLeft + (newX - currentLeft) * magnetPower;
         obs.style.left = newLeft + "%";
     }
-    
     obs.style.top = obstacleY + "px";
-    
-    // Проверка столкновения
     let obsX = parseFloat(obs.style.left);
     if (Math.abs(newX - obsX) < 12 && obstacleY > playerTop - 70 && obstacleY < playerTop + 70) {
         handleCollision(obs, p);
     }
-    
-    // Если объект улетел за нижний край экрана
     if (obstacleY > window.innerHeight) {
         if (isPullable) { 
             comboCount = 0; 
@@ -385,8 +398,6 @@ function update() {
         }
         spawnObstacle();
     }
-
-    // Рекурсивный вызов следующего кадра анимации
     if (gameRunning) {
         loopId = requestAnimationFrame(update);
     }
@@ -396,23 +407,16 @@ function handleCollision(obs, p) {
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-
     if (obs.dataset.type === "good" || obs.dataset.type === "golden") {
         const isGold = obs.dataset.type === "golden";
         createExplosion(centerX, centerY, isGold); 
-        
         p.style.transition = "none";
         p.style.transform = "translateX(-50%) scale(1.3)";
-        setTimeout(() => { 
-            if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; 
-        }, 100);
-
+        setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; }, 100);
         comboCount++;
         if (comboCount % 100 === 0) goldenIce++;
         if (isGold) goldenIce++;
-
         comboMultiplier = comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
-
         const ui = document.getElementById("combo-ui");
         if(ui && comboMultiplier > 1) { 
             ui.innerText = "x" + comboMultiplier; 
@@ -420,16 +424,12 @@ function handleCollision(obs, p) {
             ui.style.animation = 'none';
             ui.offsetHeight; 
             ui.style.animation = 'comboPop 0.3s ease-out';
-            
             if(comboMultiplier >= 5) p.style.filter = "brightness(1.5) drop-shadow(0 0 10px #fff)";
         }
-
         coins += comboMultiplier;
         xp += comboMultiplier;
-        
         let nextXP = getNextLevelXP(level);
         if (xp >= nextXP) { xp -= nextXP; level++; }
-
         updateScore(); 
         spawnObstacle();
     } else {
@@ -449,7 +449,6 @@ function handleCollision(obs, p) {
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) {
-        // ПРАВКА: Убраны текстовые эмодзи, используем графические функции.
         hud.innerHTML = `
             <div class="currency-row">LVL ${level}</div>
             <div class="currency-row"><span>${coins}</span> ${getIceIcon()}</div>
@@ -461,24 +460,20 @@ function updateScore() {
 function gameOver() {
     gameRunning = false;
     if (loopId) cancelAnimationFrame(loopId); 
-    
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
-
     const p = document.getElementById("player");
     if(p) {
         p.classList.remove("shield-aura", "magnet-aura");
         p.style.filter = "none";
     }
-    
     const goScreen = document.getElementById("gameOverScreen");
     if(goScreen) {
         goScreen.classList.remove("hidden");
         const finalScoreElem = document.getElementById("final-score");
         if(finalScoreElem) finalScoreElem.innerText = coins; 
     }
-    
     const revBtn = document.getElementById("revive-btn");
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && diamonds > 0) ? "block" : "none";
 }
@@ -488,14 +483,12 @@ function revivePlayer() {
         diamonds--;
         usedReviveThisRun = true;
         document.getElementById("gameOverScreen").classList.add("hidden");
-        
         shieldActive = true;
         const p = document.getElementById("player");
         if(p) {
             p.classList.add("shield-aura");
             p.style.filter = "drop-shadow(0 0 15px #00eaff)";
         }
-        
         gameRunning = true;
         spawnObstacle();
         update();
@@ -504,7 +497,6 @@ function revivePlayer() {
     }
 }
 
-// --- МАГАЗИН И ДИЛЕРЫ ---
 function convertIceToGold() {
     if (totalCoins >= 5000) {
         totalCoins -= 5000; goldenIce++;
@@ -532,25 +524,9 @@ function buyVipItem(type) {
             alert("Скин уже куплен!");
         } else alert("Недостаточно Золотого мороженого!");
     } 
-    
     if (type === 'slot') {
-        if (goldenIce >= 5) {
-            goldenIce -= 5; 
-            extraShieldSlots++;
-            saveUserData(); updateMenuInfo();
-            alert("VIP Магазин: Слот добавлен! Текущий лимит: " + (1 + extraShieldSlots));
-        } else alert("Недостаточно Золотого мороженого!");
+        buySlot('shield'); // Совместимость со старым вызовом
     }
-}
-
-function buyItem(type) {
-    let limit = 1 + extraShieldSlots;
-    if (inventory[type] >= limit) return alert("Слоты переполнены! Купите '+1 СЛОТ' в Магазине.");
-    
-    if (totalCoins >= PRICES[type]) {
-        totalCoins -= PRICES[type]; inventory[type]++;
-        saveUserData(); updateMenuInfo();
-    } else alert("Недостаточно обычного мороженого!"); 
 }
 
 function useShield() {
@@ -562,6 +538,7 @@ function useShield() {
             p.style.filter = "drop-shadow(0 0 15px #00eaff)";
         }
         updateBonusUI();
+        saveUserData();
     }
 }
 
@@ -574,6 +551,7 @@ function useMagnet() {
             p.style.filter = "drop-shadow(0 0 15px cyan)";
         }
         updateBonusUI();
+        saveUserData();
         setTimeout(() => {
             magnetActive = false;
             const pNow = document.getElementById("player");
@@ -593,7 +571,6 @@ function openLeaderboard() {
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
     list.innerHTML = "<div class='loading'>Загрузка...</div>";
-
     if(window.db) {
         db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
@@ -628,29 +605,23 @@ function closeShop() {
 
 function backToMenu() {
     gameRunning = false;
-    isPaused = false; // ПРАВКА: Сбрасываем паузу при выходе
-    
+    isPaused = false;
     if (loopId) cancelAnimationFrame(loopId); 
-    
-    // Скрываем кнопки управления игрой
     const pBtn = document.getElementById("pauseBtn");
     const bBtn = document.getElementById("backBtn");
     if (pBtn) {
         pBtn.classList.add("hidden");
-        pBtn.classList.remove("is-paused"); // Сбрасываем иконку на будущее
+        pBtn.classList.remove("is-paused");
     }
     if (bBtn) bBtn.classList.add("hidden");
-
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(layer) {
         const particles = layer.querySelectorAll('.ice-particle, .cube-boom');
         particles.forEach(p => p.remove());
     }
-
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    
     updateMenuInfo();
     startIceRain("menu");
 }
@@ -659,23 +630,17 @@ function backToMenu() {
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
-    // ПРАВКА: Если игра на паузе ИЛИ не запущена — свайпы не работают
     if (!gameRunning || isPaused) return; 
-    
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
 });
 
-// Для кнопок на клавиатуре
 document.addEventListener("keydown", e => {
-    // ПРАВКА: Если игра на паузе ИЛИ не запущена — клавиши не работают
     if (!gameRunning || isPaused) return;
-
     if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
     if (e.key === "ArrowRight" || e.key === "d") targetLane = Math.min(3, targetLane + 1);
-    // Бонусы тоже нельзя использовать на паузе
     if (e.key === "1") useShield();
     if (e.key === "2") useMagnet();
 });
