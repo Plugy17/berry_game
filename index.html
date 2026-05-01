@@ -100,9 +100,51 @@
             border: 2px solid #ffd700;
             transform: scale(1.02);
         }
+
+        /* --- НОВЫЕ СТИЛИ ЛОАДЕРА --- */
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+            font-weight: bold;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid #00eaff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+
+<!-- [ДОБАВЛЕНО] ЭКРАН ПРИВЕТСТВИЯ / РЕГИСТРАЦИИ -->
+<div id="welcomeScreen" class="screen hidden">
+    <div class="menu-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
+        <h1 style="color: #00eaff; text-shadow: 0 0 15px #00eaff;">ДОБРО ПОЖАЛОВАТЬ!</h1>
+        <p style="color: white; margin-bottom: 20px;">Введи свой ник, чтобы сохранять рекорды:</p>
+        <input type="text" id="usernameInput" placeholder="Твой ник..." maxlength="15" style="padding: 12px; border-radius: 8px; border: none; margin-bottom: 20px; width: 80%; max-width: 300px;">
+        <button class="sub-btn" onclick="saveInitialNick()">ПРОДОЛЖИТЬ</button>
+    </div>
+</div>
+
+<!-- [ДОБАВЛЕНО] ОКНО ЗАГРУЗКИ (ЛОАДЕР) -->
+<div id="loadingOverlay" class="screen hidden" style="z-index: 1000; background: rgba(0,0,0,0.9);">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <p>ЗАГРУЗКА ДАННЫХ...</p>
+    </div>
+</div>
 
 <div id="menu" class="screen">
     <!-- ДОБАВЛЕНО: Слой для эффектов на фоне меню -->
@@ -138,7 +180,6 @@
 
     <div class="menu-footer">
          <h1 class="footer-logo">БАФФ БЕРРИ</h1> <!-- ОБНОВЛЕНО -->
-         <!-- ДОБАВЛЕНО: Скрытый заголовок для корректной работы стилей из CSS -->
          <div class="berry-runner-title-black" style="display:none;">БАФФ БЕРРИ</div> <!-- ОБНОВЛЕНО -->
     </div>
 </div>
@@ -220,7 +261,6 @@
         Баланс обновлен
     </div>
     <div class="shop-container">
-        <!-- ОБНОВЛЕННЫЙ ПУНКТ: БАФФ БЕРРИ -->
         <div class="shop-item vip-card" style="border: 2px solid #00eaff !important;">
             <div class="item-title" style="color: #00eaff; font-weight: 800;">БАФФ БЕРРИ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит +5с, Опыт x1.5, Комбо до x7</p>
