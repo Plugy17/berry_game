@@ -341,18 +341,24 @@ function useShield() {
 
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
-    if (!container || container.classList.contains('hidden')) return;
+    // Если контейнера нет или он скрыт — не создаем каплю
+    if (!container || container.offsetParent === null) return;
+
     const drop = document.createElement("div");
     const isGold = Math.random() < 0.1;
     drop.className = isGold ? "golden-drop" : "falling-ice-anim"; 
-    drop.style.position = "absolute";
-    drop.style.top = "-100px"; 
+    
     drop.style.left = Math.random() * 95 + "vw";
     drop.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
-    const duration = Math.random() * 2 + 3; 
-    drop.style.animationDuration = duration + "s";
+    
     container.appendChild(drop);
-    setTimeout(() => { if(drop.parentNode) drop.remove(); }, duration * 1000);
+
+    // Удаляем каплю строго через время анимации
+    setTimeout(() => { 
+        if (drop && drop.parentNode) {
+            drop.parentNode.removeChild(drop);
+        }
+    }, 4000);
 }
 
 function startIceRain(id) {
@@ -424,8 +430,13 @@ function createCubeBoom(x, y) {
 }
 
 function loadUserData(id) {
-    if (!window.db) return updateMenuInfo();
-    // [ИЗМЕНЕНО] Загружаем по ID в папке users
+    // Проверка: если Firebase (db) не подключен, просто выходим и обновляем меню нулями
+    if (typeof db === 'undefined' || !db) {
+        console.warn("Firebase не инициализирован. Используются локальные данные.");
+        updateMenuInfo();
+        return;
+    }
+
     db.ref('users/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
@@ -440,7 +451,10 @@ function loadUserData(id) {
             extraShieldSlots = data.extraShieldSlots || 0;
         }
         updateMenuInfo();
-    }).catch(() => updateMenuInfo());
+    }).catch((error) => {
+        console.error("Ошибка загрузки данных:", error);
+        updateMenuInfo(); // Все равно обновляем меню, чтобы кнопки заработали
+    });
 }
 
 function saveUserData() {
@@ -503,22 +517,28 @@ function updateBonusUI() {
 }
 
 function startGame() {
+    // Останавливаем дождь меню
     stopIceRain(); 
-    document.getElementById("gameOverScreen").classList.add("hidden");
+    
+    // Безопасно скрываем/показываем экраны
+    const menu = document.getElementById("menu");
+    const game = document.getElementById("game");
+    const gameOver = document.getElementById("gameOverScreen");
+
+    if (menu) menu.classList.add("hidden");
+    if (game) game.classList.remove("hidden");
+    if (gameOver) gameOver.classList.add("hidden");
+
     isPaused = false;
-    const pBtn = document.getElementById("pauseBtn");
-    if (pBtn) {
-        pBtn.classList.remove("hidden");
-        pBtn.classList.remove("is-paused");
-    }
+    
+    // Проверяем наличие выбора сложности
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
+    
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    const bBtn = document.getElementById("backBtn");
-    if (bBtn) bBtn.classList.remove("hidden");
+    
+    // Сбрасываем и запускаем
     resetGame();
 }
 
