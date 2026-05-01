@@ -87,5 +87,10 @@ window.onload = () => {
     // Здесь будет вызов Firebase (GetDoc)
     // loadFromFirebase(player.uid); 
 
-    ui.update();
+    ui.update = function() {
+    const nickElem = document.getElementById('ui-nick');
+    const balanceElem = document.getElementById('ui-balance');
+    
+    if (nickElem) nickElem.innerText = `ГЕРОЙ: ${player.nick}`;
+    if (balanceElem) balanceElem.innerText = `${player.coins} 🍦 | ${player.diamonds} 💎`;
 };
