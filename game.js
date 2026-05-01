@@ -11,7 +11,7 @@ let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
 
-// [ИЗМЕНЕНО] Переменные для Telegram
+// Переменные профиля
 let nick = "Игрок";
 let playerID = "Guest"; 
 let coins = 0;
@@ -56,9 +56,8 @@ const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
-/* --- [НОВОЕ] ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
+/* --- ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
 
-// Вместо window.onload = function() { ... }
 document.addEventListener("DOMContentLoaded", function() {
     startIceRain("menu");
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
@@ -71,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         const savedNick = localStorage.getItem('playerNick');
         if (!savedNick) {
-            document.getElementById('auth-screen')?.classList.remove('hidden'); // Показываем ТВОЙ экран из HTML
+            document.getElementById('auth-screen')?.classList.remove('hidden'); 
         } else {
             nick = savedNick;
             playerID = localStorage.getItem('playerID') || savedNick;
@@ -90,7 +89,7 @@ function saveInitialNick() {
     }
     
     localStorage.setItem('playerNick', val);
-    localStorage.setItem('nick', val);
+    localStorage.setItem('playerID', val);
     nick = val;
     playerID = val; 
     showLoaderAndGoToMenu(val);
@@ -182,7 +181,6 @@ function buyVipItem(type) {
 }
 
 function updateShopUI() {
-    // Обновляем только текстовые значения баланса в магазине
     const elements = {
         "coin-count": totalCoins,
         "gold-count": goldenIce,
@@ -196,11 +194,12 @@ function updateShopUI() {
 }
 
 function saveData() {
+    // Синхронизируем состояние с объектом инвентаря перед сохранением
     inventory.coins = totalCoins;
     inventory.goldenIce = goldenIce;
     inventory.diamonds = diamonds;
-    inventory.level = level; // Добавь это
-    inventory.xp = xp;       // И это
+    inventory.level = level; 
+    inventory.xp = xp;      
     localStorage.setItem('inventory', JSON.stringify(inventory));
 }
 
@@ -220,7 +219,8 @@ function handleCollision(obs, p) {
         setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; }, 100);
 
         comboCount++;
-        if (comboCount % 100 === 0) goldenIce++;
+        // Награда за комбо
+        if (comboCount > 0 && comboCount % 50 === 0) goldenIce++;
         if (isGold) goldenIce++;
 
         if (hasVipSkin) {
@@ -247,7 +247,11 @@ function handleCollision(obs, p) {
         xp += xpGain;
         
         let nextXP = getNextLevelXP(level);
-        if (xp >= nextXP) { xp -= nextXP; level++; }
+        if (xp >= nextXP) { 
+            xp -= nextXP; 
+            level++; 
+            alert(`НОВЫЙ УРОВЕНЬ: ${level}!`);
+        }
 
         updateScore(); 
         spawnObstacle();
@@ -293,7 +297,8 @@ function useMagnet() {
 
 function useShield() {
     if (inventory.shield > 0 && !shieldActive && gameRunning) {
-        inventory.shield--; shieldActive = true;
+        inventory.shield--; 
+        shieldActive = true;
         const p = document.getElementById("player");
         if(p) {
             p.classList.add("shield-aura");
@@ -308,8 +313,7 @@ function useShield() {
 
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
-    // Если контейнера нет или он скрыт — не создаем каплю
-    if (!container || container.offsetParent === null) return;
+    if (!container || container.classList.contains('hidden')) return;
 
     const drop = document.createElement("div");
     const isGold = Math.random() < 0.1;
@@ -320,11 +324,8 @@ function createRainDrop(containerId) {
     
     container.appendChild(drop);
 
-    // Удаляем каплю строго через время анимации
     setTimeout(() => { 
-        if (drop && drop.parentNode) {
-            drop.parentNode.removeChild(drop);
-        }
+        if (drop && drop.parentNode) drop.remove();
     }, 4000);
 }
 
@@ -339,7 +340,6 @@ function stopIceRain() {
 
 function createExplosion(x, y, isGold = false) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
-    // Если слой для эффектов не найден, выходим, чтобы не вызвать ошибку
     if (!layer) return;
 
     const particleCount = 15;
@@ -356,27 +356,12 @@ function createExplosion(x, y, isGold = false) {
         particle.style.setProperty('--dy', dy);
         particle.style.left = x + "px";
         particle.style.top = y + "px";
+        particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
 
-        // Проверка: используем картинку, только если переменная определена
-        if (typeof imgGoldenIce !== 'undefined' && typeof imgIceCream !== 'undefined') {
-            particle.style.backgroundImage = isGold ? imgGoldenIce : imgIceCream;
-        }
+        if (isGold) particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
 
-        if (isGold) {
-            particle.style.filter = "drop-shadow(0 0 10px #ffea00)";
-        }
-
-        // Безопасное добавление
-        if (layer) {
-            layer.appendChild(particle);
-        }
-
-        // Безопасное удаление через 600мс
-        setTimeout(() => { 
-            if (particle && particle.parentNode) {
-                particle.parentNode.removeChild(particle);
-            }
-        }, 600);
+        layer.appendChild(particle);
+        setTimeout(() => { if (particle.parentNode) particle.remove(); }, 600);
     }
 }
 
@@ -397,9 +382,17 @@ function createCubeBoom(x, y) {
 }
 
 function loadUserData(id) {
-    // Проверка: если Firebase (db) не подключен, просто выходим и обновляем меню нулями
     if (typeof db === 'undefined' || !db) {
-        console.warn("Firebase не инициализирован. Используются локальные данные.");
+        console.warn("Использование локальных данных.");
+        // Загрузка из localStorage если нет Firebase
+        const local = JSON.parse(localStorage.getItem('inventory'));
+        if(local) {
+            totalCoins = local.coins || 0;
+            goldenIce = local.goldenIce || 0;
+            diamonds = local.diamonds || 0;
+            level = local.level || 1;
+            xp = local.xp || 0;
+        }
         updateMenuInfo();
         return;
     }
@@ -418,35 +411,26 @@ function loadUserData(id) {
             extraShieldSlots = data.extraShieldSlots || 0;
         }
         updateMenuInfo();
-    }).catch((error) => {
-        console.error("Ошибка загрузки данных:", error);
-        updateMenuInfo(); // Все равно обновляем меню, чтобы кнопки заработали
+    }).catch((e) => {
+        console.error(e);
+        updateMenuInfo();
     });
 }
 
 function saveUserData() {
     const id = playerID || nick;
-    if (!id || !window.db) {
-        saveData();
-        return;
+    saveData(); // Сначала в локал
+    if (id && window.db) {
+        db.ref('users/' + id).set({ 
+            nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin, extraShieldSlots
+        });
     }
-    saveData();
-    // [ИЗМЕНЕНО] Сохраняем в папку users/ID
-    db.ref('users/' + id).set({ 
-        nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin, extraShieldSlots
-    });
 }
 
 function updateMenuInfo() {
-    const shopBtn = document.getElementById("shop-btn-main");
-    if(shopBtn) shopBtn.innerHTML = `МАГАЗИН`;
-
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
         if(welcomeElem) welcomeElem.innerHTML = `ГЕРОЙ: <b>${nick.toUpperCase()}</b> [LVL ${level}]`;
-        
-        const nickInput = document.getElementById("nick");
-        if(nickInput) nickInput.style.display = "none";
     }
 
     const menuLb = document.getElementById("menuLeaderboard");
@@ -466,14 +450,8 @@ function updateMenuInfo() {
         shopBalValue.innerHTML = `<span>${totalCoins}</span> ${getIceIcon()} | <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
     }
 
-    const vipBalInfo = document.getElementById("vip-balance-info");
-    if(vipBalInfo) {
-        vipBalInfo.innerHTML = `Баланс: <span>${goldenIce}</span> ${getGoldIcon()} | <span>${diamonds}</span> ${getDiamondIcon()}`;
-    }
-
-    // Вызываем только если функции существуют
-    if (typeof updateBonusUI === "function") updateBonusUI();
-    if (typeof updateShopUI === "function") updateShopUI();
+    updateBonusUI();
+    updateShopUI();
 }
 
 function updateBonusUI() {
@@ -484,28 +462,22 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    // Останавливаем дождь меню
     stopIceRain(); 
+    document.getElementById("menu")?.classList.add("hidden");
+    document.getElementById("game")?.classList.remove("hidden");
+    document.getElementById("gameOverScreen")?.classList.add("hidden");
     
-    // Безопасно скрываем/показываем экраны
-    const menu = document.getElementById("menu");
-    const game = document.getElementById("game");
-    const gameOver = document.getElementById("gameOverScreen");
-
-    if (menu) menu.classList.add("hidden");
-    if (game) game.classList.remove("hidden");
-    if (gameOver) gameOver.classList.add("hidden");
+    // Показываем кнопки управления игрой
+    document.getElementById("pauseBtn")?.classList.remove("hidden");
+    document.getElementById("backBtn")?.classList.remove("hidden");
 
     isPaused = false;
-    
-    // Проверяем наличие выбора сложности
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
     
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
     
-    // Сбрасываем и запускаем
     resetGame();
 }
 
@@ -513,9 +485,10 @@ function togglePause() {
     if (!gameRunning) return;
     isPaused = !isPaused;
     const btn = document.getElementById('pauseBtn');
-    if (!btn) return;
-    if (isPaused) btn.classList.add('is-paused');
-    else btn.classList.remove('is-paused');
+    if (btn) {
+        if (isPaused) btn.classList.add('is-paused');
+        else btn.classList.remove('is-paused');
+    }
 }
 
 function resetGame() {
@@ -523,14 +496,17 @@ function resetGame() {
     shieldActive = false; magnetActive = false;
     usedReviveThisRun = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
+    
     const p = document.getElementById("player");
-    p.className = ""; 
-    p.style.filter = "none"; 
-    if(hasVipSkin) p.classList.add("skin-ice"); 
-    p.style.left = lanes[targetLane] + "%";
-    p.style.transform = "translateX(-50%) rotate(0deg)"; 
-    const comboUi = document.getElementById("combo-ui");
-    if(comboUi) comboUi.classList.add("hidden");
+    if(p) {
+        p.className = ""; 
+        p.style.filter = "none"; 
+        if(hasVipSkin) p.classList.add("skin-ice"); 
+        p.style.left = lanes[targetLane] + "%";
+        p.style.transform = "translateX(-50%) rotate(0deg)"; 
+    }
+    
+    document.getElementById("combo-ui")?.classList.add("hidden");
     updateScore(); 
     spawnObstacle();
     updateBonusUI();
@@ -544,14 +520,13 @@ function spawnObstacle() {
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
     obs.style.left = lanes[obstacleLane] + "%";
-    const modeSelect = document.getElementById("difficulty");
-    const mode = modeSelect ? modeSelect.value : "normal";
+    
     const rand = Math.random();
-    if (mode === "hard" && rand < 0.05) {
+    if (rand < 0.08) { // 8% шанс на золотое
         obs.dataset.type = "golden";
         obs.style.backgroundImage = imgGoldenIce;
     } else {
-        const isGood = rand < 0.6;
+        const isGood = rand < 0.65;
         obs.dataset.type = isGood ? "good" : "bad";
         obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     }
@@ -566,35 +541,41 @@ function update() {
     }
     obstacleY += speed;
     speed += difficulty;
+    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     if(!obs || !p) return;
+    
     const playerTop = window.innerHeight * 0.75; 
     let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let targetX = lanes[targetLane];
-    let newX = currentX + (targetX - currentX) * 0.18;
+    let newX = currentX + (targetX - currentX) * 0.2; // Плавность
     p.style.left = newX + "%";
+    
     let tilt = (targetX - currentX) * 2.5; 
     p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
+    
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
-        let magnetPower = hasVipSkin ? 0.35 : 0.25;
+        let magnetPower = hasVipSkin ? 0.4 : 0.28;
         let newLeft = currentLeft + (newX - currentLeft) * magnetPower;
         obs.style.left = newLeft + "%";
     }
+    
     obs.style.top = obstacleY + "px";
     let obsX = parseFloat(obs.style.left);
-    if (Math.abs(newX - obsX) < 12 && obstacleY > playerTop - 70 && obstacleY < playerTop + 70) {
+    
+    if (Math.abs(newX - obsX) < 12 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
+    
     if (obstacleY > window.innerHeight) {
         if (isPullable) { 
             comboCount = 0; 
             comboMultiplier = 1; 
-            const cui = document.getElementById("combo-ui");
-            if(cui) cui.classList.add("hidden"); 
-            if(!magnetActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
+            document.getElementById("combo-ui")?.classList.add("hidden"); 
+            if(!magnetActive && !shieldActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
         }
         spawnObstacle();
     }
@@ -618,17 +599,17 @@ function gameOver() {
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
+    
     const p = document.getElementById("player");
     if(p) {
         p.classList.remove("shield-aura", "magnet-aura");
         p.style.filter = "none";
     }
-    const goScreen = document.getElementById("gameOverScreen");
-    if(goScreen) {
-        goScreen.classList.remove("hidden");
-        const finalScoreElem = document.getElementById("final-score");
-        if(finalScoreElem) finalScoreElem.innerText = coins; 
-    }
+    
+    document.getElementById("gameOverScreen")?.classList.remove("hidden");
+    const finalScoreElem = document.getElementById("final-score");
+    if(finalScoreElem) finalScoreElem.innerText = coins; 
+    
     const revBtn = document.getElementById("revive-btn");
     if(revBtn) revBtn.style.display = (!usedReviveThisRun && diamonds > 0) ? "block" : "none";
 }
@@ -656,8 +637,8 @@ function convertIceToGold() {
     if (totalCoins >= 5000) {
         totalCoins -= 5000; goldenIce++;
         saveUserData(); updateMenuInfo();
-        alert("Золотой дилер: Обмен успешен! +1 Золотое мороженое");
-    } else alert("Нужно 5000 мороженого для обмена!");
+        alert("Обмен успешен! +1 Золотое мороженое");
+    } else alert("Нужно 5000 мороженого!");
 }
 
 function buyDiamond() {
@@ -665,33 +646,34 @@ function buyDiamond() {
         totalCoins -= VIP_PRICES.diamond;
         diamonds++;
         saveUserData(); updateMenuInfo();
-        alert("Алмазный дилер: Алмаз приобретен!");
-    } else alert("Нужно 50,000 мороженого для покупки алмаза!");
+        alert("Алмаз приобретен!");
+    } else alert("Нужно 50,000 мороженого!");
 }
 
 function openLeaderboard() {
     const lbScreen = document.getElementById("leaderboardScreen");
     const list = document.getElementById("leaderboard-list");
     if(!lbScreen || !list) return;
+    
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
-    list.innerHTML = "<div class='loading' style='color:white; text-align:center;'>Загрузка...</div>";
+    list.innerHTML = "<div style='color:white; text-align:center;'>Загрузка...</div>";
     
     if(window.db) {
-        // [ИЗМЕНЕНО] Лидерборд из папки users
         db.ref('users').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
             let players = [];
             snap.forEach(child => { players.push(child.val()); });
-            
             players.reverse().forEach((p, index) => {
                 list.innerHTML += `
                 <div class="leaderboard-item">
-                    <span class="leader-name">${index + 1}. ${p.nick || "Герой"}</span>
-                    <span class="leader-level">LVL ${p.level || 1}</span>
+                    <span>${index + 1}. ${p.nick || "Герой"}</span>
+                    <span style="color:#ff4fd8">LVL ${p.level || 1}</span>
                 </div>`;
             });
         });
+    } else {
+        list.innerHTML = "<div style='color:white; text-align:center;'>Лидерборд временно недоступен</div>";
     }
 }
 
@@ -715,21 +697,19 @@ function backToMenu() {
     gameRunning = false;
     isPaused = false;
     if (loopId) cancelAnimationFrame(loopId); 
-    const pBtn = document.getElementById("pauseBtn");
-    const bBtn = document.getElementById("backBtn");
-    if (pBtn) {
-        pBtn.classList.add("hidden");
-        pBtn.classList.remove("is-paused");
-    }
-    if (bBtn) bBtn.classList.add("hidden");
+    
+    document.getElementById("pauseBtn")?.classList.add("hidden");
+    document.getElementById("backBtn")?.classList.add("hidden");
+    
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(layer) {
-        const particles = layer.querySelectorAll('.ice-particle, .cube-boom');
-        particles.forEach(p => p.remove());
+        layer.querySelectorAll('.ice-particle, .cube-boom').forEach(p => p.remove());
     }
-    document.getElementById("gameOverScreen").classList.add("hidden");
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("menu").classList.remove("hidden");
+    
+    document.getElementById("gameOverScreen")?.classList.add("hidden");
+    document.getElementById("game")?.classList.add("hidden");
+    document.getElementById("menu")?.classList.remove("hidden");
+    
     updateMenuInfo();
     startIceRain("menu");
 }
@@ -740,7 +720,7 @@ document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; },
 document.addEventListener("touchend", e => {
     if (!gameRunning || isPaused) return; 
     let diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) < 25) return;
+    if (Math.abs(diff) < 30) return;
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
 });
