@@ -1,4 +1,4 @@
-/* --- КОНСТАНТЫ И НАСTРОЙКИ --- */
+/* --- КОНСТАНТЫ И НАСТРОЙКИ --- */
 let isPaused = false;
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
@@ -16,32 +16,29 @@ let coins = 0;
 let best = 0;
 let totalCoins = 0;
 
-// --- ВАЛЮТА И ПРОГРЕСС (Интеграция ПРАВКИ 1) ---
 let goldenIce = 0; 
 let diamonds = 0; 
 let hasVipSkin = false; 
 let extraShieldSlots = 0; 
 let usedReviveThisRun = false; 
 
-// ПРАВКА 1: Новый объект инвентаря (объединен с существующим)
 let inventory = JSON.parse(localStorage.getItem('inventory')) || {
     coins: 0,
     diamonds: 0,
     goldenIce: 0, 
     shield: 0,
     magnet: 0,
-    maxShieldSlots: 3, // Начальные слоты щита
-    maxMagnetSlots: 3  // Начальные слоты магнита
+    maxShieldSlots: 3,
+    maxMagnetSlots: 3
 };
 
-// УРОВНИ И ОПЫТ
 let level = 1;
 let xp = 0;
 const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
 
-// Цены для совместимости (обновлены согласно ПРАВКЕ 2)
 const PRICES = { magnet: 30, shield: 50, goldenConvert: 5000 };
-const VIP_PRICES = { skin: 10, slot: 5, diamond: 50000 };
+// ПРАВКА: Бафф Берри теперь стоит 3 алмаза
+const VIP_PRICES = { skin: 3, slot: 5, diamond: 50000 };
 
 let shieldActive = false;
 let magnetActive = false;
@@ -58,14 +55,13 @@ const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
-/* --- ФУНКЦИИ ИЗМЕНЕНИЯ (ПРАВКИ 2, 3, 4) --- */
+/* --- ФУНКЦИИ МАГАЗИНА И ИНВЕНТАРЯ --- */
 
-// ПРАВКА 2: Покупка предметов с раздельной проверкой слотов
 function buyItem(item) {
     const prices = { shield: 50, magnet: 30 };
     const price = prices[item];
 
-    if (totalCoins >= price) { // Используем totalCoins для совместимости с базой
+    if (totalCoins >= price) {
         if (item === 'shield') {
             if (inventory.shield < inventory.maxShieldSlots) {
                 inventory.shield++;
@@ -83,18 +79,16 @@ function buyItem(item) {
                 return;
             }
         }
-        saveUserData(); // Сохраняем в Firebase/Локально
-        updateMenuInfo(); // Обновляем UI
-        updateShopUI(); // ПРАВКА 4
+        saveUserData();
+        updateMenuInfo();
+        updateShopUI();
     } else {
         alert("Не хватает обычного мороженого!");
     }
 }
 
-// ПРАВКА 3: Покупка слотов отдельно для щита и магнита
 function buySlot(type) {
-    const slotPrice = 5; // Цена: 5 золотых мороженых
-
+    const slotPrice = 5; 
     if (goldenIce >= slotPrice) {
         if (type === 'shield') {
             inventory.maxShieldSlots++;
@@ -103,17 +97,35 @@ function buySlot(type) {
             inventory.maxMagnetSlots++;
             alert("Куплен слот для магнита!");
         }
-        
         goldenIce -= slotPrice;
         saveUserData();
         updateMenuInfo();
-        updateShopUI(); // ПРАВКА 4
+        updateShopUI();
     } else {
         alert("Нужно 5 золотых мороженых!");
     }
 }
 
-// ПРАВКА 4: Обновление специфических элементов магазина
+function buyVipItem(type) {
+    if (type === 'skin') {
+        // ПРАВКА: Покупка БАФ БЕРРИ за 3 АЛМАЗА
+        if (diamonds >= VIP_PRICES.skin && !hasVipSkin) {
+            diamonds -= VIP_PRICES.skin; 
+            hasVipSkin = true;
+            saveUserData(); 
+            updateMenuInfo();
+            alert("БАФ БЕРРИ АКТИВИРОВАН! Магнит +5с, Опыт x1.5, Комбо до x7!");
+        } else if(hasVipSkin) {
+            alert("БАФ БЕРРИ уже активен!");
+        } else {
+            alert(`Нужно ${VIP_PRICES.skin} алмаза для БАФ БЕРРИ!`);
+        }
+    } 
+    if (type === 'slot') {
+        buySlot('shield');
+    }
+}
+
 function updateShopUI() {
     const coinElem = document.getElementById("coin-count");
     const goldElem = document.getElementById("gold-count");
@@ -129,7 +141,6 @@ function updateShopUI() {
     if(mStat) mStat.innerText = `${inventory.magnet}/${inventory.maxMagnetSlots}`;
 }
 
-// Вспомогательная функция сохранения (синхронизация локального инвентаря)
 function saveData() {
     inventory.coins = totalCoins;
     inventory.goldenIce = goldenIce;
@@ -137,7 +148,111 @@ function saveData() {
     localStorage.setItem('inventory', JSON.stringify(inventory));
 }
 
-/* --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ УДАЛЕНИЙ) --- */
+/* --- ИГРОВАЯ ЛОГИКА И ЭФФЕКТЫ --- */
+
+function handleCollision(obs, p) {
+    const rect = obs.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    if (obs.dataset.type === "good" || obs.dataset.type === "golden") {
+        const isGold = obs.dataset.type === "golden";
+        createExplosion(centerX, centerY, isGold); 
+        
+        p.style.transition = "none";
+        p.style.transform = "translateX(-50%) scale(1.3)";
+        setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; }, 100);
+
+        comboCount++;
+        if (comboCount % 100 === 0) goldenIce++;
+        if (isGold) goldenIce++;
+
+        // ПРАВКА: Расширенная логика комбо для БАФ БЕРРИ (x6 и x7)
+        if (hasVipSkin) {
+            comboMultiplier = comboCount >= 25 ? 7 : comboCount >= 18 ? 6 : comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
+        } else {
+            comboMultiplier = comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
+        }
+
+        const ui = document.getElementById("combo-ui");
+        if(ui && comboMultiplier > 1) { 
+            ui.innerText = "x" + comboMultiplier; 
+            ui.classList.remove("hidden");
+            ui.style.animation = 'none';
+            ui.offsetHeight; 
+            ui.style.animation = 'comboPop 0.3s ease-out';
+            
+            // Эффект свечения для БАФ БЕРРИ
+            if(comboMultiplier >= 6) p.style.filter = "brightness(1.8) drop-shadow(0 0 15px #ff00ff)";
+            else if(comboMultiplier >= 5) p.style.filter = "brightness(1.5) drop-shadow(0 0 10px #fff)";
+        }
+
+        coins += comboMultiplier;
+        
+        // ПРАВКА: Увеличенный опыт для БАФ БЕРРИ (+50% к базе)
+        let xpGain = hasVipSkin ? Math.floor(comboMultiplier * 1.5) : comboMultiplier;
+        xp += xpGain;
+        
+        let nextXP = getNextLevelXP(level);
+        if (xp >= nextXP) { xp -= nextXP; level++; }
+
+        updateScore(); 
+        spawnObstacle();
+    } else {
+        if (shieldActive) {
+            createCubeBoom(centerX, centerY); 
+            shieldActive = false; 
+            p.classList.remove("shield-aura");
+            if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+            spawnObstacle();
+        } else {
+            createCubeBoom(centerX, centerY); 
+            gameOver();
+        }
+    }
+}
+
+function useMagnet() {
+    if (inventory.magnet > 0 && !magnetActive && gameRunning) {
+        inventory.magnet--; 
+        magnetActive = true;
+        const p = document.getElementById("player");
+        if(p) {
+            p.classList.add("magnet-aura");
+            p.style.filter = "drop-shadow(0 0 15px cyan)";
+        }
+        updateBonusUI();
+        saveUserData();
+
+        // ПРАВКА: Увеличение действия магнита для БАФ БЕРРИ
+        let magnetDuration = hasVipSkin ? 15000 : 10000;
+
+        setTimeout(() => {
+            magnetActive = false;
+            const pNow = document.getElementById("player");
+            if(pNow) {
+                pNow.classList.remove("magnet-aura");
+                if(!shieldActive) pNow.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+                else pNow.style.filter = "drop-shadow(0 0 15px #00eaff)";
+            }
+        }, magnetDuration);
+    }
+}
+
+function useShield() {
+    if (inventory.shield > 0 && !shieldActive && gameRunning) {
+        inventory.shield--; shieldActive = true;
+        const p = document.getElementById("player");
+        if(p) {
+            p.classList.add("shield-aura");
+            p.style.filter = "drop-shadow(0 0 15px #00eaff)";
+        }
+        updateBonusUI();
+        saveUserData();
+    }
+}
+
+/* --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ОСТАЛЬНОЕ БЕЗ ИЗМЕНЕНИЙ) --- */
 
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
@@ -213,10 +328,7 @@ function loadUserData(playerNick) {
             diamonds = data.diamonds || 0; 
             level = data.level || 1;
             xp = data.xp || 0;
-            // Синхронизация инвентаря с БД
-            if(data.inventory) {
-                inventory = {...inventory, ...data.inventory};
-            }
+            if(data.inventory) inventory = {...inventory, ...data.inventory};
             hasVipSkin = data.hasVipSkin || false;
             extraShieldSlots = data.extraShieldSlots || 0;
         }
@@ -311,11 +423,8 @@ function togglePause() {
     isPaused = !isPaused;
     const btn = document.getElementById('pauseBtn');
     if (!btn) return;
-    if (isPaused) {
-        btn.classList.add('is-paused');
-    } else {
-        btn.classList.remove('is-paused');
-    }
+    if (isPaused) btn.classList.add('is-paused');
+    else btn.classList.remove('is-paused');
 }
 
 function resetGame() {
@@ -398,52 +507,7 @@ function update() {
         }
         spawnObstacle();
     }
-    if (gameRunning) {
-        loopId = requestAnimationFrame(update);
-    }
-}
-
-function handleCollision(obs, p) {
-    const rect = obs.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    if (obs.dataset.type === "good" || obs.dataset.type === "golden") {
-        const isGold = obs.dataset.type === "golden";
-        createExplosion(centerX, centerY, isGold); 
-        p.style.transition = "none";
-        p.style.transform = "translateX(-50%) scale(1.3)";
-        setTimeout(() => { if(gameRunning) p.style.transform = "translateX(-50%) scale(1)"; }, 100);
-        comboCount++;
-        if (comboCount % 100 === 0) goldenIce++;
-        if (isGold) goldenIce++;
-        comboMultiplier = comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
-        const ui = document.getElementById("combo-ui");
-        if(ui && comboMultiplier > 1) { 
-            ui.innerText = "x" + comboMultiplier; 
-            ui.classList.remove("hidden");
-            ui.style.animation = 'none';
-            ui.offsetHeight; 
-            ui.style.animation = 'comboPop 0.3s ease-out';
-            if(comboMultiplier >= 5) p.style.filter = "brightness(1.5) drop-shadow(0 0 10px #fff)";
-        }
-        coins += comboMultiplier;
-        xp += comboMultiplier;
-        let nextXP = getNextLevelXP(level);
-        if (xp >= nextXP) { xp -= nextXP; level++; }
-        updateScore(); 
-        spawnObstacle();
-    } else {
-        if (shieldActive) {
-            createCubeBoom(centerX, centerY); 
-            shieldActive = false; 
-            p.classList.remove("shield-aura");
-            if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
-            spawnObstacle();
-        } else {
-            createCubeBoom(centerX, centerY); 
-            gameOver();
-        }
-    }
+    if (gameRunning) loopId = requestAnimationFrame(update);
 }
 
 function updateScore() {
@@ -512,56 +576,6 @@ function buyDiamond() {
         saveUserData(); updateMenuInfo();
         alert("Алмазный дилер: Алмаз приобретен!");
     } else alert("Нужно 50,000 мороженого для покупки алмаза!");
-}
-
-function buyVipItem(type) {
-    if (type === 'skin') {
-        if (goldenIce >= 10 && !hasVipSkin) {
-            goldenIce -= 10; hasVipSkin = true;
-            saveUserData(); updateMenuInfo();
-            alert("VIP Магазин: Скин разблокирован!");
-        } else if(hasVipSkin) {
-            alert("Скин уже куплен!");
-        } else alert("Недостаточно Золотого мороженого!");
-    } 
-    if (type === 'slot') {
-        buySlot('shield'); // Совместимость со старым вызовом
-    }
-}
-
-function useShield() {
-    if (inventory.shield > 0 && !shieldActive && gameRunning) {
-        inventory.shield--; shieldActive = true;
-        const p = document.getElementById("player");
-        if(p) {
-            p.classList.add("shield-aura");
-            p.style.filter = "drop-shadow(0 0 15px #00eaff)";
-        }
-        updateBonusUI();
-        saveUserData();
-    }
-}
-
-function useMagnet() {
-    if (inventory.magnet > 0 && !magnetActive && gameRunning) {
-        inventory.magnet--; magnetActive = true;
-        const p = document.getElementById("player");
-        if(p) {
-            p.classList.add("magnet-aura");
-            p.style.filter = "drop-shadow(0 0 15px cyan)";
-        }
-        updateBonusUI();
-        saveUserData();
-        setTimeout(() => {
-            magnetActive = false;
-            const pNow = document.getElementById("player");
-            if(pNow) {
-                pNow.classList.remove("magnet-aura");
-                if(!shieldActive) pNow.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
-                else pNow.style.filter = "drop-shadow(0 0 15px #00eaff)";
-            }
-        }, 10000);
-    }
 }
 
 function openLeaderboard() {
