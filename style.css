@@ -690,3 +690,43 @@ button:active { transform: scale(0.95); }
     opacity: 0.7
     margin: 0 4px;
 }
+
+/* --- ТОЧЕЧНЫЕ ПРАВКИ МАГАЗИНА --- */
+/* 1. Уменьшаем кнопки покупки в магазине (делаем их аккуратными) */
+#shop button, #realShop button, .shop-item button {
+    width: 140px !important;    /* Узкая ширина */
+    height: 40px !important;    /* Небольшая высота */
+    padding: 0 10px !important; /* Убираем гигантские отступы */
+    font-size: 14px !important; /* Читабельный, но компактный шрифт */
+    margin: 10px auto !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. Эффект прозрачной тени (стекла) для ячеек дилера */
+.translucent-glass {
+    background: rgba(255, 255, 255, 0.07) !important; /* Тонкий слой белого */
+    backdrop-filter: blur(10px) !important;           /* Размытие заднего фона */
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Тонкая светлая рамка */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important; /* Мягкая темная тень вниз */
+    border-radius: 20px !important;
+    padding: 15px !important;
+}
+
+/* Дополнительно фиксим центровку текста внутри ячеек дилера */
+.dealers-wrapper .dealer-title {
+    margin-top: 5px !important;
+    margin-bottom: 10px !important;
+    font-size: 16px !important;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Кнопка "ОБМЕНЯТЬ" у дилера — тоже делаем компактнее */
+.dealers-wrapper button {
+    width: 120px !important;
+    height: 35px !important;
+    font-size: 13px !important;
+}
