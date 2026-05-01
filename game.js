@@ -1,4 +1,5 @@
 /* --- КОНСТАНТЫ И НАСTРОЙКИ --- */
+let isPaused = false;
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
@@ -158,6 +159,20 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
+function togglePause() {
+    if (!gameActive) return; // Не ставим на паузу, если игра еще не началась или уже окончена
+
+    isPaused = !isPaused;
+    const btn = document.getElementById('pauseBtn');
+
+    if (isPaused) {
+        btn.classList.add('is-paused');
+        // Здесь можно добавить надпись "PAUSE" на экран, если хочешь
+    } else {
+        btn.classList.remove('is-paused');
+    }
+}
+
 // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateMenuInfo() {
     const shopBtn = document.getElementById("shop-btn-main");
@@ -210,16 +225,34 @@ function startGame() {
         const nickInput = document.getElementById("nick");
         const val = nickInput ? nickInput.value.trim() : "";
         if (val.length < 2) return alert("Введи имя!");
-        nick = val; localStorage.setItem("nick", nick);
+        nick = val; 
+        localStorage.setItem("nick", nick);
     }
+    
     stopIceRain(); 
     document.getElementById("gameOverScreen").classList.add("hidden");
+    
+    // ПРАВКА: Сбрасываем состояние паузы при старте
+    isPaused = false;
+    const pBtn = document.getElementById("pauseBtn");
+    if (pBtn) {
+        pBtn.classList.remove("hidden");    // Показываем кнопку паузы в игре
+        pBtn.classList.remove("is-paused"); // Убеждаемся, что иконка "Pause", а не "Play"
+    }
+
     const modeSelect = document.getElementById("difficulty");
     const mode = modeSelect ? modeSelect.value : "normal";
+    
     baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
     difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
+    
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
+    
+    // Показываем кнопку домика (на всякий случай)
+    const bBtn = document.getElementById("backBtn");
+    if (bBtn) bBtn.classList.remove("hidden");
+
     resetGame();
 }
 
@@ -270,7 +303,18 @@ function spawnObstacle() {
 }
 
 function update() {
+    // 1. Проверка на полное завершение игры
     if (!gameRunning) return;
+
+    // 2. Проверка на ПАУЗУ
+    // Если игра на паузе, мы просто зацикливаем выполнение, 
+    // но не меняем координаты и не считаем столкновения.
+    if (isPaused) {
+        loopId = requestAnimationFrame(update);
+        return; 
+    }
+
+    // --- ДВИЖЕНИЕ И ЛОГИКА (выполняется, если нет паузы) ---
     obstacleY += speed;
     speed += difficulty;
     
@@ -283,14 +327,17 @@ function update() {
     let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let targetX = lanes[targetLane];
     
+    // Плавное перемещение игрока
     let newX = currentX + (targetX - currentX) * 0.15;
     p.style.left = newX + "%";
     
+    // Наклон персонажа при движении
     let tilt = (targetX - currentX) * 2.5; 
     p.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
 
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     
+    // Логика магнита
     if (magnetActive && isPullable) {
         let currentLeft = parseFloat(obs.style.left);
         let magnetPower = hasVipSkin ? 0.35 : 0.25;
@@ -300,21 +347,28 @@ function update() {
     
     obs.style.top = obstacleY + "px";
     
+    // Проверка столкновения
     let obsX = parseFloat(obs.style.left);
     if (Math.abs(newX - obsX) < 10 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
         handleCollision(obs, p);
     }
     
+    // Если объект улетел за нижний край экрана
     if (obstacleY > window.innerHeight) {
         if (isPullable) { 
-            comboCount = 0; comboMultiplier = 1; 
+            comboCount = 0; 
+            comboMultiplier = 1; 
             const cui = document.getElementById("combo-ui");
             if(cui) cui.classList.add("hidden"); 
             if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
         }
         spawnObstacle();
     }
-    if (gameRunning) loopId = requestAnimationFrame(update);
+
+    // Рекурсивный вызов следующего кадра анимации
+    if (gameRunning) {
+        loopId = requestAnimationFrame(update);
+    }
 }
 
 function handleCollision(obs, p) {
@@ -553,8 +607,19 @@ function closeShop() {
 
 function backToMenu() {
     gameRunning = false;
+    isPaused = false; // ПРАВКА: Сбрасываем паузу при выходе
+    
     if (loopId) cancelAnimationFrame(loopId); 
     
+    // Скрываем кнопки управления игрой
+    const pBtn = document.getElementById("pauseBtn");
+    const bBtn = document.getElementById("backBtn");
+    if (pBtn) {
+        pBtn.classList.add("hidden");
+        pBtn.classList.remove("is-paused"); // Сбрасываем иконку на будущее
+    }
+    if (bBtn) bBtn.classList.add("hidden");
+
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if(layer) {
         const particles = layer.querySelectorAll('.ice-particle, .cube-boom');
@@ -564,6 +629,7 @@ function backToMenu() {
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
+    
     updateMenuInfo();
     startIceRain("menu");
 }
