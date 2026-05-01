@@ -349,7 +349,7 @@ function update() {
     let targetX = lanes[targetLane];
     
     // Плавное перемещение игрока
-    let newX = currentX + (targetX - currentX) * 0.15;
+    let newX = currentX + (targetX - currentX) * 0.18;
     p.style.left = newX + "%";
     
     // Наклон персонажа при движении
@@ -370,7 +370,7 @@ function update() {
     
     // Проверка столкновения
     let obsX = parseFloat(obs.style.left);
-    if (Math.abs(newX - obsX) < 10 && obstacleY > playerTop - 60 && obstacleY < playerTop + 60) {
+    if (Math.abs(newX - obsX) < 12 && obstacleY > playerTop - 70 && obstacleY < playerTop + 70) {
         handleCollision(obs, p);
     }
     
