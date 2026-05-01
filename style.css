@@ -187,13 +187,19 @@ button:active { transform: scale(0.95); }
     justify-content: center;
     align-items: center;
     border-radius: 15px !important;
-    background: rgba(0, 0, 0, 0.6) url('assets/home.png') no-repeat center center !important;
-    background-size: 75px !important; 
-    border: 2px solid #ff4fd8 !important;
+    /* Указываем путь к картинке */
+    background: url('assets/home.png') no-repeat center center !important;
+    background-size: contain !important; /* contain, чтобы картинка не обрезалась */
+    
+    /* ПРАВКА: Убираем рамку и стандартный фон кнопок */
+    border: none !important; 
+    background-color: transparent !important; 
+    box-shadow: none !important; 
+    
     z-index: 100;
     line-height: 1;
+    cursor: pointer;
 }
-
 /* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
     justify-content: flex-start !important; 
