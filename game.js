@@ -481,26 +481,31 @@ function showScreen(screenId) {
     }
 }
 
-// Теперь функция запуска игры выглядит так:
 function startGame() {
-    console.log("Запуск игрового процесса...");
-    
-    showScreen('game'); // Прячем всё, показываем игру
-    
-    // Показываем кнопки управления (пауза и т.д.)
-    document.getElementById("pauseBtn")?.classList.remove("hidden");
-    document.getElementById("backBtn")?.classList.remove("hidden");
+    console.log("Кнопка нажата, запуск...");
 
-    stopIceRain(); 
-    isPaused = false;
-    
-    // Настройка сложности
-    const modeSelect = document.getElementById("difficulty");
-    const mode = modeSelect ? modeSelect.value : "normal";
-    baseSpeed = (mode === "easy") ? 5 : (mode === "hard") ? 9 : 7;
-    difficulty = (mode === "easy") ? 0.001 : (mode === "hard") ? 0.003 : 0.002;
-    
-    resetGame(); // Запуск цикла отрисовки
+    // Скрываем меню
+    const menu = document.getElementById('menu');
+    if (menu) {
+        menu.style.display = 'none';
+        menu.classList.add('hidden');
+    }
+
+    // Показываем игру
+    const gameScreen = document.getElementById('game');
+    if (gameScreen) {
+        gameScreen.style.display = 'block';
+        gameScreen.classList.remove('hidden');
+        gameScreen.style.position = 'fixed';
+        gameScreen.style.top = '0';
+        gameScreen.style.left = '0';
+        gameScreen.style.width = '100%';
+        gameScreen.style.height = '100%';
+        gameScreen.style.zIndex = '1000';
+    }
+
+    // Твоя логика сброса игры
+    resetGame();
 }
 
 function togglePause() {
