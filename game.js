@@ -11,7 +11,9 @@ let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
 
-let nick = localStorage.getItem("nick");
+// [ИЗМЕНЕНО] Переменные для Telegram
+let nick = "Игрок";
+let playerID = "Guest"; 
 let coins = 0;
 let best = 0;
 let totalCoins = 0;
@@ -54,24 +56,32 @@ const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
-/* --- НОВЫЕ ФУНКЦИИ ПРИВЕТСТВИЯ И ЗАГРУЗКИ --- */
+/* --- [НОВОЕ] ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
 
-// Заменяем старый window.onload на новый с проверкой ника
 window.onload = function() {
-    // Сначала запускаем дождь (твоя старая логика)
     startIceRain("menu");
 
-    const savedNick = localStorage.getItem('playerNick');
-    
-    if (!savedNick) {
-        // Если ника нет — показываем окно приветствия
-        if(document.getElementById('welcomeScreen')) document.getElementById('welcomeScreen').classList.remove('hidden');
-        document.getElementById('menu').classList.add('hidden');
+    // Пытаемся получить данные из Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        playerID = tg.initDataUnsafe.user.id.toString();
+        nick = tg.initDataUnsafe.user.first_name || "Игрок";
+        
+        // Автоматический вход для Telegram
+        loadUserData(playerID);
+        showLoaderAndGoToMenu(nick);
     } else {
-        // Если ник есть — загружаем данные и в меню через лоадер
-        nick = savedNick; // Синхронизируем со старой переменной nick
-        loadUserData(nick); // Твоя старая функция загрузки
-        showLoaderAndGoToMenu(savedNick);
+        // Логика для браузера (старая)
+        const savedNick = localStorage.getItem('playerNick');
+        if (!savedNick) {
+            if(document.getElementById('welcomeScreen')) document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('menu').classList.add('hidden');
+        } else {
+            nick = savedNick;
+            playerID = savedNick; // В браузере ID равен нику
+            loadUserData(playerID);
+            showLoaderAndGoToMenu(savedNick);
+        }
     }
 };
 
@@ -84,8 +94,9 @@ function saveInitialNick() {
     }
     
     localStorage.setItem('playerNick', val);
-    localStorage.setItem('nick', val); // Для совместимости со старым кодом
+    localStorage.setItem('nick', val);
     nick = val;
+    playerID = val; 
     showLoaderAndGoToMenu(val);
 }
 
@@ -97,13 +108,10 @@ function showLoaderAndGoToMenu(playerNick) {
     if(welcome) welcome.classList.add('hidden');
     if(loader) loader.classList.remove('hidden');
 
-    // Имитируем загрузку из базы данных (1.5 секунды)
     setTimeout(() => {
         if(loader) loader.classList.add('hidden');
         if(menu) menu.classList.remove('hidden');
-        
-        console.log(`Привет, ${playerNick}! Удачной охоты за мороженым.`);
-        updateMenuInfo(); // Обновляем инфо в меню (твоя старая функция)
+        updateMenuInfo(); 
     }, 1500);
 }
 
@@ -391,9 +399,10 @@ function createCubeBoom(x, y) {
     setTimeout(() => { if(boom.parentNode) boom.remove(); }, 500);
 }
 
-function loadUserData(playerNick) {
+function loadUserData(id) {
     if (!window.db) return updateMenuInfo();
-    db.ref('players/' + playerNick).once('value').then((snapshot) => {
+    // [ИЗМЕНЕНО] Загружаем по ID в папке users
+    db.ref('users/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             best = data.best || 0;
@@ -411,12 +420,14 @@ function loadUserData(playerNick) {
 }
 
 function saveUserData() {
-    if (!nick || !window.db) {
+    const id = playerID || nick;
+    if (!id || !window.db) {
         saveData();
         return;
     }
     saveData();
-    db.ref('players/' + nick).set({ 
+    // [ИЗМЕНЕНО] Сохраняем в папку users/ID
+    db.ref('users/' + id).set({ 
         nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin, extraShieldSlots
     });
 }
@@ -460,7 +471,6 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    // В startGame ник уже точно будет из приветственного окна
     stopIceRain(); 
     document.getElementById("gameOverScreen").classList.add("hidden");
     isPaused = false;
@@ -649,7 +659,8 @@ function openLeaderboard() {
     list.innerHTML = "<div class='loading' style='color:white; text-align:center;'>Загрузка...</div>";
     
     if(window.db) {
-        db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
+        // [ИЗМЕНЕНО] Лидерборд из папки users
+        db.ref('users').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
             let players = [];
             snap.forEach(child => { players.push(child.val()); });
