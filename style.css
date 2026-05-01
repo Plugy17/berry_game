@@ -548,3 +548,30 @@ button:active { transform: scale(0.95); }
     box-shadow: 0 0 20px #00eaff !important;
     margin-top: 15px;
 }
+
+/* Иконки ресурсов (алмаз, голд мороженое и т.д.) */
+.resource-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin: 0 4px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Кнопка паузы и домика (из предыдущих правок) */
+#pauseBtn, #backBtn {
+    position: absolute;
+    top: 20px;
+    width: 75px !important;
+    height: 75px !important;
+    border: none !important;
+    background-color: transparent !important;
+    background-size: contain !important;
+    cursor: pointer;
+    z-index: 1000;
+    outline: none !important;
+}
+#pauseBtn { left: 20px; background-image: url('assets/pause.png') !important; }
+#backBtn { right: 20px; background-image: url('assets/home.png') !important; }
+#pauseBtn.is-paused { background-image: url('assets/play.png') !important; }
