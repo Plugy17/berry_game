@@ -37,7 +37,6 @@ let xp = 0;
 const getNextLevelXP = (lvl) => lvl * 100 + (lvl - 1) * 50; 
 
 const PRICES = { magnet: 30, shield: 50, goldenConvert: 5000 };
-// ПРАВКА: Бафф Берри теперь стоит 3 алмаза
 const VIP_PRICES = { skin: 3, slot: 5, diamond: 50000 };
 
 let shieldActive = false;
@@ -108,7 +107,6 @@ function buySlot(type) {
 
 function buyVipItem(type) {
     if (type === 'skin') {
-        // Проверяем именно наличие АЛМАЗОВ (diamonds), а не золотого мороженого
         if (diamonds >= VIP_PRICES.skin && !hasVipSkin) {
             diamonds -= VIP_PRICES.skin; 
             hasVipSkin = true;
@@ -118,8 +116,7 @@ function buyVipItem(type) {
         } else if(hasVipSkin) {
             alert("БАФФ БЕРРИ уже активен!");
         } else {
-            // Сообщение тоже должно упоминать алмазы
-            alert(`Нужно ${VIP_PRICES.skin} алмаза для БАФФ БЕРРИ!`);
+            alert(`Нужно ${VIP_PRICES.skin} алмаза для БАФ ФЕРРИ!`);
         }
     } 
     if (type === 'slot') {
@@ -140,6 +137,32 @@ function updateShopUI() {
     
     if(sStat) sStat.innerText = `${inventory.shield}/${inventory.maxShieldSlots}`;
     if(mStat) mStat.innerText = `${inventory.magnet}/${inventory.maxMagnetSlots}`;
+
+    // ПРАВКА: Отрисовка дилеров внутри магазина при обновлении UI
+    const shopContainer = document.querySelector('.shop-container');
+    if (shopContainer) {
+        // Проверяем, есть ли уже блок дилеров, если нет — создаем
+        let dealersBlock = document.getElementById('dealers-block');
+        if (!dealersBlock) {
+            dealersBlock = document.createElement('div');
+            dealersBlock.id = 'dealers-block';
+            dealersBlock.style.gridColumn = "1 / -1"; // На всю ширину сетки
+            shopContainer.appendChild(dealersBlock);
+        }
+
+        dealersBlock.innerHTML = `
+            <div class="dealer-card">
+                <h3>Золотой дилер</h3>
+                <p>5000 ${getIceIcon()} = 1 ${getGoldIcon()}</p>
+                <button onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+            </div>
+            <div class="dealer-card" style="margin-top: 10px; border-color: #00eaff;">
+                <h3>Алмазный дилер</h3>
+                <p>50,000 ${getIceIcon()} = 1 ${getDiamondIcon()}</p>
+                <button onclick="buyDiamond()" style="background: linear-gradient(180deg, #00eaff, #0077ff) !important;">КУПИТЬ</button>
+            </div>
+        `;
+    }
 }
 
 function saveData() {
@@ -168,7 +191,6 @@ function handleCollision(obs, p) {
         if (comboCount % 100 === 0) goldenIce++;
         if (isGold) goldenIce++;
 
-        // ПРАВКА: Расширенная логика комбо для БАФ БЕРРИ (x6 и x7)
         if (hasVipSkin) {
             comboMultiplier = comboCount >= 25 ? 7 : comboCount >= 18 ? 6 : comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1;
         } else {
@@ -183,14 +205,12 @@ function handleCollision(obs, p) {
             ui.offsetHeight; 
             ui.style.animation = 'comboPop 0.3s ease-out';
             
-            // Эффект свечения для БАФ БЕРРИ
             if(comboMultiplier >= 6) p.style.filter = "brightness(1.8) drop-shadow(0 0 15px #ff00ff)";
             else if(comboMultiplier >= 5) p.style.filter = "brightness(1.5) drop-shadow(0 0 10px #fff)";
         }
 
         coins += comboMultiplier;
         
-        // ПРАВКА: Увеличенный опыт для БАФ БЕРРИ (+50% к базе)
         let xpGain = hasVipSkin ? Math.floor(comboMultiplier * 1.5) : comboMultiplier;
         xp += xpGain;
         
@@ -204,7 +224,6 @@ function handleCollision(obs, p) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            // ПРАВКА 3: Удален hue-rotate
             if(!magnetActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
             spawnObstacle();
         } else {
@@ -226,7 +245,6 @@ function useMagnet() {
         updateBonusUI();
         saveUserData();
 
-        // ПРАВКА: Увеличение действия магнита для БАФ БЕРРИ
         let magnetDuration = hasVipSkin ? 15000 : 10000;
 
         setTimeout(() => {
@@ -234,7 +252,6 @@ function useMagnet() {
             const pNow = document.getElementById("player");
             if(pNow) {
                 pNow.classList.remove("magnet-aura");
-                // ПРАВКА 2: Удален hue-rotate
                 if(!shieldActive) pNow.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
                 else pNow.style.filter = "drop-shadow(0 0 15px #00eaff)";
             }
@@ -255,7 +272,7 @@ function useShield() {
     }
 }
 
-/* --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ОСТАЛЬНОЕ БЕЗ ИЗМЕНЕНИЙ) --- */
+/* --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ --- */
 
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
@@ -506,7 +523,6 @@ function update() {
             comboMultiplier = 1; 
             const cui = document.getElementById("combo-ui");
             if(cui) cui.classList.add("hidden"); 
-            // ПРАВКА 1: Удален hue-rotate
             if(!magnetActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
         }
         spawnObstacle();
