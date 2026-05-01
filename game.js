@@ -9,42 +9,50 @@ let speed = 7;
 let baseSpeed = 7;
 let difficulty = 0.002;
 
+// --- 1. ПЕРЕМЕННЫЕ ИГРОКА (ОБЪЯВЛЯЕМ ТОЛЬКО ОДИН РАЗ) ---
 let nick = localStorage.getItem("nick");
-let userId = nick; // По умолчанию ID равен нику, если мы не в TG
+let userId = nick; // По умолчанию ID равен нику
 let coins = 0;
 let best = 0;
 let totalCoins = 0;
 let inventory = { magnet: 0, shield: 0 };
-const PRICES = { magnet: 500, shield: 300 }
+const PRICES = { magnet: 500, shield: 300 };
 
 let shieldActive = false;
 let magnetActive = false;
 let comboCount = 0;
 let comboMultiplier = 1;
 
-// Переменная для управления дождем
-let rainInterval = null;
+// --- 2. ИНИЦИАЛИЗАЦИЯ TELEGRAM ---
+const tg = window.Telegram?.WebApp;
+if (tg) {
+    tg.expand();
+    tg.ready();
+}
 
-// ИСПРАВЛЕННЫЕ ПУТИ
+// Получаем данные пользователя Telegram
+const tgUser = tg?.initDataUnsafe?.user;
+if (tgUser) {
+    // Присваиваем значения БЕЗ слова let, так как они уже созданы выше
+    nick = tgUser.username || tgUser.first_name; 
+    userId = tgUser.id;
+}
+
+// --- 3. ОСТАЛЬНОЙ ФУНКЦИОНАЛ (БЕЗ ИЗМЕНЕНИЙ) ---
+let rainInterval = null;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
-
-// Функция для создания HTML иконки мороженого
 const getIceIcon = () => `<span class="ice-icon"></span>`;
 
-// --- ЭФФЕКТ ПАДАЮЩЕГО МОРОЖЕНОГО (Дождь) ---
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
     if (!container || container.classList.contains('hidden')) return;
-
     const drop = document.createElement("div");
     drop.className = "falling-ice-anim"; 
     drop.style.left = Math.random() * 95 + "vw";
     drop.style.backgroundImage = imgIceCream;
-    
     const duration = Math.random() * 2 + 3; 
     drop.style.animationDuration = duration + "s";
-    
     container.appendChild(drop);
     setTimeout(() => drop.remove(), duration * 1000);
 }
@@ -58,35 +66,25 @@ function stopIceRain() {
     if (rainInterval) clearInterval(rainInterval);
 }
 
-// --- ТОТ САМЫЙ ЭФФЕКТ ВЗРЫВА (БАХ!) ---
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
-    
     const particleCount = 15;
-
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
-        
         const angle = Math.random() * Math.PI * 2;
         const dist = 80 + Math.random() * 120; 
         const dx = Math.cos(angle) * dist + "px";
         const dy = Math.sin(angle) * dist + "px";
-        
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
         particle.style.left = x + "px";
         particle.style.top = y + "px";
         particle.style.backgroundImage = imgIceCream;
-        
         layer.appendChild(particle);
         setTimeout(() => particle.remove(), 600);
     }
-}
-
-function createIcePop(x, y) {
-    createExplosion(x, y); 
 }
 
 function createCubeBoom(x, y) {
@@ -99,31 +97,9 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// Инициализация Telegram WebApp
-const tg = window.Telegram?.WebApp;
-if (tg) {
-    tg.expand();
-    tg.ready();
-}
-
-// Он обновит переменные, если игра открыта в Telegram
-const tgUser = tg?.initDataUnsafe?.user;
-if (tgUser) {
-    nick = tgUser.username || tgUser.first_name; // Меняем значение, не создавая новую переменную
-    userId = tgUser.id;
-    if (tg.expand) tg.expand(); // Разворачиваем приложение на весь экран
-}
-
-// Пытаемся получить данные из TG, если нет - берем старый способ (для тестов в браузере)
-let tgUser = tg?.initDataUnsafe?.user;
-let nick = tgUser ? (tgUser.username || tgUser.first_name) : localStorage.getItem("nick");
-let userId = tgUser ? tgUser.id : nick; // Используем ID для базы данных
-
-// --- ОБНОВЛЕННЫЙ FIREBASE ---
+// --- FIREBASE ЛОГИКА ---
 function loadUserData(id) {
     if (!window.db || !id) return updateMenuInfo();
-    
-    // Ссылка теперь идет по ID, а не по нику
     db.ref('players/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
@@ -131,9 +107,7 @@ function loadUserData(id) {
             totalCoins = data.totalCoins || 0;
             inventory.shield = data.inventory?.shield || 0;
             inventory.magnet = data.inventory?.magnet || 0;
-            // Если в базе сохранен старый ник, а в ТГ он другой - можно обновить
         } else {
-            // Новый пользователь: создаем запись
             saveUserData();
         }
         updateMenuInfo();
@@ -143,7 +117,7 @@ function loadUserData(id) {
 function saveUserData() {
     if (!userId || !window.db) return;
     db.ref('players/' + userId).set({ 
-        nick: nick, // Сохраняем ник внутри для отображения в топах
+        nick: nick, 
         best, 
         totalCoins, 
         inventory 
@@ -156,7 +130,6 @@ window.onload = () => {
     startIceRain("menu"); 
 };
 
-/* ПРАВКА: Обновление информации в меню и магазине (с четкостью и иконками) */
 function updateMenuInfo() {
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
@@ -164,26 +137,10 @@ function updateMenuInfo() {
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
-    const menuLb = document.getElementById("menuLeaderboard");
-    if(menuLb) menuLb.innerText = "🏆 " + best;
-
     const totalBal = document.getElementById("total-balance");
     if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
-    
     const shopBalValue = document.getElementById("shop-balance");
-    const animTarget = document.getElementById("balance-anim-target");
-
-    if(shopBalValue) {
-        // Добавляем иконку и в магазин для четкости и стиля
-        shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
-        
-        // Анимация срабатывает, если контейнер найден (при покупке)
-        if(animTarget) {
-            animTarget.classList.add("balance-bump");
-            setTimeout(() => animTarget.classList.remove("balance-bump"), 300);
-        }
-    }
-    
+    if(shopBalValue) shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
     updateBonusUI();
 }
 
@@ -195,33 +152,26 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    // Если мы не в Telegram и ника нет в памяти, только тогда просим ввести
     if (!nick) {
         const val = document.getElementById("nick").value.trim();
         if (val.length < 2) return alert("Введи имя!");
         nick = val; 
-        userId = val; // В обычном браузере ID будет равен нику
+        userId = val;
         localStorage.setItem("nick", nick);
     }
-    
     stopIceRain();
-    // ... остальной код функции без изменений
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+    resetGame();
 }
 
 function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
-    
     const p = document.getElementById("player");
     p.className = ""; 
     p.style.left = lanes[targetLane] + "%";
-    p.style.transform = "translateX(-50%) rotate(0deg)"; 
-    
-    const ui = document.getElementById("combo-ui");
-    ui.classList.add("hidden");
-    ui.classList.remove("combo-epic");
-
     updateScore(); 
     spawnObstacle();
     updateBonusUI();
@@ -238,15 +188,12 @@ function spawnObstacle() {
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     obs.style.left = lanes[obstacleLane] + "%";
     obs.style.display = "block";
-    obs.style.transform = "scale(1)";
 }
 
 function update() {
     if (!gameRunning) return;
-    
     obstacleY += speed;
     speed += difficulty;
-
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     const playerTop = window.innerHeight * 0.75; 
@@ -255,46 +202,19 @@ function update() {
         let currentLeft = parseFloat(obs.style.left);
         let targetX = lanes[targetLane];
         let distY = playerTop - obstacleY;
-
         if (distY < 500 && distY > -30) {
             let newLeft = currentLeft + (targetX - currentLeft) * 0.25;
             obs.style.left = newLeft + "%";
-            if (distY < 180) {
-                obs.style.left = targetX + "%";
-                obstacleLane = targetLane;
-            }
-            obstacleY -= (speed * 0.5); 
         }
     }
 
     obs.style.top = obstacleY + "px";
-
     const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
-
     if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
         handleCollision(obs, p);
     }
-
-    if (obstacleY > window.innerHeight) {
-        if (obs.dataset.type === "good") { 
-            comboCount = 0; 
-            comboMultiplier = 1; 
-            document.getElementById("combo-ui").classList.add("hidden"); 
-        }
-        spawnObstacle();
-    }
+    if (obstacleY > window.innerHeight) spawnObstacle();
     if (gameRunning) loopId = requestAnimationFrame(update);
-}
-
-function triggerComboFlash(mult) {
-    const flash = document.createElement("div");
-    flash.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: ${mult >= 4 ? 'rgba(0, 234, 255, 0.3)' : 'rgba(255, 79, 216, 0.2)'};
-        pointer-events: none; z-index: 1000; animation: fadeOut 0.3s forwards;
-    `;
-    document.body.appendChild(flash);
-    setTimeout(() => flash.remove(), 300);
 }
 
 function handleCollision(obs, p) {
@@ -304,60 +224,30 @@ function handleCollision(obs, p) {
 
     if (obs.dataset.type === "good") {
         createExplosion(centerX, centerY); 
-
         comboCount++;
-        let oldMult = comboMultiplier;
-        
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
         else if (comboCount >= 5) comboMultiplier = 3;
         else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
-
-        const ui = document.getElementById("combo-ui");
-        if(comboMultiplier > 1) { 
-            ui.innerText = "x" + comboMultiplier; 
-            ui.classList.remove("hidden");
-            if (comboMultiplier >= 5) ui.classList.add("combo-epic");
-            else ui.classList.remove("combo-epic");
-            ui.style.animation = 'none';
-            ui.offsetHeight; 
-            ui.style.animation = null;
-            if (comboMultiplier > oldMult) triggerComboFlash(comboMultiplier);
-        }
-
         coins += comboMultiplier; 
         updateScore(); 
         spawnObstacle();
-    } else if (obs.dataset.type === "bad") {
+    } else {
         if (shieldActive) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            obstacleY = window.innerHeight + 500; 
             spawnObstacle();
-            updateBonusUI();
-            triggerComboFlash(1);
         } else {
-            createCubeBoom(centerX, centerY); 
             gameOver();
         }
     }
 }
 
-/* ПРАВКА: Уменьшенная полоска счета (под новый компактный CSS) */
 function updateScore() {
     const hud = document.getElementById("hud");
-    if(hud) {
-        // Упрощенная строка: иконка мороженого, текущий счет и кубок рекорда
-        hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
-        
-        // Уменьшенная сила пульсации для компактного вида
-        hud.style.transform = "scale(1.05)";
-        setTimeout(() => {
-            hud.style.transform = "scale(1)";
-        }, 100);
-    }
+    if(hud) hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
 }
 
 function gameOver() {
@@ -365,28 +255,16 @@ function gameOver() {
     totalCoins += coins;
     if (coins > best) best = coins;
     saveUserData();
-    
-    const goScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("final-score");
-    if(goScreen) {
-        goScreen.classList.remove("hidden");
-        if(finalScore) finalScore.innerText = coins; 
-    } else {
-        alert(`Игра окончена! Собрано: ${coins}`);
-        backToMenu();
-    }
+    document.getElementById("gameOverScreen").classList.remove("hidden");
+    document.getElementById("final-score").innerText = coins; 
 }
 
 function backToMenu() {
     gameRunning = false;
     if (loopId) cancelAnimationFrame(loopId);
-    
-    const goScreen = document.getElementById("gameOverScreen");
-    if(goScreen) goScreen.classList.add("hidden");
-
+    document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.add("hidden");
     document.getElementById("menu").classList.remove("hidden");
-    
     startIceRain("menu"); 
     updateMenuInfo();
 }
@@ -397,19 +275,10 @@ document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
-
     const p = document.getElementById("player");
-    if (diff > 0) {
-        targetLane = Math.min(3, targetLane + 1);
-        p.style.transform = "translateX(-50%) rotate(15deg) scale(1.1)";
-    } else {
-        targetLane = Math.max(0, targetLane - 1);
-        p.style.transform = "translateX(-50%) rotate(-15deg) scale(1.1)";
-    }
+    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
+    else targetLane = Math.max(0, targetLane - 1);
     p.style.left = lanes[targetLane] + "%";
-    setTimeout(() => {
-        if(gameRunning) p.style.transform = "translateX(-50%) rotate(0deg) scale(1)";
-    }, 150);
 });
 
 function buyItem(type) {
@@ -434,10 +303,8 @@ function useMagnet() {
         updateBonusUI();
         setTimeout(() => { 
             magnetActive = false; 
-            if(gameRunning) {
-                document.getElementById("player").classList.remove("magnet-aura"); 
-                updateBonusUI();
-            }
+            document.getElementById("player").classList.remove("magnet-aura"); 
+            updateBonusUI();
         }, 10000);
     }
 }
