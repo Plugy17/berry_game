@@ -1,31 +1,58 @@
-// Ждем полной загрузки DOM и скриптов
-window.addEventListener('load', () => {
-    // Проверяем наличие объекта Telegram
+// 1. Создаем объект игрока с дефолтными значениями
+let player = {
+    uid: "guest_" + Math.floor(Math.random() * 1000),
+    nick: "Загрузка...",
+    coins: 0,
+    diamonds: 10, // Дадим 10 для теста магазина
+    best: 0,
+    inv: { shield: 0, magnet: 0 }
+};
+
+// 2. Функция обновления интерфейса (проверь названия ID!)
+const ui = {
+    show(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        const target = document.getElementById(id);
+        if (target) target.classList.remove('hidden');
+        this.update();
+    },
+    update() {
+        const nickElem = document.getElementById('ui-nick');
+        const balanceElem = document.getElementById('ui-balance');
+        
+        if (nickElem) nickElem.innerText = `ГЕРОЙ: ${player.nick}`;
+        if (balanceElem) balanceElem.innerHTML = `${player.coins} 🍦 | ${player.diamonds} 💎`;
+        
+        // Обновляем счетчики в игре, если они есть
+        if (document.getElementById('inv-shield')) {
+            document.getElementById('inv-shield').innerText = player.inv.shield;
+            document.getElementById('inv-magnet').innerText = player.inv.magnet;
+        }
+    }
+};
+
+// 3. Инициализация при старте
+window.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram?.WebApp;
 
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        // Мы ВНУТРИ Telegram
-        tg.expand(); // Раскрыть на весь экран
-        tg.ready();  // Сказать ТГ, что мы готовы
-        
+    if (tg && tg.initDataUnsafe?.user) {
+        tg.expand();
+        tg.ready();
         player.uid = tg.initDataUnsafe.user.id.toString();
         player.nick = tg.initDataUnsafe.user.first_name || "Hero";
-        
-        console.log("Успешный вход через ТГ:", player.nick);
     } else {
-        // Мы В ОБЫЧНОМ БРАУЗЕРЕ (для отладки)
-        console.log("Запуск вне ТГ. Включен режим гостя.");
-        player.uid = "dev_user_777"; 
-        player.nick = "Разработчик"; // Напиши тут любое имя для тестов
+        // Если открыли просто в браузере
+        player.nick = "РАЗРАБОТЧИК"; 
     }
 
-    // Обновляем текст на экране сразу после определения имени
+    // Принудительно обновляем UI
     ui.update();
-    
-    // Скрываем загрузчик (если он есть) и показываем меню
-    setTimeout(() => ui.show('screen-menu'), 500);
-});
 
+    // Показываем меню через небольшую паузу
+    setTimeout(() => {
+        ui.show('screen-menu');
+    }, 500);
+});
 // --- СИСТЕМА ЭКРАНОВ ---
 const ui = {
     show(id) {
