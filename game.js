@@ -10,11 +10,12 @@ let baseSpeed = 7;
 let difficulty = 0.002;
 
 let nick = localStorage.getItem("nick");
+let userId = nick; // По умолчанию ID равен нику, если мы не в TG
 let coins = 0;
 let best = 0;
 let totalCoins = 0;
 let inventory = { magnet: 0, shield: 0 };
-const PRICES = { magnet: 500, shield: 300 };
+const PRICES = { magnet: 500, shield: 300 }
 
 let shieldActive = false;
 let magnetActive = false;
@@ -101,8 +102,16 @@ function createCubeBoom(x, y) {
 // Инициализация Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if (tg) {
-    tg.expand(); // Разворачиваем приложение на весь экран
+    tg.expand();
     tg.ready();
+}
+
+// Он обновит переменные, если игра открыта в Telegram
+const tgUser = tg?.initDataUnsafe?.user;
+if (tgUser) {
+    nick = tgUser.username || tgUser.first_name; // Меняем значение, не создавая новую переменную
+    userId = tgUser.id;
+    if (tg.expand) tg.expand(); // Разворачиваем приложение на весь экран
 }
 
 // Пытаемся получить данные из TG, если нет - берем старый способ (для тестов в браузере)
