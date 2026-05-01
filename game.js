@@ -204,7 +204,8 @@ function handleCollision(obs, p) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+            // ПРАВКА 3: Удален hue-rotate
+            if(!magnetActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
             spawnObstacle();
         } else {
             createCubeBoom(centerX, centerY); 
@@ -233,7 +234,8 @@ function useMagnet() {
             const pNow = document.getElementById("player");
             if(pNow) {
                 pNow.classList.remove("magnet-aura");
-                if(!shieldActive) pNow.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+                // ПРАВКА 2: Удален hue-rotate
+                if(!shieldActive) pNow.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
                 else pNow.style.filter = "drop-shadow(0 0 15px #00eaff)";
             }
         }, magnetDuration);
@@ -504,7 +506,8 @@ function update() {
             comboMultiplier = 1; 
             const cui = document.getElementById("combo-ui");
             if(cui) cui.classList.add("hidden"); 
-            if(!magnetActive) p.style.filter = hasVipSkin ? "hue-rotate(180deg) brightness(1.2)" : "none";
+            // ПРАВКА 1: Удален hue-rotate
+            if(!magnetActive) p.style.filter = hasVipSkin ? "brightness(1.2)" : "none";
         }
         spawnObstacle();
     }
