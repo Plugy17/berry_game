@@ -256,6 +256,27 @@ function startGame() {
     resetGame();
 }
 
+function togglePause() {
+    // Если игра не запущена (мы в меню), пауза не должна работать
+    if (!gameRunning) return;
+
+    // Переключаем значение: если было false, станет true, и наоборот
+    isPaused = !isPaused;
+
+    const btn = document.getElementById('pauseBtn');
+    if (!btn) return;
+
+    if (isPaused) {
+        // Добавляем класс, который в CSS меняет фон на play.png
+        btn.classList.add('is-paused');
+        console.log("Игра на паузе");
+    } else {
+        // Убираем класс, возвращается фон pause.png
+        btn.classList.remove('is-paused');
+        console.log("Игра продолжается");
+    }
+}
+
 function resetGame() {
     coins = 0; comboCount = 0; comboMultiplier = 1;
     shieldActive = false; magnetActive = false;
