@@ -128,49 +128,48 @@ function updateShopUI() {
     const coinElem = document.getElementById("coin-count");
     const goldElem = document.getElementById("gold-count");
     const diamElem = document.getElementById("diamond-count");
-    const sStat = document.getElementById("shield-status");
-    const mStat = document.getElementById("magnet-status");
-
+    
+    // Обновляем баланс
     if(coinElem) coinElem.innerText = totalCoins;
     if(goldElem) goldElem.innerText = goldenIce;
     if(diamElem) diamElem.innerText = diamonds;
-    
-    if(sStat) sStat.innerText = `${inventory.shield}/${inventory.maxShieldSlots}`;
-    if(mStat) mStat.innerText = `${inventory.magnet}/${inventory.maxMagnetSlots}`;
 
-    const shopContainer = document.querySelector('.shop-container');
-    if (shopContainer) {
-        let dealersBlock = document.getElementById('dealers-block');
-        if (!dealersBlock) {
-            dealersBlock = document.createElement('div');
-            dealersBlock.id = 'dealers-block';
-            dealersBlock.className = "dealers-wrapper"; 
-            shopContainer.appendChild(dealersBlock);
-        }
+    // Ищем контейнер именно МАГАЗИНА
+    const shopScreen = document.getElementById('shop'); 
+    if (!shopScreen) return;
 
-        // ПРАВКА: Полное соответствие фото_2026-05-01 06.49.47.jpeg
-        // Используем иконки PNG везде вместо текстовых эмодзи
-        dealersBlock.innerHTML = `
-            <div class="dealer-card gold-card translucent-glass">
-                <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
-                <div class="price-row">
-                    <span class="price-val">5000</span> ${getIceIcon()} 
-                    <span class="equal-sign">=</span> 
-                    <span class="price-val">1</span> ${getGoldIcon()}
-                </div>
-                <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-            </div>
-            <div class="dealer-card diamond-card translucent-glass">
-                <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
-                <div class="price-row">
-                    <span class="price-val">50,000</span> ${getIceIcon()} 
-                    <span class="equal-sign">=</span> 
-                    <span class="price-val">1</span> ${getDiamondIcon()}
-                </div>
-                <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
-            </div>
-        `;
+    // Ищем или создаем контейнер для дилеров ВНУТРИ магазина
+    let dealersBlock = document.getElementById('dealers-block');
+    if (!dealersBlock) {
+        dealersBlock = document.createElement('div');
+        dealersBlock.id = 'dealers-block';
+        dealersBlock.className = "dealers-wrapper";
+        
+        // Вставляем дилеров в самый низ магазина (после всех товаров)
+        shopScreen.appendChild(dealersBlock);
     }
+
+    // Отрисовываем дилеров с правильными иконками PNG
+    dealersBlock.innerHTML = `
+        <div class="dealer-card gold-card translucent-glass">
+            <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
+            <div class="price-row">
+                <span class="price-val">5000</span> <div class="ice-icon"></div> 
+                <span class="equal-sign">=</span> 
+                <span class="price-val">1</span> <div class="golden-ice-icon-small"></div>
+            </div>
+            <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
+        </div>
+        <div class="dealer-card diamond-card translucent-glass">
+            <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
+            <div class="price-row">
+                <span class="price-val">50,000</span> <div class="ice-icon"></div> 
+                <span class="equal-sign">=</span> 
+                <span class="price-val">1</span> <div class="diamond-icon-small"></div>
+            </div>
+            <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
+        </div>
+    `;
 }
 
 function saveData() {
