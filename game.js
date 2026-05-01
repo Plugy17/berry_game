@@ -1,16 +1,30 @@
-// --- ИНИЦИАЛИЗАЦИЯ TG ---
-const tg = window.Telegram?.WebApp;
-if (tg) tg.expand();
+// Ждем полной загрузки DOM и скриптов
+window.addEventListener('load', () => {
+    // Проверяем наличие объекта Telegram
+    const tg = window.Telegram?.WebApp;
 
-// --- ДАННЫЕ ИГРОКА ---
-let player = {
-    uid: "guest",
-    nick: "Игрок",
-    coins: 0,
-    diamonds: 0,
-    best: 0,
-    inv: { shield: 0, magnet: 0 }
-};
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        // Мы ВНУТРИ Telegram
+        tg.expand(); // Раскрыть на весь экран
+        tg.ready();  // Сказать ТГ, что мы готовы
+        
+        player.uid = tg.initDataUnsafe.user.id.toString();
+        player.nick = tg.initDataUnsafe.user.first_name || "Hero";
+        
+        console.log("Успешный вход через ТГ:", player.nick);
+    } else {
+        // Мы В ОБЫЧНОМ БРАУЗЕРЕ (для отладки)
+        console.log("Запуск вне ТГ. Включен режим гостя.");
+        player.uid = "dev_user_777"; 
+        player.nick = "Разработчик"; // Напиши тут любое имя для тестов
+    }
+
+    // Обновляем текст на экране сразу после определения имени
+    ui.update();
+    
+    // Скрываем загрузчик (если он есть) и показываем меню
+    setTimeout(() => ui.show('screen-menu'), 500);
+});
 
 // --- СИСТЕМА ЭКРАНОВ ---
 const ui = {
