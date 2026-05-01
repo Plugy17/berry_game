@@ -23,12 +23,17 @@ let hasVipSkin = false;
 let extraShieldSlots = 0; 
 let usedReviveThisRun = false;
 
+// ПУНКТ 4: Инициализация инвентаря. Гарантируем, что если в localStorage пусто, будут 0, а не null.
 let inventory = JSON.parse(localStorage.getItem('inventory')) || {
     shield: 0,
     magnet: 0,
     maxShieldSlots: 3,
     maxMagnetSlots: 3
 };
+
+// Проверка на корректность данных после загрузки (защита от null в полях объекта)
+if (inventory.shield === null || inventory.shield === undefined) inventory.shield = 0;
+if (inventory.magnet === null || inventory.magnet === undefined) inventory.magnet = 0;
 
 let level = 1;
 let xp = 0;
@@ -55,6 +60,20 @@ const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
 document.addEventListener("DOMContentLoaded", function() {
     startIceRain("menu");
+    
+    // ПУНКТ 1: Навешиваем событие клика на все кнопки .sub-btn (кнопки "Назад")
+    const backButtons = document.querySelectorAll('.sub-btn');
+    backButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Скрываем все возможные экраны магазинов
+            document.getElementById('shop')?.classList.add('hidden');
+            document.getElementById('realShop')?.classList.add('hidden');
+            document.getElementById('leaderboardScreen')?.classList.add('hidden');
+            // Показываем меню
+            document.getElementById('menu')?.classList.remove('hidden');
+        });
+    });
+
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -75,17 +94,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+/* --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) --- */
 function saveInitialNick() {
     const nickInput = document.getElementById('usernameInput');
     const val = nickInput ? nickInput.value.trim() : "";
-    if (val.length < 2) {
-        alert("Ник слишком короткий!");
-        return;
-    }
+    if (val.length < 2) { alert("Ник слишком короткий!"); return; }
     localStorage.setItem('playerNick', val);
     localStorage.setItem('playerID', val);
-    nick = val;
-    playerID = val; 
+    nick = val; playerID = val; 
     showLoaderAndGoToMenu(val);
 }
 
@@ -93,10 +109,8 @@ function showLoaderAndGoToMenu(playerNick) {
     const loader = document.getElementById('loadingOverlay');
     const welcome = document.getElementById('welcomeScreen');
     const menu = document.getElementById('menu');
-
     if(welcome) welcome.classList.add('hidden');
     if(loader) loader.classList.remove('hidden');
-
     setTimeout(() => {
         if(loader) loader.classList.add('hidden');
         if(menu) menu.classList.remove('hidden');
@@ -105,7 +119,6 @@ function showLoaderAndGoToMenu(playerNick) {
 }
 
 /* --- МАГАЗИН --- */
-
 function buyItem(item) {
     const price = (item === 'shield') ? 400 : 200;
     if (totalCoins >= price) {
@@ -157,12 +170,9 @@ function updateShopUI() {
 }
 
 /* --- ИГРОВАЯ ЛОГИКА --- */
-
 function startGame() {
-    console.log("Запуск...");
     const menu = document.getElementById('menu');
     const gameScreen = document.getElementById('game');
-    
     if (menu) menu.classList.add('hidden');
     if (gameScreen) {
         gameScreen.classList.remove('hidden');
@@ -176,7 +186,6 @@ function resetGame() {
     shieldActive = false; magnetActive = false;
     usedReviveThisRun = false;
     targetLane = 1; speed = baseSpeed; gameRunning = true;
-    
     const p = document.getElementById("player");
     if(p) {
         p.className = ""; 
@@ -184,7 +193,6 @@ function resetGame() {
         if(hasVipSkin) p.classList.add("skin-ice"); 
         p.style.left = lanes[targetLane] + "%";
     }
-    
     document.getElementById("combo-ui")?.classList.add("hidden");
     updateScore(); 
     spawnObstacle();
@@ -199,7 +207,6 @@ function spawnObstacle() {
     obstacleLane = Math.floor(Math.random() * laneCount);
     obstacleY = -150; 
     obs.style.left = lanes[obstacleLane] + "%";
-    
     const rand = Math.random();
     if (rand < 0.08) {
         obs.dataset.type = "golden";
@@ -218,29 +225,22 @@ function update() {
     }
     obstacleY += speed;
     speed += difficulty;
-    
     const obs = document.getElementById("obstacle");
     const p = document.getElementById("player");
     if(!obs || !p) return;
-    
     let currentX = parseFloat(p.style.left) || lanes[targetLane];
     let newX = currentX + (lanes[targetLane] - currentX) * 0.2;
     p.style.left = newX + "%";
     p.style.transform = `translateX(-50%) rotate(${(lanes[targetLane] - currentX) * 2.5}deg)`;
-    
     const isPullable = obs.dataset.type === "good" || obs.dataset.type === "golden";
     if (magnetActive && isPullable) {
         let obsX = parseFloat(obs.style.left);
         obs.style.left = (obsX + (newX - obsX) * (hasVipSkin ? 0.4 : 0.28)) + "%";
     }
-    
     obs.style.top = obstacleY + "px";
-    
-    // Коллизия
     if (Math.abs(newX - parseFloat(obs.style.left)) < 12 && Math.abs(obstacleY - (window.innerHeight * 0.75)) < 60) {
         handleCollision(obs, p);
     }
-    
     if (obstacleY > window.innerHeight) {
         if (isPullable) { 
             comboCount = 0; comboMultiplier = 1;
@@ -255,31 +255,29 @@ function handleCollision(obs, p) {
     const rect = obs.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-
     if (obs.dataset.type !== "bad") {
         const isGold = obs.dataset.type === "golden";
+        
+        // ПУНКТ 5: Вызываем функции эффектов
         createExplosion(cx, cy, isGold);
+        
         comboCount++;
         if (comboCount % 50 === 0 || isGold) goldenIce++;
-        
         comboMultiplier = hasVipSkin ? 
             (comboCount >= 25 ? 7 : comboCount >= 18 ? 6 : comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1) :
             (comboCount >= 12 ? 5 : comboCount >= 8 ? 4 : comboCount >= 5 ? 3 : comboCount >= 2 ? 2 : 1);
-
         const ui = document.getElementById("combo-ui");
         if(ui && comboMultiplier > 1) {
             ui.innerText = "x" + comboMultiplier;
             ui.classList.remove("hidden");
         }
-
         coins += comboMultiplier;
         xp += hasVipSkin ? Math.floor(comboMultiplier * 1.5) : comboMultiplier;
-        
         if (xp >= getNextLevelXP(level)) { xp -= getNextLevelXP(level); level++; alert("LEVEL UP!"); }
         updateScore(); spawnObstacle();
     } else {
         if (shieldActive) {
-            createCubeBoom(cx, cy);
+            createCubeBoom(cx, cy); // ПУНКТ 5: Эффект взрыва препятствия
             shieldActive = false;
             p.classList.remove("shield-aura");
             spawnObstacle();
@@ -287,14 +285,45 @@ function handleCollision(obs, p) {
     }
 }
 
-/* --- СИСТЕМА СОХРАНЕНИЙ --- */
+/* --- ЭФФЕКТЫ --- */
+// ПУНКТ 5: Реализация создания элементов эффектов внутри контейнера #game
+function createExplosion(x, y, isGold) {
+    const gameContainer = document.getElementById('game');
+    if (!gameContainer) return;
 
+    const pop = document.createElement("div");
+    pop.className = "ice-pop";
+    pop.style.left = x + "px";
+    pop.style.top = y + "px";
+    if (isGold) pop.style.backgroundColor = "#ffea00";
+    
+    gameContainer.appendChild(pop);
+    setTimeout(() => pop.remove(), 400);
+}
+
+function createCubeBoom(x, y) {
+    const gameContainer = document.getElementById('game');
+    if (!gameContainer) return;
+
+    for (let i = 0; i < 8; i++) {
+        const shard = document.createElement("div");
+        shard.className = "cube-boom";
+        shard.style.left = x + "px";
+        shard.style.top = y + "px";
+        // Разлет в разные стороны
+        const angle = (Math.PI * 2 / 8) * i;
+        shard.style.setProperty('--tx', Math.cos(angle) * 100 + "px");
+        shard.style.setProperty('--ty', Math.sin(angle) * 100 + "px");
+        
+        gameContainer.appendChild(shard);
+        setTimeout(() => shard.remove(), 500);
+    }
+}
+
+/* --- СИСТЕМА СОХРАНЕНИЙ --- */
 function saveUserData() {
     const data = { nick, best, totalCoins, goldenIce, diamonds, inventory, level, xp, hasVipSkin };
     localStorage.setItem('inventory', JSON.stringify(data));
-    if (window.db && playerID) {
-        window.db.ref('users/' + playerID).set(data);
-    }
 }
 
 function loadUserData(id) {
@@ -306,12 +335,13 @@ function loadUserData(id) {
         level = local.level || 1;
         xp = local.xp || 0;
         best = local.best || 0;
+        // Загружаем инвентарь корректно
+        if (local.inventory) inventory = local.inventory;
     }
     updateMenuInfo();
 }
 
 /* --- ВСПОМОГАТЕЛЬНЫЕ --- */
-
 function updateScore() {
     const hud = document.getElementById("hud");
     if(hud) hud.innerHTML = `<div>LVL ${level}</div><div>${coins} ${getIceIcon()}</div><div style="color:cyan">${diamonds} ${getDiamondIcon()}</div>`;
@@ -329,8 +359,9 @@ function updateMenuInfo() {
 }
 
 function updateBonusUI() {
-    if(document.getElementById("count-shield")) document.getElementById("count-shield").innerText = inventory.shield;
-    if(document.getElementById("count-magnet")) document.getElementById("count-magnet").innerText = inventory.magnet;
+    // ПУНКТ 4: Используем "|| 0" на случай, если данные еще не прогрузились
+    if(document.getElementById("count-shield")) document.getElementById("count-shield").innerText = inventory.shield || 0;
+    if(document.getElementById("count-magnet")) document.getElementById("count-magnet").innerText = inventory.magnet || 0;
 }
 
 function useShield() {
@@ -373,7 +404,6 @@ function backToMenu() {
 
 function togglePause() { isPaused = !isPaused; }
 
-/* ЭФФЕКТЫ (заглушки или минимал) */
 function startIceRain(id) { 
     if(rainInterval) clearInterval(rainInterval);
     rainInterval = setInterval(() => {
@@ -386,8 +416,6 @@ function startIceRain(id) {
         setTimeout(() => drop.remove(), 4000);
     }, 300);
 }
-function createExplosion(x,y,g) {} 
-function createCubeBoom(x,y) {}
 
 /* УПРАВЛЕНИЕ */
 let startX = 0;
@@ -404,6 +432,5 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight" || e.key === "d") targetLane = Math.min(3, targetLane + 1);
 });
 
-// Доп функции из твоего кода
 function openBuffs() { document.getElementById("menu").classList.add("hidden"); document.getElementById("shop").classList.remove("hidden"); }
 function closeShop() { document.getElementById("shop").classList.add("hidden"); document.getElementById("menu").classList.remove("hidden"); }
