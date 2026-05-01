@@ -58,27 +58,20 @@ const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
 /* --- [НОВОЕ] ИНТЕГРАЦИЯ TELEGRAM И ВХОД --- */
 
-window.onload = function() {
-    // 1. Сначала запускаем визуальные эффекты (дождь), чтобы меню ожило
+// Вместо window.onload = function() { ... }
+document.addEventListener("DOMContentLoaded", function() {
     startIceRain("menu");
-
-    // 2. Безопасная проверка Telegram
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        // Если мы в Telegram
         playerID = tg.initDataUnsafe.user.id.toString();
         nick = tg.initDataUnsafe.user.first_name || "Игрок";
-        localStorage.setItem('playerID', playerID);
-        localStorage.setItem('playerNick', nick);
         loadUserData(playerID);
         showLoaderAndGoToMenu(nick);
     } else {
-        // Если мы в обычном браузере
         const savedNick = localStorage.getItem('playerNick');
         if (!savedNick) {
-            // Показываем экран ввода ника, если его нет
-            document.getElementById('welcomeScreen')?.classList.remove('hidden');
+            document.getElementById('auth-screen')?.classList.remove('hidden'); // Показываем ТВОЙ экран из HTML
         } else {
             nick = savedNick;
             playerID = localStorage.getItem('playerID') || savedNick;
@@ -86,7 +79,7 @@ window.onload = function() {
             showLoaderAndGoToMenu(savedNick);
         }
     }
-};
+});
 
 function saveInitialNick() {
     const nickInput = document.getElementById('usernameInput');
@@ -189,44 +182,16 @@ function buyVipItem(type) {
 }
 
 function updateShopUI() {
-    const coinElem = document.getElementById("coin-count");
-    const goldElem = document.getElementById("gold-count");
-    const diamElem = document.getElementById("diamond-count");
-    
-    // Безопасное обновление текста
-    if(coinElem) coinElem.innerText = totalCoins;
-    if(goldElem) goldElem.innerText = goldenIce;
-    if(diamElem) diamElem.innerText = diamonds;
+    // Обновляем только текстовые значения баланса в магазине
+    const elements = {
+        "coin-count": totalCoins,
+        "gold-count": goldenIce,
+        "diamond-count": diamonds
+    };
 
-    const shopScreen = document.getElementById('shop'); 
-    if (!shopScreen) return; // Если экрана магазина нет в HTML, выходим
-
-    let dealersBlock = document.getElementById('dealers-block');
-    if (!dealersBlock) {
-        dealersBlock = document.createElement('div');
-        dealersBlock.id = 'dealers-block';
-        dealersBlock.className = "dealers-wrapper";
-        shopScreen.appendChild(dealersBlock);
-    }
-
-    // Добавляем проверку перед отрисовкой контента внутри блока
-    if (dealersBlock) {
-        dealersBlock.innerHTML = `
-            <div class="dealer-card gold-card translucent-glass">
-                <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
-                <div class="price-row">
-                    <span class="price-val">1500</span> <div class="ice-icon"></div> = <span class="price-val">1</span> <div class="golden-ice-icon-small"></div>
-                </div>
-                <button class="shop-btn compact-btn" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
-            </div>
-            <div class="dealer-card diamond-card translucent-glass">
-                <h3 class="dealer-title diamond-text">АЛМАЗНЫЙ ДИЛЕР</h3>
-                <div class="price-row">
-                    <span class="price-val">10000</span> <div class="ice-icon"></div> = <span class="price-val">1</span> <div class="diamond-icon-small"></div>
-                </div>
-                <button class="shop-btn compact-btn diamond-bg" onclick="buyDiamond()">КУПИТЬ</button>
-            </div>
-        `;
+    for (let [id, value] of Object.entries(elements)) {
+        const elem = document.getElementById(id);
+        if (elem) elem.innerText = value;
     }
 }
 
@@ -234,6 +199,8 @@ function saveData() {
     inventory.coins = totalCoins;
     inventory.goldenIce = goldenIce;
     inventory.diamonds = diamonds;
+    inventory.level = level; // Добавь это
+    inventory.xp = xp;       // И это
     localStorage.setItem('inventory', JSON.stringify(inventory));
 }
 
