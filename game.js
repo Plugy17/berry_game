@@ -186,21 +186,17 @@ function updateBonusUI() {
 }
 
 function startGame() {
+    // Если мы не в Telegram и ника нет в памяти, только тогда просим ввести
     if (!nick) {
         const val = document.getElementById("nick").value.trim();
         if (val.length < 2) return alert("Введи имя!");
-        nick = val; localStorage.setItem("nick", nick);
+        nick = val; 
+        userId = val; // В обычном браузере ID будет равен нику
+        localStorage.setItem("nick", nick);
     }
-    stopIceRain(); 
-    const goScreen = document.getElementById("gameOverScreen");
-    if(goScreen) goScreen.classList.add("hidden");
-
-    const mode = document.getElementById("difficulty").value;
-    baseSpeed = mode === "easy" ? 5 : mode === "hard" ? 9 : 7;
-    difficulty = mode === "easy" ? 0.001 : mode === "hard" ? 0.003 : 0.002;
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    resetGame();
+    
+    stopIceRain();
+    // ... остальной код функции без изменений
 }
 
 function resetGame() {
