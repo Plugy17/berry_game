@@ -322,31 +322,49 @@
   let playerID = "Guest";
   let playerName = "Игрок";
 
-  function initTelegramAuth() {
-      tg.expand();
-      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          playerID = tg.initDataUnsafe.user.id.toString();
-          playerName = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username;
-      } else {
-          playerID = "Dev_Local"; // Для тестов вне ТГ
-      }
-      document.getElementById('tg-id-display').innerText = playerID;
-      
-      // Здесь в game.js должна быть функция checkUser(playerID, playerName)
-      // Для демонстрации кнопка появится через 1.5 сек
-      setTimeout(() => {
-          document.querySelector('#auth-screen .spinner').style.display = 'none';
-          document.getElementById('entry-btn').classList.remove('hidden');
-      }, 1500);
-  }
+  // Замени свой блок initTelegramAuth на этот:
+function initTelegramAuth() {
+    if (typeof tg !== 'undefined') {
+        tg.expand();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            playerID = tg.initDataUnsafe.user.id.toString();
+            playerName = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username;
+        }
+    }
+    
+    const idDisplay = document.getElementById('tg-id-display');
+    if(idDisplay) idDisplay.innerText = playerID;
+    
+    // ПРОВЕРКА: Если в game.js есть функция loadUserData, вызываем её сразу
+    if (typeof loadUserData === "function") {
+        loadUserData(playerID);
+    }
+
+    setTimeout(() => {
+        const spinner = document.querySelector('#auth-screen .spinner');
+        const entryBtn = document.getElementById('entry-btn');
+        if(spinner) spinner.style.display = 'none';
+        if(entryBtn) entryBtn.classList.remove('hidden');
+    }, 1500);
+}
+
+// Вместо window.onload используй это, чтобы не "сбить" загрузку game.js
+document.addEventListener("DOMContentLoaded", initTelegramAuth);
 
   function startGameSession() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('menu').classList.remove('hidden');
-      document.getElementById('welcome').innerText = `ПРИВЕТ, ${playerName.toUpperCase()}!`;
-      // Передаем ник в скрытое поле для совместимости с твоим game.js
-      document.getElementById('nick').value = playerName;
-  }
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('menu').classList.remove('hidden');
+    
+    const welcomeField = document.getElementById('welcome');
+    if(welcomeField) welcomeField.innerText = `ПРИВЕТ, ${playerName.toUpperCase()}!`;
+    
+    const nickInput = document.getElementById('nick');
+    if(nickInput) nickInput.value = playerName;
+
+    // КРИТИЧЕСКИ ВАЖНО: запускаем дождь и обновляем баланс из game.js
+    if (typeof startIceRain === "function") startIceRain("menu");
+    if (typeof updateMenuInfo === "function") updateMenuInfo();
+}
 
   window.onload = initTelegramAuth;
 
