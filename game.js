@@ -108,17 +108,18 @@ function buySlot(type) {
 
 function buyVipItem(type) {
     if (type === 'skin') {
-        // ПРАВКА: Покупка БАФ БЕРРИ за 3 АЛМАЗА
+        // Проверяем именно наличие АЛМАЗОВ (diamonds), а не золотого мороженого
         if (diamonds >= VIP_PRICES.skin && !hasVipSkin) {
             diamonds -= VIP_PRICES.skin; 
             hasVipSkin = true;
             saveUserData(); 
             updateMenuInfo();
-            alert("БАФ БЕРРИ АКТИВИРОВАН! Магнит +5с, Опыт x1.5, Комбо до x7!");
+            alert("БАФФ БЕРРИ АКТИВИРОВАН! Магнит +5с, Опыт x1.5, Комбо до x7!");
         } else if(hasVipSkin) {
-            alert("БАФ БЕРРИ уже активен!");
+            alert("БАФФ БЕРРИ уже активен!");
         } else {
-            alert(`Нужно ${VIP_PRICES.skin} алмаза для БАФ БЕРРИ!`);
+            // Сообщение тоже должно упоминать алмазы
+            alert(`Нужно ${VIP_PRICES.skin} алмаза для БАФФ БЕРРИ!`);
         }
     } 
     if (type === 'slot') {
