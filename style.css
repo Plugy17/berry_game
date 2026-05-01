@@ -721,3 +721,50 @@ button:active { transform: scale(0.95); }
     align-items: center !important;
 }
 
+/* --- ФИКС КНОПКИ "НАЗАД" (ПО ТЕКСТУ) --- */
+/* Этот селектор ищет ЛЮБУЮ кнопку, внутри которой написано "Назад" или "Закрыть" */
+button:contains("Назад"), 
+button:contains("Закрыть"),
+#shop button:first-of-type,
+#realShop button:first-of-type,
+.screen > button:first-child {
+    width: 240px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    font-size: 18px !important;
+    margin: 15px auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 15px !important;
+    color: white !important;
+    position: relative !important;
+    left: 0 !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* --- ФИКС ДИЛЕРОВ В МАГАЗИНЕ --- */
+/* Если в баффах сработало, а в магазине нет — значит в магазине это .shop-item */
+#shop .shop-item, 
+#realShop .shop-item,
+.shop-container > div:nth-child(n+3) { 
+    /* Допустим, дилеры идут после первых двух товаров */
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+    border-radius: 20px !important;
+}
+
+/* Специально для заголовков дилера в магазине */
+#shop h3, #shop .dealer-title {
+    font-size: 18px !important;
+    color: #ffeb3b !important; /* Золотистый цвет */
+    margin-bottom: 10px !important;
+}
+
