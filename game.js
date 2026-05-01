@@ -611,17 +611,20 @@ function openLeaderboard() {
     if(!lbScreen || !list) return;
     lbScreen.classList.remove("hidden");
     document.getElementById("menu").classList.add("hidden");
-    list.innerHTML = "<div class='loading'>Загрузка...</div>";
+    list.innerHTML = "<div class='loading' style='color:white; text-align:center;'>Загрузка...</div>";
+    
     if(window.db) {
         db.ref('players').orderByChild('level').limitToLast(10).once('value', (snap) => {
             list.innerHTML = "";
             let players = [];
             snap.forEach(child => { players.push(child.val()); });
+            
             players.reverse().forEach((p, index) => {
+                // СОЗДАЕМ КРАСИВУЮ СТРОКУ
                 list.innerHTML += `
                 <div class="leaderboard-item">
-                    <span>${index+1}. ${p.nick}</span>
-                    <span style="color: #ffeb3b; font-weight: bold;">LVL ${p.level || 1}</span>
+                    <span class="leader-name">${index + 1}. ${p.nick || "Герой"}</span>
+                    <span class="leader-level">LVL ${p.level || 1}</span>
                 </div>`;
             });
         });
