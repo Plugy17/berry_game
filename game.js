@@ -98,28 +98,51 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// --- FIREBASE ---
-function loadUserData(playerNick) {
-    if (!window.db) return updateMenuInfo();
-    db.ref('players/' + playerNick).once('value').then((snapshot) => {
+// Инициализация Telegram WebApp
+const tg = window.Telegram?.WebApp;
+if (tg) {
+    tg.expand(); // Разворачиваем приложение на весь экран
+    tg.ready();
+}
+
+// Пытаемся получить данные из TG, если нет - берем старый способ (для тестов в браузере)
+let tgUser = tg?.initDataUnsafe?.user;
+let nick = tgUser ? (tgUser.username || tgUser.first_name) : localStorage.getItem("nick");
+let userId = tgUser ? tgUser.id : nick; // Используем ID для базы данных
+
+// --- ОБНОВЛЕННЫЙ FIREBASE ---
+function loadUserData(id) {
+    if (!window.db || !id) return updateMenuInfo();
+    
+    // Ссылка теперь идет по ID, а не по нику
+    db.ref('players/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
-            inventory.shield = (data.inventory && data.inventory.shield) || 0;
-            inventory.magnet = (data.inventory && data.inventory.magnet) || 0;
+            inventory.shield = data.inventory?.shield || 0;
+            inventory.magnet = data.inventory?.magnet || 0;
+            // Если в базе сохранен старый ник, а в ТГ он другой - можно обновить
+        } else {
+            // Новый пользователь: создаем запись
+            saveUserData();
         }
         updateMenuInfo();
     }).catch(() => updateMenuInfo());
 }
 
 function saveUserData() {
-    if (!nick || !window.db) return;
-    db.ref('players/' + nick).set({ best, totalCoins, inventory });
+    if (!userId || !window.db) return;
+    db.ref('players/' + userId).set({ 
+        nick: nick, // Сохраняем ник внутри для отображения в топах
+        best, 
+        totalCoins, 
+        inventory 
+    });
 }
 
 window.onload = () => { 
-    if(nick) loadUserData(nick); 
+    if(userId) loadUserData(userId); 
     else updateMenuInfo();
     startIceRain("menu"); 
 };
