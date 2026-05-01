@@ -769,3 +769,36 @@ button:active { transform: scale(0.95); }
     transform: scale(0.95) !important;
 }
 
+#usernameInput {
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: 2px solid #00eaff;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    width: 80%;
+    outline: none;
+}
+
+#usernameInput:focus {
+    box-shadow: 0 0 15px #00eaff;
+}
+
+/* Спиннер загрузки */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top: 5px solid #ffeb3b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
