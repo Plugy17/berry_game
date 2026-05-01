@@ -730,3 +730,60 @@ button:active { transform: scale(0.95); }
     height: 35px !important;
     font-size: 13px !important;
 }
+
+/* --- ФИКС ДИЛЕРОВ ВО ВСЕХ РАЗДЕЛАХ (МАГАЗИН И БАФФЫ) --- */
+/* Принудительный эффект стекла для всех карточек дилеров */
+.dealer-card, .translucent-glass, [class*="dealer"] {
+    background: rgba(255, 255, 255, 0.07) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+    border-radius: 20px !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+/* ЗАМЕНА ЭМОДЗИ МОРОЖЕНОГО НА PNG КАРТИНКУ */
+/* Скрываем текстовое эмодзи, если оно внутри ценника */
+.price-row, .dealer-price {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 900;
+}
+
+/* Если мороженое было текстом, мы его заменим через псевдоэлемент или класс */
+/* ВАЖНО: Этот блок ищет иконку мороженого. Если у тебя в HTML есть класс .ice-icon, он сработает */
+.ice-icon, .currency-icon-ice {
+    width: 24px !important;
+    height: 24px !important;
+    background-image: url('assets/icecream.png') !important; /* Твой путь к PNG */
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    display: inline-block !important;
+    content: "" !important; /* Убирает текст эмодзи, если используется через :before */
+}
+
+/* Фикс кнопок "Обменять" в магазине */
+#shop .dealer-card button, 
+#shop .compact-btn {
+    width: 130px !important;
+    height: 35px !important;
+    font-size: 12px !important;
+    background: linear-gradient(180deg, #ffeb3b, #fbc02d) !important; /* Золотистый цвет для дилера */
+    color: #000 !important;
+    border: none !important;
+    border-radius: 10px !important;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Убираем лишние отступы у заголовков дилеров в магазине */
+.dealer-title {
+    color: #fff !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px !important;
+}
