@@ -9,7 +9,7 @@
     <!-- ПОДКЛЮЧЕНИЕ TELEGRAM SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- ОБНОВЛЕННЫЙ FIREBASE (ПРАВКА 2) -->
+    <!-- ОБНОВЛЕННЫЙ FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -99,15 +99,6 @@
             transform: scale(1.02);
         }
 
-        .loader-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: white;
-            font-weight: bold;
-        }
         .spinner {
             width: 50px;
             height: 50px;
@@ -122,7 +113,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* СТИЛЬ ДЛЯ ГЛУБОКОГО СТЕКЛА (ПРАВКА 1) */
         .translucent-glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
@@ -137,37 +127,28 @@
 </head>
 <body>
 
-<!-- [ПРАВКА 1] ЭКРАН ВХОДА/ЗАГРУЗКИ ПО ТЗ -->
+<!-- ЭКРАН ВХОДА -->
 <div id="auth-screen" class="screen">
     <div class="welcome-text">ВХОД В СИСТЕМУ</div>
-    
     <div class="spinner"></div>
-    
     <div class="translucent-glass" style="text-align: center;">
         <p style="color: white; margin: 0; font-weight: 800;">ID ИГРОКА:</p>
         <div id="tg-id-display" style="color: #00eaff; font-weight: 900; font-size: 20px; margin-top: 10px;">Загрузка...</div>
     </div>
-
     <button id="entry-btn" class="main-btn hidden" onclick="startGameSession()">ВОЙТИ В ИГРУ</button>
 </div>
 
-<!-- [ПРАВКА 1] ГЛАВНОЕ МЕНЮ (ID menu сохранен для совместимости с game.js) -->
+<!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen hidden">
     <div id="menu-particles" style="position: absolute; width: 100%; height: 100%; pointer-events: none;"></div>
-
     <div class="menu-content-wrapper" style="z-index: 20; display: flex; flex-direction: column; align-items: center;">
-        
         <div class="top-bar-container">
-            <!-- Приветствие будет меняться в startGameSession -->
             <div id="welcome" class="welcome-text">ПРИВЕТ, ИГРОК!</div> 
             <div id="total-balance" class="balance-info"></div>
             <div id="menuLeaderboard" class="best-score" style="color: #ffd700; font-size: 18px; margin-top: 5px; font-weight: 900; text-shadow: 1px 1px 2px #000;">🏆 РЕКОРД: 0</div>
         </div>
-
         <div class="menu-controls">
-            <!-- Скрытый инпут для совместимости, если game.js его ищет, но визуально он удален -->
             <input id="nick" type="hidden" />
-            
             <div class="difficulty-container" style="width: 100%; max-width: 280px;">
                 <label class="difficulty-label" style="color: white; font-weight: 800; font-size: 14px;">СЛОЖНОСТЬ:</label>
                 <select id="difficulty">
@@ -176,20 +157,18 @@
                     <option value="hard">🟥 Сложно</option>
                 </select>
             </div>
-            
             <button class="main-btn" onclick="startGame()">ИГРАТЬ</button>
             <button class="sub-btn" onclick="openBuffs()">Баффы</button>
             <button id="shop-btn-main" class="sub-btn vip-btn" style="border: 2px solid #ffd700 !important;" onclick="openShop()">💎 Магазин</button>
             <button class="sub-btn" onclick="openLeaderboard()">🏆 Рейтинг</button>
         </div>
     </div>
-
     <div class="menu-footer">
          <h1 class="footer-logo">БАФФ БЕРРИ</h1>
     </div>
 </div>
 
-<!-- ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ -->
+<!-- ИГРОВОЙ ЭКРАН -->
 <div id="game" class="screen hidden">
     <div id="effects-layer" style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 550;"></div>
     <div class="top-bar-container">
@@ -219,6 +198,7 @@
     <div id="obstacle"></div> 
 </div>
 
+<!-- GAME OVER -->
 <div id="gameOverScreen" class="screen hidden" style="background: rgba(0,0,0,0.85); z-index: 1000;">
     <div class="go-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
         <div class="shop-title" style="font-size: 60px; color: #ff4fd8; font-weight: 900; text-shadow: 0 0 20px #ff4fd8;">БА-БАХ!</div>
@@ -239,7 +219,6 @@
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">БАФФЫ</h2>
     <div id="shop-balance" class="balance-info" style="margin-bottom: 20px; color: white;">
-        <!-- Динамически обновляется из JS, но для структуры: -->
         0 <img src="assets/icecream.png" class="resource-icon"> | 
         0 <img src="assets/golden_ice.png" class="resource-icon"> | 
         0 <img src="assets/diamond.png" class="resource-icon">
@@ -259,14 +238,13 @@
     <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
 
-<!-- ЭКРАН МАГАЗИНА (VIP И ОБМЕН) -->
+<!-- МАГАЗИН VIP -->
 <div id="realShop" class="screen hidden">
     <h2 class="shop-title">МАГАЗИН</h2>
     <div id="vip-balance-info" class="balance-info" style="margin-bottom: 20px; color: #ffd700;">
         Баланс: 0 <img src="assets/golden_ice.png" class="resource-icon"> | 0 <img src="assets/diamond.png" class="resource-icon">
     </div>
     <div class="shop-container">
-        <!-- VIP Скин -->
         <div class="shop-item vip-card" style="border: 2px solid #00eaff !important;">
             <div class="item-title" style="color: #00eaff; font-weight: 800;">БАФФ БЕРРИ</div>
             <p style="color: #eee; font-size: 12px; text-align: center;">Магнит +5с, Опыт x1.5, Комбо до x7</p>
@@ -274,137 +252,122 @@
                 3 <img src="assets/diamond.png" class="resource-icon">
             </button>
         </div>
-        <!-- Слоты -->
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ ЩИТ</div>
-            <p style="color: #eee; font-size: 12px; text-align: center;">Увеличить запас щитов</p>
             <button class="buy-button gold" onclick="buySlot('shield')">
                 3 <img src="assets/golden_ice.png" class="resource-icon">
             </button>
         </div>
         <div class="shop-item vip-card">
             <div class="item-title" style="color: #ffd700; font-weight: 800;">+1 СЛОТ МАГНИТ</div>
-            <p style="color: #eee; font-size: 12px; text-align: center;">Увеличить запас магнитов</p>
             <button class="buy-button gold" onclick="buySlot('magnet')">
                 3 <img src="assets/golden_ice.png" class="resource-icon">
             </button>
         </div>
-
-        <!-- ЗОЛОТОЙ ДИЛЕР -->
         <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%;">
             <div class="item-title" style="color: #ffd700; font-weight: 800;">ЗОЛОТОЙ ДИЛЕР</div>
             <p style="color: white; margin: 5px 0;">5000 <img src="assets/icecream.png" class="resource-icon"> = 1 <img src="assets/golden_ice.png" class="resource-icon"></p>
             <button class="buy-button gold" onclick="convertIceToGold()">ОБМЕНЯТЬ</button>
         </div>
-
-        <!-- АЛМАЗНЫЙ ДИЛЕР -->
         <div class="shop-item exchange-card" style="grid-column: span 1; width: 100%; border-color: #00eaff !important;">
             <div class="item-title" style="color: #00eaff; font-weight: 800;">АЛМАЗНЫЙ ДИЛЕР</div>
             <p style="color: white; margin: 5px 0;">50,000 <img src="assets/icecream.png" class="resource-icon"> = 1 <img src="assets/diamond.png" class="resource-icon"></p>
             <button class="buy-button gold" style="background: linear-gradient(180deg, #0088a8, #004e63) !important; color: white !important;" onclick="buyDiamond()">КУПИТЬ</button>
         </div>
     </div>
-    
-    <button class="sub-btn" style="margin-top: 30px;" 
-        onclick="document.getElementById('realShop').classList.add('hidden'); 
-                 document.getElementById('menu').classList.remove('hidden'); 
-                 if(typeof startIceRain === 'function') startIceRain('menu');">
-        НАЗАД
-    </button>
+    <button class="sub-btn" style="margin-top: 30px;" onclick="closeShop()">НАЗАД</button>
 </div>
+
+<!-- РЕЙТИНГ -->
+<div id="leaderboardScreen" class="screen hidden">
+    <h2 class="shop-title">РЕЙТИНГ</h2>
+    <div id="leaderboard-list"></div>
+    <button class="sub-btn" style="margin-top: 30px;" onclick="closeLeaderboard()">НАЗАД</button>
+</div>
+
+<script>
+    // FIREBASE CONFIG
+    const firebaseConfig = {
+        apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
+        authDomain: "berry-game-4fa9b.firebaseapp.com",
+        databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com",
+        projectId: "berry-game-4fa9b",
+        storageBucket: "berry-game-4fa9b.firebasestorage.app",
+        messagingSenderId: "736707445306",
+        appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
+        measurementId: "G-LLJ9L848G0"
+    };
     
-  // ТВOЙ КОНФИГ FIREBASE СОХРАНЕН ПОЛНОСТЬЮ
-  const firebaseConfig = {
-    apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
-    authDomain: "berry-game-4fa9b.firebaseapp.com",
-    databaseURL: "https://berry-game-4fa9b-default-rtdb.firebaseio.com",
-    projectId: "berry-game-4fa9b",
-    storageBucket: "berry-game-4fa9b.firebasestorage.app",
-    messagingSenderId: "736707445306",
-    appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
-    measurementId: "G-LLJ9L848G0"
-  };
-  
-  try {
-    firebase.initializeApp(firebaseConfig);
-    window.db = firebase.database();
-  } catch (e) { console.error("Firebase error", e); }
+    try {
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.database();
+    } catch (e) { console.error("Firebase error", e); }
 
-  // ЛОГИКА ТЕЛЕГРАМ И ВХОДА (НОВОЕ)
-  const tg = window.Telegram.WebApp;
-  let playerID = "Guest";
-  let playerName = "Игрок";
+    const tg = window.Telegram.WebApp;
+    let playerID = "Guest";
+    let playerName = "Игрок";
 
-  // Замени свой блок initTelegramAuth на этот:
-function initTelegramAuth() {
-    if (typeof tg !== 'undefined') {
-        tg.expand();
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            playerID = tg.initDataUnsafe.user.id.toString();
-            playerName = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username;
+    function initTelegramAuth() {
+        if (typeof tg !== 'undefined') {
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                playerID = tg.initDataUnsafe.user.id.toString();
+                playerName = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username;
+            }
         }
+        const idDisplay = document.getElementById('tg-id-display');
+        if(idDisplay) idDisplay.innerText = playerID;
+        
+        if (typeof loadUserData === "function") {
+            loadUserData(playerID);
+        }
+
+        setTimeout(() => {
+            const spinner = document.querySelector('#auth-screen .spinner');
+            const entryBtn = document.getElementById('entry-btn');
+            if(spinner) spinner.style.display = 'none';
+            if(entryBtn) entryBtn.classList.remove('hidden');
+        }, 1500);
     }
-    
-    const idDisplay = document.getElementById('tg-id-display');
-    if(idDisplay) idDisplay.innerText = playerID;
-    
-    // ПРОВЕРКА: Если в game.js есть функция loadUserData, вызываем её сразу
-    if (typeof loadUserData === "function") {
-        loadUserData(playerID);
+
+    document.addEventListener("DOMContentLoaded", initTelegramAuth);
+
+    function startGameSession() {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('menu').classList.remove('hidden');
+        
+        const welcomeField = document.getElementById('welcome');
+        if(welcomeField) welcomeField.innerText = `ПРИВЕТ, ${playerName.toUpperCase()}!`;
+        
+        const nickInput = document.getElementById('nick');
+        if(nickInput) nickInput.value = playerName;
+
+        if (typeof startIceRain === "function") startIceRain("menu");
+        if (typeof updateMenuInfo === "function") updateMenuInfo();
     }
 
-    setTimeout(() => {
-        const spinner = document.querySelector('#auth-screen .spinner');
-        const entryBtn = document.getElementById('entry-btn');
-        if(spinner) spinner.style.display = 'none';
-        if(entryBtn) entryBtn.classList.remove('hidden');
-    }, 1500);
-}
-
-// Вместо window.onload используй это, чтобы не "сбить" загрузку game.js
-document.addEventListener("DOMContentLoaded", initTelegramAuth);
-
-  function startGameSession() {
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('menu').classList.remove('hidden');
-    
-    const welcomeField = document.getElementById('welcome');
-    if(welcomeField) welcomeField.innerText = `ПРИВЕТ, ${playerName.toUpperCase()}!`;
-    
-    const nickInput = document.getElementById('nick');
-    if(nickInput) nickInput.value = playerName;
-
-    // КРИТИЧЕСКИ ВАЖНО: запускаем дождь и обновляем баланс из game.js
-    if (typeof startIceRain === "function") startIceRain("menu");
-    if (typeof updateMenuInfo === "function") updateMenuInfo();
-}
-
-  window.onload = initTelegramAuth;
-
-  function openBuffs() {
-      document.getElementById('menu').classList.add('hidden');
-      document.getElementById('shop').classList.remove('hidden');
-  }
-
-  function openShop() {
-      document.getElementById('menu').classList.add('hidden');
-      document.getElementById('realShop').classList.remove('hidden');
-  }
-
-  function closeShop() {
-      document.getElementById('shop').classList.add('hidden');
-      document.getElementById('menu').classList.remove('hidden');
-  }
-
-  function openLeaderboard() {
-      document.getElementById('menu').classList.add('hidden');
-      document.getElementById('leaderboardScreen').classList.remove('hidden');
-  }
-
-  function closeLeaderboard() {
-      document.getElementById('leaderboardScreen').classList.add('hidden');
-      document.getElementById('menu').classList.remove('hidden');
-  }
+    function openBuffs() {
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('shop').classList.remove('hidden');
+    }
+    function openShop() {
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('realShop').classList.remove('hidden');
+    }
+    function closeShop() {
+        document.getElementById('shop').classList.add('hidden');
+        document.getElementById('realShop').classList.add('hidden');
+        document.getElementById('menu').classList.remove('hidden');
+        if(typeof startIceRain === 'function') startIceRain('menu');
+    }
+    function openLeaderboard() {
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('leaderboardScreen').classList.remove('hidden');
+    }
+    function closeLeaderboard() {
+        document.getElementById('leaderboardScreen').classList.add('hidden');
+        document.getElementById('menu').classList.remove('hidden');
+    }
 </script>
 <script src="game.js"></script>
 </body>
