@@ -165,6 +165,22 @@ button, select, input {
     box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
 }
 
+/* ПРАВКА: Изолируем стиль компактных кнопок, чтобы не ломать меню */
+.compact-btn {
+    width: 120px !important;
+    min-width: 100px !important;
+    height: 32px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+    line-height: 32px !important;
+    border-radius: 8px !important;
+    margin: 8px auto 0 auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+}
+
 button:active { transform: scale(0.95); }
 
 .main-btn {
@@ -311,20 +327,6 @@ button:active { transform: scale(0.95); }
 }
 .gold-text { color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
 .diamond-text { color: #00eaff; text-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
-
-/* Компактные кнопки */
-.compact-btn {
-    width: auto !important;
-    min-width: 100px !important;
-    height: 28px !important;
-    font-size: 12px !important;
-    padding: 0 15px !important;
-    line-height: 28px !important;
-    border-radius: 8px !important;
-    margin: 5px auto 0 auto !important;
-    display: block;
-    box-shadow: none !important;
-}
 
 .diamond-bg {
     background: linear-gradient(180deg, #00eaff, #0077ff) !important;
