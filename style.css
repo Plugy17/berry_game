@@ -21,8 +21,9 @@ body {
     z-index: 10;
     background: url('assets/bg.jpg') no-repeat center center;
     background-size: cover;
-    /* ПРАВКА: Центрируем контент в меню */
+    /* ПРАВКА: Центрируем контент строго по центру */
     justify-content: center !important; 
+    text-align: center;
 }
 
 #game.screen {
@@ -64,7 +65,6 @@ body {
     animation: iceFall linear forwards;
 }
 
-/* ПРАВКА: Теперь падает с самого верха */
 @keyframes iceFall {
     0% { transform: translateY(-120px) rotate(0deg); opacity: 1; }
     10% { opacity: 1; }
@@ -145,27 +145,29 @@ body {
     100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(360deg); opacity: 0; }
 }
 
-/* --- КНОПКИ --- */
-button, select, input {
+/* --- КНОПКИ (ИСПРАВЛЕННАЯ ЦЕНТРОВКА) --- */
+/* ПРАВКА: Добавлен :not для исключения кнопок паузы из общих стилей */
+button:not(#pauseBtn):not(#backBtn):not(.compact-btn), select, input {
     background: rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(12px);
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
     color: white !important;
     padding: 15px 20px !important;
     border-radius: 20px;
-    font-size: 18px !important;
+    font-size: 22px !important; /* ПРИВЕТСТВИЕ И КНОПКИ ТЕПЕРЬ КРУПНЫЕ */
     font-weight: 800;
     text-transform: uppercase;
     transition: 0.3s all ease;
     cursor: pointer;
-    width: 100% !important;
+    width: 280px !important; /* Жесткая ширина */
     max-width: 280px;
     box-sizing: border-box;
-    margin: 5px 0;
+    margin: 10px auto !important; /* СТРОГАЯ ЦЕНТРОВКА ПО ЦЕНТРУ */
     box-shadow: 0 4px 15px rgba(255, 79, 216, 0.3);
+    display: block !important;
 }
 
-/* ПРАВКА: Изолируем стиль компактных кнопок, чтобы не ломать меню */
+/* ПРАВКА: Изолируем компактные кнопки дилеров */
 .compact-btn {
     width: 120px !important;
     min-width: 100px !important;
@@ -298,80 +300,64 @@ button:active { transform: scale(0.95); }
     transition: left 0.1s linear, transform 0.1s linear; 
 }
 
-/* --- НОВЫЕ ПРАВКИ: ДИЛЕРЫ И УНИФИКАЦИЯ --- */
-
-/* Эффект прозрачного стекла и теней для дилеров */
+/* --- ДИЛЕРЫ --- */
 .translucent-glass {
     background: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
-                inset 0 0 10px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     padding: 12px !important;
     margin-top: 15px;
 }
 
-.dealers-wrapper {
-    grid-column: 1 / -1;
-    width: 100%;
-}
+.dealers-wrapper { grid-column: 1 / -1; width: 100%; }
 
 .dealer-title {
     font-size: 14px !important;
     margin: 0 0 8px 0 !important;
-    letter-spacing: 1px;
     font-weight: 900;
-    text-align: center;
 }
-.gold-text { color: #ffeb3b; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
-.diamond-text { color: #00eaff; text-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
+.gold-text { color: #ffeb3b; }
+.diamond-text { color: #00eaff; }
 
-.diamond-bg {
-    background: linear-gradient(180deg, #00eaff, #0077ff) !important;
-}
+.diamond-bg { background: linear-gradient(180deg, #00eaff, #0077ff) !important; }
 
-/* Унификация иконок (чтобы icecream.png был везде) */
 .ice-icon {
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     display: inline-block;
     background-image: url('assets/icecream.png');
     background-size: contain;
-    background-repeat: no-repeat;
     vertical-align: middle;
 }
 
 .price-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; font-size: 16px; font-weight: bold; color: #fff;
 }
 
-.equal-sign {
-    opacity: 0.7;
-    margin: 0 4px;
-}
-
-/* УПРАВЛЕНИЕ: ПАУЗА И ДОМ */
+/* --- УПРАВЛЕНИЕ: ПАУЗА И ДОМ (ФИКС КВАДРАТОВ) --- */
 #pauseBtn, #backBtn {
-    position: absolute;
-    top: 20px;
-    width: 75px !important;
-    height: 75px !important;
+    position: absolute !important;
+    top: 20px !important;
+    width: 65px !important;
+    height: 65px !important;
     border: none !important;
     background-color: transparent !important;
     background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 2000 !important;
     outline: none !important;
     box-shadow: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
-#pauseBtn { left: 20px; background-image: url('assets/pause.png') !important; }
-#backBtn { right: 20px; background-image: url('assets/home.png') !important; }
-#pauseBtn.is-paused { background-image: url('assets/play.png') !important; }
+#pauseBtn { left: 20px !important; background-image: url('assets/pause.png') !important; }
+#backBtn { right: 20px !important; background-image: url('assets/home.png') !important; }
+
+/* УДАЛЯЕМ МУСОРНЫЙ ТЕКСТ "БАФФ БЕРРИ" В МЕНЮ */
+h2#buff-title-extra, .screen > h2:last-of-type { display: none !important; }
