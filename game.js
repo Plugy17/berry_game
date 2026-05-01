@@ -54,6 +54,59 @@ const getIceIcon = () => `<span class="ice-icon"></span>`;
 const getGoldIcon = () => `<span class="golden-ice-icon-small"></span>`;
 const getDiamondIcon = () => `<span class="diamond-icon-small"></span>`;
 
+/* --- НОВЫЕ ФУНКЦИИ ПРИВЕТСТВИЯ И ЗАГРУЗКИ --- */
+
+// Заменяем старый window.onload на новый с проверкой ника
+window.onload = function() {
+    // Сначала запускаем дождь (твоя старая логика)
+    startIceRain("menu");
+
+    const savedNick = localStorage.getItem('playerNick');
+    
+    if (!savedNick) {
+        // Если ника нет — показываем окно приветствия
+        if(document.getElementById('welcomeScreen')) document.getElementById('welcomeScreen').classList.remove('hidden');
+        document.getElementById('menu').classList.add('hidden');
+    } else {
+        // Если ник есть — загружаем данные и в меню через лоадер
+        nick = savedNick; // Синхронизируем со старой переменной nick
+        loadUserData(nick); // Твоя старая функция загрузки
+        showLoaderAndGoToMenu(savedNick);
+    }
+};
+
+function saveInitialNick() {
+    const nickInput = document.getElementById('usernameInput');
+    const val = nickInput ? nickInput.value.trim() : "";
+    if (val.length < 2) {
+        alert("Ник слишком короткий!");
+        return;
+    }
+    
+    localStorage.setItem('playerNick', val);
+    localStorage.setItem('nick', val); // Для совместимости со старым кодом
+    nick = val;
+    showLoaderAndGoToMenu(val);
+}
+
+function showLoaderAndGoToMenu(playerNick) {
+    const loader = document.getElementById('loadingOverlay');
+    const welcome = document.getElementById('welcomeScreen');
+    const menu = document.getElementById('menu');
+
+    if(welcome) welcome.classList.add('hidden');
+    if(loader) loader.classList.remove('hidden');
+
+    // Имитируем загрузку из базы данных (1.5 секунды)
+    setTimeout(() => {
+        if(loader) loader.classList.add('hidden');
+        if(menu) menu.classList.remove('hidden');
+        
+        console.log(`Привет, ${playerNick}! Удачной охоты за мороженым.`);
+        updateMenuInfo(); // Обновляем инфо в меню (твоя старая функция)
+    }, 1500);
+}
+
 /* --- ФУНКЦИИ МАГАЗИНА И ИНВЕНТАРЯ --- */
 
 function buyItem(item) {
@@ -129,27 +182,21 @@ function updateShopUI() {
     const goldElem = document.getElementById("gold-count");
     const diamElem = document.getElementById("diamond-count");
     
-    // Обновляем баланс
     if(coinElem) coinElem.innerText = totalCoins;
     if(goldElem) goldElem.innerText = goldenIce;
     if(diamElem) diamElem.innerText = diamonds;
 
-    // Ищем контейнер именно МАГАЗИНА
     const shopScreen = document.getElementById('shop'); 
     if (!shopScreen) return;
 
-    // Ищем или создаем контейнер для дилеров ВНУТРИ магазина
     let dealersBlock = document.getElementById('dealers-block');
     if (!dealersBlock) {
         dealersBlock = document.createElement('div');
         dealersBlock.id = 'dealers-block';
         dealersBlock.className = "dealers-wrapper";
-        
-        // Вставляем дилеров в самый низ магазина (после всех товаров)
         shopScreen.appendChild(dealersBlock);
     }
 
-    // Отрисовываем дилеров с правильными иконками PNG
     dealersBlock.innerHTML = `
         <div class="dealer-card gold-card translucent-glass">
             <h3 class="dealer-title gold-text">ЗОЛОТОЙ ДИЛЕР</h3>
@@ -374,12 +421,6 @@ function saveUserData() {
     });
 }
 
-window.onload = () => { 
-    if(nick) loadUserData(nick); 
-    else updateMenuInfo();
-    startIceRain("menu"); 
-};
-
 function updateMenuInfo() {
     const shopBtn = document.getElementById("shop-btn-main");
     if(shopBtn) shopBtn.innerHTML = `МАГАЗИН`;
@@ -419,13 +460,7 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    if (!nick) {
-        const nickInput = document.getElementById("nick");
-        const val = nickInput ? nickInput.value.trim() : "";
-        if (val.length < 2) return alert("Введи имя!");
-        nick = val; 
-        localStorage.setItem("nick", nick);
-    }
+    // В startGame ник уже точно будет из приветственного окна
     stopIceRain(); 
     document.getElementById("gameOverScreen").classList.add("hidden");
     isPaused = false;
@@ -620,7 +655,6 @@ function openLeaderboard() {
             snap.forEach(child => { players.push(child.val()); });
             
             players.reverse().forEach((p, index) => {
-                // СОЗДАЕМ КРАСИВУЮ СТРОКУ
                 list.innerHTML += `
                 <div class="leaderboard-item">
                     <span class="leader-name">${index + 1}. ${p.nick || "Герой"}</span>
