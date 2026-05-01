@@ -180,25 +180,32 @@ button:active { transform: scale(0.95); }
     position: absolute; 
     top: 20px; 
     right: 20px; 
-    width: 60px !important;
-    height: 60px !important; 
+    /* ПРАВКА: Твой размер 75px */
+    width: 75px !important;
+    height: 75px !important; 
     padding: 0 !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 15px !important;
-    /* Указываем путь к картинке */
-    background: url('assets/home.png') no-repeat center center !important;
-    background-size: contain !important; /* contain, чтобы картинка не обрезалась */
     
-    /* ПРАВКА: Убираем рамку и стандартный фон кнопок */
+    /* ПРАВКА: Убираем ВСЁ лишнее (рамки, фон, тени) */
     border: none !important; 
     background-color: transparent !important; 
-    box-shadow: none !important; 
+    box-shadow: none !important;
+    outline: none !important; /* Убирает контур при нажатии */
+
+    /* Указываем картинку */
+    background: url('assets/home.png') no-repeat center center !important;
+    background-size: contain !important; /* contain гарантирует, что 75px будет по большей стороне */
     
     z-index: 100;
-    line-height: 1;
     cursor: pointer;
+    transition: transform 0.2s ease; /* Добавим мягкий эффект при нажатии */
+}
+
+/* Эффект нажатия, раз уж у нас нет рамок */
+#backBtn:active {
+    transform: scale(0.9);
 }
 /* --- МАГАЗИН --- */
 #shop, #realShop, #leaderboardScreen {
