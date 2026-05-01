@@ -659,17 +659,23 @@ function backToMenu() {
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 document.addEventListener("touchend", e => {
-    if (!gameRunning) return;
+    // ПРАВКА: Если игра на паузе ИЛИ не запущена — свайпы не работают
+    if (!gameRunning || isPaused) return; 
+    
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
     if (diff > 0) targetLane = Math.min(3, targetLane + 1);
     else targetLane = Math.max(0, targetLane - 1);
 });
 
+// Для кнопок на клавиатуре
 document.addEventListener("keydown", e => {
-    if (!gameRunning) return;
+    // ПРАВКА: Если игра на паузе ИЛИ не запущена — клавиши не работают
+    if (!gameRunning || isPaused) return;
+
     if (e.key === "ArrowLeft" || e.key === "a") targetLane = Math.max(0, targetLane - 1);
     if (e.key === "ArrowRight" || e.key === "d") targetLane = Math.min(3, targetLane + 1);
+    // Бонусы тоже нельзя использовать на паузе
     if (e.key === "1") useShield();
     if (e.key === "2") useMagnet();
 });
