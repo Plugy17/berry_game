@@ -51,6 +51,25 @@ function initAudio() {
     }).catch(e => console.log("Audio waiting for user tap"));
 }
 
+// --- ФУНКЦИЯ ПАУЗЫ (Должна стоять отдельно) ---
+function togglePause() {
+    if (!gameRunning) return; 
+
+    isPaused = !isPaused;
+    const pauseIcon = document.getElementById("pauseIcon");
+
+    if (isPaused) {
+        if (pauseIcon) pauseIcon.src = "assets/play.jpg"; // У тебя файл play.jpg
+        cancelAnimationFrame(loopId);
+        stopIceRain();
+        console.log("Пауза включена");
+    } else {
+        if (pauseIcon) pauseIcon.src = "assets/pause.png";
+        requestAnimationFrame(update);
+        console.log("Игра продолжается");
+    }
+}
+
 const soundCollect = new Audio('assets/collect.mp3'); // Убедитесь, что файл лежит по этому пути
 soundCollect.volume = 0.3;
 let laneCount = 4;
@@ -61,6 +80,7 @@ let obstacleLane = 0;
 let obstacleY = -150; 
 let loopId = null;
 let speed = 7;
+let isPaused = false;
 let baseSpeed = 7;
 let difficulty = 0.002;
 
