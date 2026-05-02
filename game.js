@@ -503,3 +503,22 @@ function createCollectExplosion(x, y, color) {
         setTimeout(() => p.remove(), 500);
     }
 }
+// Ждем загрузки DOM, чтобы кнопки точно существовали
+document.addEventListener('DOMContentLoaded', () => {
+    const retryBtn = document.getElementById("retryBtn"); // Проверьте, что ID совпадает с вашим в HTML
+    const menuBtn = document.getElementById("menuBtn");
+
+    if (retryBtn) {
+        retryBtn.addEventListener("click", () => {
+            initAudio(); // "Пинаем" аудио-контекст
+            startGame();
+        });
+    }
+
+    if (menuBtn) {
+        menuBtn.addEventListener("click", () => {
+            initAudio(); // Тоже активируем звук, если игрок ушел в меню
+            showMenu(); 
+        });
+    }
+});
