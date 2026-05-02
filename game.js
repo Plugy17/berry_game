@@ -310,7 +310,7 @@ function spawnObstacle() {
 }
 
 function update() {
-    if (!gameRunning || isPaused) return;[cite: 5]
+    if (!gameRunning || isPaused) return;
 
     const p = document.getElementById("player");
     if (!p) return;
