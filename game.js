@@ -204,19 +204,26 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
-    obstacleY += speed;
-    speed += difficulty;
-    const obs = document.getElementById("obstacle");
+    // Пускаем шлейф за Берри во время бега
     const p = document.getElementById("player");
-    const playerTop = window.innerHeight * 0.75; 
-
-    if (magnetActive && obs.dataset.type === "good") {
-        let currentLeft = parseFloat(obs.style.left);
-        let targetX = lanes[targetLane];
-        let distY = playerTop - obstacleY;
-        if (distY < 500 && distY > -30) {
-            let newLeft = currentLeft + (targetX - currentLeft) * 0.25;
-            obs.style.left = newLeft + "%";
+    if (p && Math.random() < 0.3) { // 30% шанс создания частицы каждый кадр, чтобы не лагало
+        const rect = p.getBoundingClientRect();
+        const gameLayer = document.getElementById("effects-layer") || document.getElementById("game");
+        
+        if (gameLayer) {
+            const part = document.createElement("div");
+            part.className = "speed-particle";
+            
+            // Позиционируем внизу персонажа
+            part.style.left = (rect.left + rect.width / 2) + "px";
+            part.style.top = (rect.top + rect.height - 10) + "px";
+            
+            // Небольшой разлет влево-вправо
+            const pdx = (Math.random() - 0.5) * 40 + "px";
+            part.style.setProperty('--pdx', pdx);
+            
+            gameLayer.appendChild(part);
+            setTimeout(() => part.remove(), 400);
         }
     }
 
@@ -236,12 +243,20 @@ function handleCollision(obs, p) {
 
     if (obs.dataset.type === "good") {
         createExplosion(centerX, centerY); 
+
+        // --- Анимация сбора (Ням-ням) ---
+        p.classList.remove("berry-collect");
+        void p.offsetWidth; // Магия для перезапуска CSS анимации
+        p.classList.add("berry-collect");
+        setTimeout(() => p.classList.remove("berry-collect"), 250);
+
         comboCount++;
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
         else if (comboCount >= 5) comboMultiplier = 3;
         else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
+
         coins += comboMultiplier; 
         updateScore(); 
         spawnObstacle();
@@ -250,6 +265,13 @@ function handleCollision(obs, p) {
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
+
+            // --- Анимация тряски от удара ---
+            p.classList.remove("berry-hit-shield");
+            void p.offsetWidth; // Сброс анимации
+            p.classList.add("berry-hit-shield");
+            setTimeout(() => p.classList.remove("berry-hit-shield"), 300);
+
             spawnObstacle();
         } else {
             gameOver();
