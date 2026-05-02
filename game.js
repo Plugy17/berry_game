@@ -206,31 +206,27 @@ function spawnObstacle() {
 function update() {
     if (!gameRunning) return;
 
-    const p = document.getElementById("player"); // Берём игрока
+    const p = document.getElementById("player"); // Берем игрока один раз
+
+if (p && Math.random() < 0.3) {
+    const rect = p.getBoundingClientRect(); // ИСПОЛЬЗУЕМ p (строка 235 была тут)
+    const gameLayer = document.getElementById("game");
     
-    // Эффект шлейфа (частицы)
-    if (p && Math.random() < 0.3) {
-        const p = document.getElementById("player"); 
-if (!p) return;
-const rect = p.getBoundingClientRect(); // Теперь мы берем координаты БЕРРИ
-        // Используем rect игрока (p), а не obs!
-        const gameLayer = document.getElementById("game");
+    if (gameLayer) {
+        const part = document.createElement("div");
+        part.className = "speed-particle";
         
-        if (gameLayer) {
-            const part = document.createElement("div");
-            part.className = "speed-particle";
-            
-            // Центрируем частицу под игроком
-            part.style.left = (rect.left + rect.width / 2) + "px";
-            part.style.top = (rect.top + rect.height - 10) + "px";
-            
-            const pdx = (Math.random() - 0.5) * 40 + "px";
-            part.style.setProperty('--pdx', pdx);
-            
-            gameLayer.appendChild(part);
-            setTimeout(() => part.remove(), 400);
-        }
+        // Центрируем частицу под Берри
+        part.style.left = (rect.left + rect.width / 2) + "px";
+        part.style.top = (rect.top + rect.height - 10) + "px";
+        
+        const pdx = (Math.random() - 0.5) * 40 + "px";
+        part.style.setProperty('--pdx', pdx);
+        
+        gameLayer.appendChild(part);
+        setTimeout(() => part.remove(), 400);
     }
+}
 
     obs.style.top = obstacleY + "px";
     const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
