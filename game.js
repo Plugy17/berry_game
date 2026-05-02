@@ -210,7 +210,9 @@ function update() {
     
     // Эффект шлейфа (частицы)
     if (p && Math.random() < 0.3) {
-        const rect = p.getBoundingClientRect();
+        const p = document.getElementById("player"); 
+if (!p) return;
+const rect = p.getBoundingClientRect(); // Теперь мы берем координаты БЕРРИ
         // Используем rect игрока (p), а не obs!
         const gameLayer = document.getElementById("game");
         
