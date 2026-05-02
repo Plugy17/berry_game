@@ -263,33 +263,23 @@ function update() {
         let currentLeft = parseFloat(obstacle.style.left); 
 
         // --- ЛОГИКА МАГНИТА ---
-        // Тянем только "хорошие" объекты и только если магнит активен
         if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
             const obsRect = obstacle.getBoundingClientRect();
-            
-            // Находим центры
             const pX = pRect.left + pRect.width / 2;
             const pY = pRect.top + pRect.height / 2;
             const oX = obsRect.left + obsRect.width / 2;
             const oY = obsRect.top + obsRect.height / 2;
-
-            // Расстояние
             const dx = pX - oX;
             const dy = pY - oY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Если объект в радиусе притяжения (например, 400px)
             if (distance < 400) {
-                const force = 10; // Скорость притяжения
-                // Двигаем Left (переводим из % в px для точности во время магнита)
+                const force = 10;
                 if (obstacle.style.left.includes('%')) {
                     obstacle.style.left = obsRect.left + "px";
                 }
-                
                 const newLeft = (parseFloat(obstacle.style.left) || 0) + (dx / distance) * force;
                 obstacle.style.left = newLeft + "px";
-                
-                // Корректируем Top (добавляем тягу к падению)
                 currentTop += (dy / distance) * force;
             }
         }
@@ -298,8 +288,23 @@ function update() {
         currentTop += speed; 
         obstacle.style.top = currentTop + "px";
 
-        // УДАЛЕНИЕ
+        // --- УДАЛЕНИЕ И СБРОС КОМБО ---
         if (currentTop > window.innerHeight) {
+            // Если игрок пропустил "хорошее" мороженое — сбрасываем комбо
+            if (obstacle.dataset.type === "good") {
+                comboCount = 0;
+                comboMultiplier = 1;
+                
+                const comboEl = document.getElementById("combo-display");
+                if (comboEl) {
+                    comboEl.style.opacity = "0"; // Прячем множитель при пропуске
+                }
+
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+                }
+            }
+
             obstacle.remove();
             spawnObstacle();
             return; 
