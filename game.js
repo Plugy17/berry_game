@@ -152,16 +152,28 @@ function updateBonusUI() {
 }
 
 function startGame() {
+    // 1. Проверяем ник (если его нет)
     if (!nick) {
-        const val = document.getElementById("nick").value.trim();
-        if (val.length < 2) return alert("Введи имя!");
+        const val = document.getElementById("nick")?.value.trim();
+        if (!val || val.length < 2) return alert("Введи имя!");
         nick = val; 
         userId = val;
         localStorage.setItem("nick", nick);
     }
-    stopIceRain();
+
+    // 2. ОСТАНАВЛИВАЕМ старые процессы перед запуском новых
+    stopIceRain(); 
+    if (loopId) {
+        cancelAnimationFrame(loopId); // Убиваем старый цикл игры
+        loopId = null;
+    }
+
+    // 3. СКРЫВАЕМ ВСЕ ОКНА (и меню, и экран проигрыша)
     document.getElementById("menu").classList.add("hidden");
+    document.getElementById("gameOverScreen").classList.add("hidden"); // Важно добавить эту строку!
     document.getElementById("game").classList.remove("hidden");
+
+    // 4. СБРОС И ЗАПУСК
     resetGame();
 }
 
