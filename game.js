@@ -276,23 +276,25 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-    const rect = obs.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+        // --- 1. ВОЗВРАЩАЕМ ЗВУК ---
+        if (typeof soundCollect !== 'undefined' && soundCollect) {
+            soundCollect.currentTime = 0; // Сброс в начало для частых сборов
+            soundCollect.play().catch(e => console.log("Audio play blocked or failed"));
+        }
 
-    // ВЫЗЫВАЕМ ВЗРЫВ
-    createCollectExplosion(centerX, centerY, "#FF69B4");
+        // --- 2. ЭФФЕКТЫ И ВИЗУАЛ ---
+        createCollectExplosion(centerX, centerY, "#FF69B4");
         
-        // Безопасная вибрация (проверяем существование метода)
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
         }
 
         createExplosion(centerX, centerY); 
         p.classList.remove("berry-collect");
-        void p.offsetWidth;
+        void p.offsetWidth; // Магия для перезапуска анимации
         p.classList.add("berry-collect");
 
+        // --- 3. ЛОГИКА КОМБО И ОЧКОВ ---
         comboCount++;
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
@@ -304,6 +306,7 @@ function handleCollision(obs, p) {
         updateScore(); 
         spawnObstacle();
     } else {
+        // Логика столкновения с врагом (щит или смерть)
         if (shieldActive) {
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
