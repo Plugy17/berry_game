@@ -136,23 +136,6 @@ button, select, input {
 
 button:active { transform: scale(0.95); }
 
-#backBtn {
-    position: absolute; 
-    top: 15px; 
-    right: 15px; 
-    width: 45px !important; /* Уменьшено для компактности в уровень с HUD */
-    height: 45px !important; 
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 12px !important;
-    font-size: 20px !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 79, 216, 0.6) !important;
-    z-index: 100;
-}
-
 /* --- МАГАЗИН (ЧЕТКИЙ СЧЕТ КАК В МЕНЮ) --- */
 #shop {
     justify-content: flex-start !important; 
