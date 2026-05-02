@@ -693,10 +693,10 @@ button:active { transform: scale(0.95); }
     outline: none;
     
     /* Увеличиваем до среднего удобного размера */
-    width: 52px; 
-    height: 52px;
-    min-width: 52px;
-    max-width: 52px;
+    width: 62px; 
+    height: 62px;
+    min-width: 62px;
+    max-width: 62px;
 
     display: inline-flex;
     align-items: center;
