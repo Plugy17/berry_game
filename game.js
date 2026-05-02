@@ -219,16 +219,16 @@ function update() {
     const p = document.getElementById("player");
     if (!p) return;
 
+    const pRect = p.getBoundingClientRect(); // Получаем рамки Берри один раз
+
     // 2. ЭФФЕКТ ШЛЕЙФА
     if (Math.random() < 0.3) {
-        const rect = p.getBoundingClientRect();
         const gameLayer = document.getElementById("game");
-        
         if (gameLayer) {
             const part = document.createElement("div");
             part.className = "speed-particle";
-            part.style.left = (rect.left + rect.width / 2) + "px";
-            part.style.top = (rect.top + rect.height - 10) + "px";
+            part.style.left = (pRect.left + pRect.width / 2) + "px";
+            part.style.top = (pRect.top + pRect.height - 10) + "px";
             
             const pdx = (Math.random() - 0.5) * 40 + "px";
             part.style.setProperty('--pdx', pdx);
@@ -237,6 +237,29 @@ function update() {
             setTimeout(() => part.remove(), 400);
         }
     }
+
+    // 3. ПРОВЕРКА СТОЛКНОВЕНИЙ (С ПРАВКОЙ ХИТБОКСА)
+    const obstacles = document.querySelectorAll(".obstacle");
+    obstacles.forEach(obstacle => {
+        const obsRect = obstacle.getBoundingClientRect();
+
+        // НАСТРОЙКА ЧЕСТНОСТИ: 
+        // Чем больше inset, тем меньше зона поражения. 
+        // 12-15 пикселей — идеально, чтобы не задевать "воздухом".
+        const inset = 15; 
+
+        if (
+            pRect.left + inset < obsRect.right &&
+            pRect.right - inset > obsRect.left &&
+            pRect.top + inset < obsRect.bottom &&
+            pRect.bottom - inset > obsRect.top
+        ) {
+            handleCollision(obstacle, p);
+        }
+    });
+
+    loopId = requestAnimationFrame(update);
+}
 
     // 3. ДВИЖЕНИЕ ПРЕПЯТСТВИЙ
     obstacleY += speed;
