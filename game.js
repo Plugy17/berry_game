@@ -371,8 +371,8 @@ function update() {
         // УДАЛЕНИЕ ЗА ЭКРАНОМ
         if (currentTop > window.innerHeight) {
             if (obstacle.dataset.type === "good") {
-                if (typeof comboCount !== 'undefined') comboCount = 0;
-                if (typeof comboMultiplier !== 'undefined') comboMultiplier = 1;
+                comboCount = 0;
+                comboMultiplier = 1;
                 const comboEl = document.getElementById("combo-display");
                 if (comboEl) comboEl.style.opacity = "0";
                 
@@ -409,7 +409,6 @@ function handleCollision(obs, p) {
     const comboEl = document.getElementById("combo-display");
 
     if (obs.dataset.type === "good") {
-        // --- 1. УДАЛЯЕМ ОБЪЕКТ СРАЗУ ---
         obs.remove(); 
 
         if (typeof soundCollect !== 'undefined' && soundCollect) {
@@ -428,20 +427,9 @@ function handleCollision(obs, p) {
         if (comboEl && comboCount >= 2) {
             comboEl.innerText = "x" + comboMultiplier;
             comboEl.style.opacity = "1";
-            if (comboMultiplier >= 5) comboEl.style.color = "#ffff00";
-            else if (comboMultiplier >= 3) comboEl.style.color = "#00f2ff";
-            else comboEl.style.color = "#ffffff";
-
             comboEl.classList.remove("combo-pop");
             void comboEl.offsetWidth; 
             comboEl.classList.add("combo-pop");
-        }
-
-        const explosionColor = comboMultiplier >= 3 ? "#ff00ff" : "#FF69B4";
-        createCollectExplosion(centerX, centerY, explosionColor);
-        
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
         }
 
         createExplosion(centerX, centerY); 
@@ -451,35 +439,16 @@ function handleCollision(obs, p) {
 
         coins += comboMultiplier; 
         updateScore(); 
-        spawnObstacle(); // Теперь создастся только ОДИН новый
     } else {
         if (shieldActive) {
-            // --- 2. УДАЛЯЕМ ВРАГА ПРИ УДАРЕ О ЩИТ ---
             obs.remove(); 
-
             comboCount = 0; 
             comboMultiplier = 1;
             if (comboEl) comboEl.style.opacity = "0";
-
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
-            }
-
-            const gameEl = document.getElementById("game");
-            if (gameEl) {
-                gameEl.classList.add("screen-shake");
-                setTimeout(() => gameEl.classList.remove("screen-shake"), 300);
-            }
-
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-            p.classList.add("berry-hit-shield");
-            spawnObstacle(); 
         } else {
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
             gameOver();
         }
     }
