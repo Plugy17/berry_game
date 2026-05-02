@@ -246,7 +246,7 @@ function update() {
         // НАСТРОЙКА ЧЕСТНОСТИ: 
         // Чем больше inset, тем меньше зона поражения. 
         // 12-15 пикселей — идеально, чтобы не задевать "воздухом".
-        const inset = 15; 
+        const inset = 20; 
 
         if (
             pRect.left + inset < obsRect.right &&
