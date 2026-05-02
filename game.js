@@ -264,11 +264,19 @@ function updateScore() {
 
 function gameOver() {
     gameRunning = false;
+    if (loopId) cancelAnimationFrame(loopId); // Останавливаем цикл немедленно
+
     totalCoins += coins;
     if (coins > best) best = coins;
+    
     saveUserData();
-    document.getElementById("gameOverScreen").classList.remove("hidden");
-    document.getElementById("final-score").innerText = coins; 
+
+    // Показываем экран смерти
+    const goScreen = document.getElementById("gameOverScreen");
+    if (goScreen) {
+        goScreen.classList.remove("hidden");
+        document.getElementById("final-score").innerText = coins;
+    }
 }
 
 function backToMenu() {
