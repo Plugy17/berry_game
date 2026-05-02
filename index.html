@@ -58,33 +58,24 @@
 </div>
 
 <div id="game" class="screen hidden">
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ: Здесь всё управление и счет -->
     <div id="game-top-bar">
-        <!-- Кнопка Паузы (будет слева) -->
         <button id="pauseBtn" class="clean-button" onclick="togglePause()">
             <img id="pauseIcon" src="assets/pause.png" alt="Пауза">
         </button>
 
-        <!-- HUD (будет по центру) -->
         <div id="hud">
             <span class="ice-icon"></span> 0 | 🏆 0
         </div> 
 
-        <!-- Кнопка Домой (будет справа) -->
-        <button id="backBtn" class="clean-button" onclick="backToMenu()">
+        <button id="homeBtn" class="clean-button" onclick="backToMenu()">
             <img src="assets/home.png" alt="Домой">
         </button>
     </div>
 
-    <!-- Остальные слои игры -->
     <div id="effects-layer"></div>
     <div id="combo-display" class="combo-text"></div>
     
-    <div id="combo-container">
-        <div id="combo-ui" class="hidden">x2</div>
-        <div id="combo-msg"></div> 
-    </div>
-</div>
+    <div id="player"></div> 
 
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
@@ -96,6 +87,7 @@
             <span id="count-magnet">0</span>
         </div>
     </div>
+</div>
     
     <div id="player"></div> 
     <div id="obstacle"></div> 
