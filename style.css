@@ -686,35 +686,39 @@ button:active { transform: scale(0.95); }
 #continue-btn.hidden { display: none; }
 
 .home-button {
-    background: none;           /* Убираем фон */
-    border: none;               /* Убираем рамки */
-    padding: 0;                 /* Убираем внутренние отступы */
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
     outline: none;
     
-    /* ЖЕСТКИЙ РАЗМЕР (измени эти цифры, если нужно еще меньше) */
-    width: 40px; 
-    height: 40px;
-    
-    /* Фиксируем размер, чтобы кнопка не растягивалась флексом родителя */
-    min-width: 40px;
-    max-width: 40px;
+    /* Увеличиваем до среднего удобного размера */
+    width: 52px; 
+    height: 52px;
+    min-width: 52px;
+    max-width: 52px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
     
+    /* Убираем системную подсветку */
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.1s ease;
+    
+    /* Добавим легкую тень, чтобы кнопка не казалась плоской */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    
+    transition: transform 0.1s ease, filter 0.2s ease;
 }
 
 .home-button img {
-    /* Картинка будет занимать 100% от наших 40px */
-    width: 100%;                
+    width: 100%;
     height: 100%;
-    object-fit: contain;        /* Сохраняем пропорции */
+    object-fit: contain;
 }
 
+/* Эффект при нажатии */
 .home-button:active {
     transform: scale(0.9);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
