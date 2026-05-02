@@ -291,14 +291,35 @@ function backToMenu() {
 
 let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
+// --- ОБНОВЛЕННЫЕ СВАЙПЫ С АНИМАЦИЕЙ ---
 document.addEventListener("touchend", e => {
     if (!gameRunning) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
+
     const p = document.getElementById("player");
-    if (diff > 0) targetLane = Math.min(3, targetLane + 1);
-    else targetLane = Math.max(0, targetLane - 1);
+    if (!p) return;
+
+    // Убираем старые классы анимации, если они вдруг остались
+    p.classList.remove("berry-move-left", "berry-move-right");
+
+    if (diff > 0) {
+        // Движение ВПРАВО
+        targetLane = Math.min(3, targetLane + 1);
+        p.classList.add("berry-move-right"); // Добавляем класс анимации
+    } else {
+        // Движение ВЛЕВО
+        targetLane = Math.max(0, targetLane - 1);
+        p.classList.add("berry-move-left"); // Добавляем класс анимации
+    }
+
+    // Применяем позицию
     p.style.left = lanes[targetLane] + "%";
+
+    // ОЧЕНЬ ВАЖНО: Через 300мс убираем класс, чтобы анимацию можно было запустить снова
+    setTimeout(() => {
+        p.classList.remove("berry-move-left", "berry-move-right");
+    }, 300); // Время должно совпадать с временем в CSS (0.3s)
 });
 
 function buyItem(type) {
@@ -342,33 +363,35 @@ function closeShop() {
     startIceRain("menu"); 
 }
 
-// --- ИСПРАВЛЕННАЯ МЕХАНИКА КЛАВИАТУРЫ ---
+// --- ОБНОВЛЕННАЯ КЛАВИАТУРА С АНИМАЦИЕЙ ---
 document.addEventListener("keydown", (e) => {
-    // Находим экран проигрыша
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const isGameOver = gameOverScreen && !gameOverScreen.classList.contains("hidden");
+    if (!gameRunning) return;
 
-    // Если игра не запущена И мы не на экране проигрыша — ничего не делаем
-    if (!gameRunning && !isGameOver) return;
+    const p = document.getElementById("player");
+    if (!p) return;
 
-    // Если нажата клавиша (A/D или стрелки)
-    if (e.key === "ArrowLeft" || e.code === "KeyA" || e.key === "ArrowRight" || e.code === "KeyD") {
-        
-        // Если игрок нажал кнопку на экране GameOver — можем сразу запустить игру
-        if (isGameOver) {
-            startGame(); 
-            return; 
-        }
+    // Убираем старые классы
+    p.classList.remove("berry-move-left", "berry-move-right");
 
-        const p = document.getElementById("player");
-        if (!p) return;
+    let moved = false;
 
-        if (e.key === "ArrowLeft" || e.code === "KeyA") {
-            targetLane = Math.max(0, targetLane - 1);
-        } else {
-            targetLane = Math.min(laneCount - 1, targetLane + 1);
-        }
+    if (e.key === "ArrowLeft" || e.code === "KeyA") {
+        targetLane = Math.max(0, targetLane - 1);
+        p.classList.add("berry-move-left"); // Анимация влево
+        moved = true;
+    } 
+    else if (e.key === "ArrowRight" || e.code === "KeyD") {
+        targetLane = Math.min(laneCount - 1, targetLane + 1);
+        p.classList.add("berry-move-right"); // Анимация вправо
+        moved = true;
+    }
 
+    if (moved) {
         p.style.left = lanes[targetLane] + "%";
+        
+        // Убираем класс через 300мс
+        setTimeout(() => {
+            p.classList.remove("berry-move-left", "berry-move-right");
+        }, 300);
     }
 });
