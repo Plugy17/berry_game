@@ -59,7 +59,7 @@ function togglePause() {
     const pauseIcon = document.getElementById("pauseIcon");
 
     if (isPaused) {
-        if (pauseIcon) pauseIcon.src = "assets/play.jpg"; // У тебя файл play.jpg
+        if (pauseIcon) pauseIcon.src = "assets/play.png"; // У тебя файл play.jpg
         cancelAnimationFrame(loopId);
         stopIceRain();
         console.log("Пауза включена");
