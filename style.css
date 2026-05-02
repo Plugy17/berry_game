@@ -685,47 +685,39 @@ button:active { transform: scale(0.95); }
 
 #continue-btn.hidden { display: none; }
 
-/* Общий стиль для кнопок Паузы и Дома — теперь без рамок и ячеек */
+/* Сами кнопки — делаем их аккуратными и кликабельными */
 .clean-button {
-    /* 1. Полная очистка фона и рамок */
-    background: none !important; /* !important гарантирует, что рамки исчезнут */
+    background: none !important;
     border: none !important;
-    padding: 0;
-    outline: none;
-    cursor: pointer;
-
-    /* 2. Масштаб для удобного нажатия (сделал чуть крупнее, как ты просил) */
-    width: 60px; 
-    height: 60px;
-    min-width: 60px;
-    max-width: 60px;
-
-    /* 3. Центрирование иконки */
-    display: inline-flex;
+    padding: 0 !important;
+    outline: none !important;
+    
+    /* Жестко задаем размер области кнопки */
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    
+    display: flex;
     align-items: center;
     justify-content: center;
-
-    /* 4. Мобильная оптимизация */
-    -webkit-tap-highlight-color: transparent; 
-    
-    /* Эффекты */
+    cursor: pointer;
+    pointer-events: auto; /* Возвращаем кликабельность кнопкам */
+    -webkit-tap-highlight-color: transparent;
     transition: transform 0.1s ease;
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); 
 }
 
+/* Картинка внутри кнопки — теперь она ВСЕГДА будет внутри 50px */
 .clean-button img {
-    /* Картинка занимает всю область кнопки */
     width: 100%;
     height: 100%;
-    object-fit: contain; 
+    object-fit: contain; /* Сохраняет пропорции домика и паузы */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
-/* Эффект при нажатии — кнопка аккуратно сжимается под пальцем */
 .clean-button:active {
     transform: scale(0.9);
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
 }
-
 /* Основной контейнер для фона */
 .background-wrapper {
     position: fixed;
@@ -812,27 +804,34 @@ button:active { transform: scale(0.95); }
     transform: scale(0.9);
 }
 
-/* Стиль для счета в центре */
+/* Исправляем HUD, чтобы он не "плыл" */
 #hud {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 5px 15px;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 14px;
     border-radius: 20px;
-    backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px); /* Красивое размытие фона */
     color: white;
     font-weight: bold;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     white-space: nowrap;
 }
-/* Контейнер, который расставляет элементы */
+/* Контейнер верхней панели — теперь он не дает элементам разлетаться */
 #game-top-bar {
     position: absolute;
-    top: 20px;
+    top: env(safe-area-inset-top, 15px); /* Учитывает "челку" на iPhone */
     left: 0;
     width: 100%;
+    height: 60px; /* Фиксируем высоту панели */
     display: flex;
-    justify-content: space-between; /* Пауза — Слева, HUD — Центр, Домик — Справа */
+    justify-content: space-between;
     align-items: center;
     padding: 0 15px;
     box-sizing: border-box;
     z-index: 1000;
+    pointer-events: none; /* Чтобы сама панель не мешала кликам по игре */
 }
