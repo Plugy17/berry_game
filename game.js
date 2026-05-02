@@ -207,24 +207,24 @@ function spawnObstacle() {
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // 1. Создаем НОВЫЙ элемент (а не ищем старый по ID)
+    // Создаем НОВЫЙ элемент
     const obs = document.createElement("div");
-    obs.className = "obstacle"; // Убедись, что в CSS есть стили для .obstacle
+    obs.className = "obstacle"; // Важно: класс должен совпадать с тем, что в CSS
     
-    // 2. Логика типа объекта
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
     
-    // Используем твои переменные картинок
+    // Используем твои переменные путей к картинкам
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
-    // 3. Позиционирование по линиям
-    const laneIndex = Math.floor(Math.random() * lanes.length);
-    obs.style.left = lanes[laneIndex] + "%";
-    obs.style.top = "-150px"; // Начальная точка сверху
+    // Выбираем линию из твоего массива lanes
+    const obstacleLane = Math.floor(Math.random() * lanes.length);
+    obs.style.left = lanes[obstacleLane] + "%";
+    
+    // Начальная позиция над экраном
+    obs.style.top = "-150px"; 
     obs.style.display = "block";
 
-    // 4. Добавляем на экран
     gameLayer.appendChild(obs);
 }
 
