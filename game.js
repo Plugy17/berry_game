@@ -205,10 +205,12 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
+
     // 1. ПОЛУЧАЕМ ИГРОКА (БЕРРИ)
     const p = document.getElementById("player");
     if (!p) return;
-    // 2. ЭФФЕКТ ШЛЕЙФА (Используем p, а не obs!)
+
+    // 2. ЭФФЕКТ ШЛЕЙФА
     if (Math.random() < 0.3) {
         const rect = p.getBoundingClientRect();
         const gameLayer = document.getElementById("game");
@@ -227,33 +229,45 @@ function update() {
         }
     }
 
-    // 3. ДВИЖЕНИЕ ПРЕПЯТСТВИЙ (Убедитесь, что тут названия совпадают с вашими)
+    // 3. ДВИЖЕНИЕ ПРЕПЯТСТВИЙ
     obstacleY += speed;
     const obstacle = document.getElementById("obstacle");
     if (obstacle) {
         obstacle.style.top = obstacleY + "px";
 
-        // Проверка столкновения
-        if (obstacleY > window.innerHeight - 150) {
+        // Проверка столкновения (начинаем проверять чуть раньше)
+        if (obstacleY > window.innerHeight - 250) { 
             const obsRect = obstacle.getBoundingClientRect();
             const pRect = p.getBoundingClientRect();
 
+            // --- НОВАЯ ЛОГИКА: УВЕЛИЧЕННЫЙ РАДИУС (buffer) ---
+            const buffer = 20; 
+
             if (
-                obsRect.left < pRect.right &&
-                obsRect.right > pRect.left &&
-                obsRect.top < pRect.bottom &&
-                obsRect.bottom > pRect.top
+                obsRect.left < pRect.right + buffer &&
+                obsRect.right > pRect.left - buffer &&
+                obsRect.top < pRect.bottom + buffer &&
+                obsRect.bottom > pRect.top - buffer
             ) {
-                // ВАЖНО: Тут мы передаем obstacle в функцию столкновения
+                // ЭФФЕКТ ВЗРЫВА ПРИ СБОРЕ
+                if (obstacle.dataset.type === "good") {
+                    const centerX = obsRect.left + obsRect.width / 2;
+                    const centerY = obsRect.top + obsRect.height / 2;
+                    // Вызываем функцию взрыва, которую мы добавили в CSS и JS ранее
+                    if (typeof createCollectExplosion === "function") {
+                        createCollectExplosion(centerX, centerY, "#FF69B4");
+                    }
+                }
+
                 handleCollision(obstacle, p); 
             } else if (obstacleY > window.innerHeight) {
-                spawnObstacle(); // Если пролетел мимо
+                spawnObstacle(); 
             }
         }
     }
 
-    speed += difficulty; // Постепенное ускорение
-    loopId = requestAnimationFrame(update); // Запуск следующего кадра
+    speed += difficulty; 
+    loopId = requestAnimationFrame(update); 
 }
 
 function handleCollision(obs, p) {
