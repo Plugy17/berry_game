@@ -507,7 +507,7 @@ let startX = 0;
 document.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, {passive: true});
 // --- ОБНОВЛЕННЫЕ СВАЙПЫ С АНИМАЦИЕЙ ---
 document.addEventListener("touchend", e => {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;
     let diff = e.changedTouches[0].clientX - startX;
     if (Math.abs(diff) < 25) return;
 
@@ -579,7 +579,7 @@ function closeShop() {
 
 // --- ОБНОВЛЕННАЯ КЛАВИАТУРА С АНИМАЦИЕЙ ---
 document.addEventListener("keydown", (e) => {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;
 
     const p = document.getElementById("player");
     if (!p) return;
