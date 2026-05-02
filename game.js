@@ -254,20 +254,54 @@ function update() {
     // 2. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
     const obstacles = document.querySelectorAll(".obstacle");
     
-    // СТРАХОВКА: Если объектов почему-то нет совсем — создаем один
     if (obstacles.length === 0 && gameRunning) {
         spawnObstacle();
     }
 
     obstacles.forEach(obstacle => {
         let currentTop = parseFloat(obstacle.style.top) || -150;
+        let currentLeft = parseFloat(obstacle.style.left); 
+
+        // --- ЛОГИКА МАГНИТА ---
+        // Тянем только "хорошие" объекты и только если магнит активен
+        if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
+            const obsRect = obstacle.getBoundingClientRect();
+            
+            // Находим центры
+            const pX = pRect.left + pRect.width / 2;
+            const pY = pRect.top + pRect.height / 2;
+            const oX = obsRect.left + obsRect.width / 2;
+            const oY = obsRect.top + obsRect.height / 2;
+
+            // Расстояние
+            const dx = pX - oX;
+            const dy = pY - oY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Если объект в радиусе притяжения (например, 400px)
+            if (distance < 400) {
+                const force = 10; // Скорость притяжения
+                // Двигаем Left (переводим из % в px для точности во время магнита)
+                if (obstacle.style.left.includes('%')) {
+                    obstacle.style.left = obsRect.left + "px";
+                }
+                
+                const newLeft = (parseFloat(obstacle.style.left) || 0) + (dx / distance) * force;
+                obstacle.style.left = newLeft + "px";
+                
+                // Корректируем Top (добавляем тягу к падению)
+                currentTop += (dy / distance) * force;
+            }
+        }
+
+        // Обычное падение
         currentTop += speed; 
         obstacle.style.top = currentTop + "px";
 
-        // УДАЛЕНИЕ, ЕСЛИ УЛЕТЕЛ ЗА ЭКРАН
+        // УДАЛЕНИЕ
         if (currentTop > window.innerHeight) {
             obstacle.remove();
-            spawnObstacle(); // Создаем новый ТОЛЬКО когда старый реально улетел
+            spawnObstacle();
             return; 
         }
 
@@ -281,9 +315,7 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
-            // МЫ ВЫЗЫВАЕМ handleCollision
             handleCollision(obstacle, p);
-            // ПРЕРЫВАЕМ цикл для этого объекта, так как он уже обработан
             return;
         }
     });
