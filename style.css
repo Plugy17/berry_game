@@ -447,14 +447,9 @@ button:active { transform: scale(0.95); }
     height: 70px;
     background-size: contain;
     background-repeat: no-repeat;
-    background-position: center;
     z-index: 90;
-    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-    /* Убери transition для left, если хочешь, чтобы они спавнились мгновенно */
-    transition: left 0.2s ease-out; 
-    display: block; /* Убеждаемся, что элемент виден */
+    display: block !important; /* Принудительно показываем */
 }
-
 /* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
 #player {
     position: absolute; 
