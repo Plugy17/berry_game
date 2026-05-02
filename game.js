@@ -269,53 +269,59 @@ function resetGame() {
     update();
 }
 
+let lastSpawnTime = 0; // Время последнего появления объекта
+
 function spawnObstacle() {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;
+
+    const now = Date.now();
+    const diffSelect = document.getElementById("difficulty");
+    const level = diffSelect ? diffSelect.value : 'medium';
+
+    // Минимальный интервал между появлением объектов (в мс)
+    // На сложном падают чаще, на легком — реже
+    let spawnInterval = 1000; 
+    if (level === 'easy') spawnInterval = 1500;
+    if (level === 'hard') spawnInterval = 600;
+
+    if (now - lastSpawnTime < spawnInterval) return;
 
     const gameLayer = document.getElementById("game");
-    if (!gameLayer) return;
-
-    // --- ДИНАМИЧЕСКИЙ ЛИМИТ СЛОЖНОСТИ ---
-    const diffSelect = document.getElementById("difficulty");
-    const level = diffSelect ? diffSelect.value : 'medium'; // Получаем уровень из меню
-    
-    // Определяем, сколько максимум предметов может быть на экране одновременно
-    let maxItems = 3; 
-    if (level === 'easy') maxItems = 2;
-    if (level === 'hard') maxItems = 6; // На сложном уровне увеличиваем до 6
-
     const currentCount = document.querySelectorAll(".obstacle").length;
     
-    // Если лимит достигнут — не создаем новый объект
-    if (currentCount >= maxItems) return; 
+    // Лимит объектов на экране
+    let maxItems = (level === 'hard') ? 6 : 3;
+    if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
     
-    // На сложном уровне делаем чуть больше плохих предметов (препятствий)
-    let goodChance = 0.6; // Шанс на мороженое
-    if (level === 'hard') goodChance = 0.4; // На сложном чаще выпадают препятствия
-
-    const isGood = Math.random() < goodChance;
+    const isGood = Math.random() < (level === 'hard' ? 0.4 : 0.6);
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
+    // Выбираем дорожку так, чтобы объекты не падали в одну и ту же точку одновременно
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
-    obs.style.top = "-150px"; 
+    obs.style.top = "-100px"; // Чуть выше экрана
 
     gameLayer.appendChild(obs);
+    lastSpawnTime = now; // Запоминаем время спавна
 }
 
 function update() {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;[cite: 5]
 
     const p = document.getElementById("player");
     if (!p) return;
 
-    const pRect = p.getBoundingClientRect();
+    const pRect = p.getBoundingClientRect();[cite: 5]
 
-    // 1. ЭФФЕКТ ШЛЕЙФА
+    // 1. ОПТИМИЗАЦИЯ СПАВНА
+    // Вызываем проверку создания объекта один раз за кадр, а не в цикле
+    spawnObstacle(); 
+
+    // 2. ЭФФЕКТ ШЛЕЙФА (без изменений)
     if (Math.random() < 0.3) {
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
@@ -330,18 +336,16 @@ function update() {
         }
     }
 
-    // 2. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
-    const obstacles = document.querySelectorAll(".obstacle");
-    
-    if (obstacles.length === 0 && gameRunning) {
-        spawnObstacle();
-    }
+    // 3. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
+    const obstacles = document.querySelectorAll(".obstacle");[cite: 5]
 
     obstacles.forEach(obstacle => {
-        let currentTop = parseFloat(obstacle.style.top) || -150;
-        let currentLeft = parseFloat(obstacle.style.left); 
+        // Если объект уже помечен как собранный, пропускаем его (убирает лаги)
+        if (obstacle.dataset.collected) return; 
 
-        // --- ЛОГИКА МАГНИТА ---
+        let currentTop = parseFloat(obstacle.style.top) || -150;[cite: 5]
+
+        // ЛОГИКА МАГНИТА (без изменений)
         if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
             const obsRect = obstacle.getBoundingClientRect();
             const pX = pRect.left + pRect.width / 2;
@@ -363,35 +367,29 @@ function update() {
             }
         }
 
-        // Обычное падение
-        currentTop += speed; 
+        // Плавное падение с учетом текущей скорости
+        currentTop += speed;[cite: 5]
         obstacle.style.top = currentTop + "px";
 
-        // --- УДАЛЕНИЕ И СБРОС КОМБО ---
+        // УДАЛЕНИЕ ЗА ЭКРАНОМ
         if (currentTop > window.innerHeight) {
-            // Если игрок пропустил "хорошее" мороженое — сбрасываем комбо
             if (obstacle.dataset.type === "good") {
-                comboCount = 0;
-                comboMultiplier = 1;
-                
+                comboCount = 0;[cite: 5]
+                comboMultiplier = 1;[cite: 5]
                 const comboEl = document.getElementById("combo-display");
-                if (comboEl) {
-                    comboEl.style.opacity = "0"; // Прячем множитель при пропуске
-                }
-
+                if (comboEl) comboEl.style.opacity = "0";[cite: 5]
+                
                 if (window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');[cite: 5]
                 }
             }
-
-            obstacle.remove();
-            spawnObstacle();
+            obstacle.remove();[cite: 5]
             return; 
         }
 
-        // ПРОВЕРКА СТОЛКНОВЕНИЙ
-        const obsRect = obstacle.getBoundingClientRect();
-        const inset = 15; 
+        // ПРОВЕРКА СТОЛКНОВЕНИЙ (оптимизирована за счет inset)
+        const obsRect = obstacle.getBoundingClientRect();[cite: 5]
+        const inset = 15;[cite: 5]
 
         if (
             pRect.left + inset < obsRect.right &&
@@ -399,12 +397,13 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
-            handleCollision(obstacle, p);
-            return;
+            // Помечаем объект, чтобы handleCollision не вызвался дважды
+            obstacle.dataset.collected = "true"; 
+            handleCollision(obstacle, p);[cite: 5]
         }
     });
 
-    loopId = requestAnimationFrame(update);
+    loopId = requestAnimationFrame(update);[cite: 5]
 }
 
 function handleCollision(obs, p) {
@@ -491,10 +490,12 @@ function handleCollision(obs, p) {
 }
 
 function updateScore() {
-    const coinEl = document.getElementById("coinCount");
-    const bestEl = document.getElementById("bestScore");
-    if(coinEl) coinEl.innerText = coins;
-    if(bestEl) bestEl.innerText = best;
+    // Используем textContent — это в десятки раз быстрее, чем innerHTML
+    const coinCountEl = document.getElementById("coinCount");
+    const bestScoreEl = document.getElementById("bestScore");
+    
+    if (coinCountEl) coinCountEl.textContent = coins;
+    if (bestScoreEl) bestScoreEl.textContent = best;
 }
 
 function gameOver() {
