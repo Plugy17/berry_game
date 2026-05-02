@@ -686,33 +686,35 @@ button:active { transform: scale(0.95); }
 #continue-btn.hidden { display: none; }
 
 .home-button {
-    background: none;           /* Полностью убираем фон кнопки */
-    border: none;               /* Убираем любые рамки */
+    background: none;           /* Убираем фон */
+    border: none;               /* Убираем рамки */
     padding: 0;                 /* Убираем внутренние отступы */
-    cursor: pointer;            /* Курсор-палец при наведении */
-    outline: none;              /* Убираем контур выделения */
+    cursor: pointer;
+    outline: none;
     
-    /* Размер области нажатия (делаем побольше, чтобы удобно было попадать) */
-    width: 55px; 
-    height: 55px;
+    /* ЖЕСТКИЙ РАЗМЕР (измени эти цифры, если нужно еще меньше) */
+    width: 40px; 
+    height: 40px;
     
+    /* Фиксируем размер, чтобы кнопка не растягивалась флексом родителя */
+    min-width: 40px;
+    max-width: 40px;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     
-    /* Убираем синюю подсветку при клике на мобильных устройствах */
     -webkit-tap-highlight-color: transparent;
-    
-    /* Эффект при нажатии */
     transition: transform 0.1s ease;
 }
 
 .home-button img {
-    width: 100%;                /* Картинка займет всю площадь кнопки */
+    /* Картинка будет занимать 100% от наших 40px */
+    width: 100%;                
     height: 100%;
-    object-fit: contain;        /* Домик не будет искажаться */
+    object-fit: contain;        /* Сохраняем пропорции */
 }
 
 .home-button:active {
-    transform: scale(0.9);      /* При нажатии кнопка чуть уменьшится */
+    transform: scale(0.9);
 }
