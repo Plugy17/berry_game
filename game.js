@@ -381,16 +381,24 @@ function updateScore() {
 
 function gameOver() {
     gameRunning = false;
-    if (loopId) cancelAnimationFrame(loopId); // Останавливаем цикл немедленно
+    cancelAnimationFrame(loopId); // Останавливаем цикл отрисовки
 
-    // --- ОБНУЛЯЕМ КОМБО ПРИ СМЕРТИ ---
-    comboCount = 0;
-    comboMultiplier = 1;
-    const comboEl = document.getElementById("combo-display");
-    if (comboEl) {
-        comboEl.style.opacity = "0"; // Прячем надпись x2, x3...
-        comboEl.innerText = "";
+    // 1. ПОЛНАЯ ЗАЧИСТКА: Удаляем все препятствия с экрана
+    const obstacles = document.querySelectorAll(".obstacle");
+    obstacles.forEach(obs => obs.remove());
+
+    // 2. Очищаем шлейф (particles), если они остались
+    const particles = document.querySelectorAll(".speed-particle");
+    particles.forEach(p => p.remove());
+
+    // 3. Показываем экран проигрыша
+    const loseScreen = document.getElementById("lose-screen");
+    if (loseScreen) {
+        loseScreen.style.display = "flex";
     }
+
+    console.log("Игра окончена, поле очищено.");
+}
 
     totalCoins += coins;
     if (coins > best) best = coins;
