@@ -322,22 +322,33 @@ function closeShop() {
     startIceRain("menu"); 
 }
 
-// --- МЕХАНИКА УПРАВЛЕНИЯ КЛАВИАТУРОЙ ---
+// --- ИСПРАВЛЕННАЯ МЕХАНИКА КЛАВИАТУРЫ ---
 document.addEventListener("keydown", (e) => {
-    // Если игра не запущена, кнопки не работают
-    if (!gameRunning) return;
+    // Находим экран проигрыша
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const isGameOver = gameOverScreen && !gameOverScreen.classList.contains("hidden");
 
-    const p = document.getElementById("player");
-    if (!p) return;
+    // Если игра не запущена И мы не на экране проигрыша — ничего не делаем
+    if (!gameRunning && !isGameOver) return;
 
-    // Управление через Стрелки или A/D (для удобства)
-    if (e.key === "ArrowLeft" || e.code === "KeyA") {
-        targetLane = Math.max(0, targetLane - 1);
-    } 
-    else if (e.key === "ArrowRight" || e.code === "KeyD") {
-        targetLane = Math.min(laneCount - 1, targetLane + 1);
+    // Если нажата клавиша (A/D или стрелки)
+    if (e.key === "ArrowLeft" || e.code === "KeyA" || e.key === "ArrowRight" || e.code === "KeyD") {
+        
+        // Если игрок нажал кнопку на экране GameOver — можем сразу запустить игру
+        if (isGameOver) {
+            startGame(); 
+            return; 
+        }
+
+        const p = document.getElementById("player");
+        if (!p) return;
+
+        if (e.key === "ArrowLeft" || e.code === "KeyA") {
+            targetLane = Math.max(0, targetLane - 1);
+        } else {
+            targetLane = Math.min(laneCount - 1, targetLane + 1);
+        }
+
+        p.style.left = lanes[targetLane] + "%";
     }
-
-    // Применяем позицию к персонажу
-    p.style.left = lanes[targetLane] + "%";
 });
