@@ -202,14 +202,30 @@ function resetGame() {
 }
 
 function spawnObstacle() {
-    const obs = document.getElementById("obstacle");
-    obstacleLane = Math.floor(Math.random() * laneCount);
-    obstacleY = -150; 
+    if (!gameRunning) return;
+
+    const gameLayer = document.getElementById("game");
+    if (!gameLayer) return;
+
+    // 1. Создаем НОВЫЙ элемент (а не ищем старый по ID)
+    const obs = document.createElement("div");
+    obs.className = "obstacle"; // Убедись, что в CSS есть стили для .obstacle
+    
+    // 2. Логика типа объекта
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
+    
+    // Используем твои переменные картинок
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
-    obs.style.left = lanes[obstacleLane] + "%";
+
+    // 3. Позиционирование по линиям
+    const laneIndex = Math.floor(Math.random() * lanes.length);
+    obs.style.left = lanes[laneIndex] + "%";
+    obs.style.top = "-150px"; // Начальная точка сверху
     obs.style.display = "block";
+
+    // 4. Добавляем на экран
+    gameLayer.appendChild(obs);
 }
 
 function update() {
@@ -220,7 +236,7 @@ function update() {
 
     const pRect = p.getBoundingClientRect();
 
-    // ЭФФЕКТ ШЛЕЙФА
+    // 1. ЭФФЕКТ ШЛЕЙФА (оставляем без изменений)
     if (Math.random() < 0.3) {
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
@@ -235,12 +251,23 @@ function update() {
         }
     }
 
-    // ПРОВЕРКА СТОЛКНОВЕНИЙ
+    // 2. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
     const obstacles = document.querySelectorAll(".obstacle");
     obstacles.forEach(obstacle => {
+        // --- ДОБАВЛЯЕМ ДВИЖЕНИЕ ---
+        let currentTop = parseFloat(obstacle.style.top) || -150;
+        currentTop += speed; // Убедись, что переменная speed у тебя объявлена (например, 5 или 7)
+        obstacle.style.top = currentTop + "px";
+
+        // --- УДАЛЕНИЕ, ЕСЛИ УЛЕТЕЛ ЗА ЭКРАН ---
+        if (currentTop > window.innerHeight) {
+            obstacle.remove();
+            spawnObstacle(); // Спавним новый взамен улетевшего
+            return; // Переходим к следующему объекту
+        }
+
+        // --- ПРОВЕРКА СТОЛКНОВЕНИЙ ---
         const obsRect = obstacle.getBoundingClientRect();
-        
-        // ЧЕСТНЫЙ ХИТБОКС (уменьшаем зону поражения на 15 пикселей)
         const inset = 15; 
 
         if (
