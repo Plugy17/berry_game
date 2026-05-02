@@ -205,21 +205,23 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
-    // Пускаем шлейф за Берри во время бега
-    const p = document.getElementById("player");
-    if (p && Math.random() < 0.3) { // 30% шанс создания частицы каждый кадр, чтобы не лагало
+
+    const p = document.getElementById("player"); // Берём игрока
+    
+    // Эффект шлейфа (частицы)
+    if (p && Math.random() < 0.3) {
         const rect = p.getBoundingClientRect();
-        const gameLayer = document.getElementById("effects-layer") || document.getElementById("game");
+        // Используем rect игрока (p), а не obs!
+        const gameLayer = document.getElementById("game");
         
         if (gameLayer) {
             const part = document.createElement("div");
             part.className = "speed-particle";
             
-            // Позиционируем внизу персонажа
+            // Центрируем частицу под игроком
             part.style.left = (rect.left + rect.width / 2) + "px";
             part.style.top = (rect.top + rect.height - 10) + "px";
             
-            // Небольшой разлет влево-вправо
             const pdx = (Math.random() - 0.5) * 40 + "px";
             part.style.setProperty('--pdx', pdx);
             
