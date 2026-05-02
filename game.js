@@ -383,33 +383,33 @@ function gameOver() {
     gameRunning = false;
     cancelAnimationFrame(loopId); // Останавливаем цикл отрисовки
 
-    // 1. ПОЛНАЯ ЗАЧИСТКА: Удаляем все препятствия с экрана
+    // 1. ПОЛНАЯ ЗАЧИСТКА: Удаляем все препятствия и частицы
     const obstacles = document.querySelectorAll(".obstacle");
     obstacles.forEach(obs => obs.remove());
 
-    // 2. Очищаем шлейф (particles), если они остались
     const particles = document.querySelectorAll(".speed-particle");
     particles.forEach(p => p.remove());
 
-    // 3. Показываем экран проигрыша
+    console.log("Игра окончена, поле очищено.");
+
+    // 2. СОХРАНЕНИЕ ДАННЫХ
+    totalCoins += coins;
+    if (coins > best) best = coins;
+    saveUserData();
+
+    // 3. ПОКАЗ ЭКРАНА СМЕРТИ
+    // У тебя в коде два разных ID экрана: "lose-screen" и "gameOverScreen". 
+    // Я объединил их проверку, чтобы сработал нужный.
     const loseScreen = document.getElementById("lose-screen");
     if (loseScreen) {
         loseScreen.style.display = "flex";
     }
 
-    console.log("Игра окончена, поле очищено.");
-}
-
-    totalCoins += coins;
-    if (coins > best) best = coins;
-    
-    saveUserData();
-
-    // Показываем экран смерти
     const goScreen = document.getElementById("gameOverScreen");
     if (goScreen) {
         goScreen.classList.remove("hidden");
-        // Обновляем текст на экране "БА-БАХ!"
+        
+        // Обновляем текст счета (БА-БАХ!)
         const finalScoreEl = document.getElementById("final-score");
         if (finalScoreEl) {
             finalScoreEl.innerText = coins;
