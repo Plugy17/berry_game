@@ -1,3 +1,41 @@
+window.onload = function() {
+    const userIdDisplay = document.getElementById("user-id-display");
+    const continueBtn = document.getElementById("continue-btn");
+    const loadingScreen = document.getElementById("loading-screen");
+
+    // Получаем данные из Telegram (если доступно)
+    let userId = "Guest_" + Math.floor(Math.random() * 10000); // На случай, если нет TG
+    
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+        // Можно также сохранить имя пользователя
+        console.log("User detected:", window.Telegram.WebApp.initDataUnsafe.user.first_name);
+    }
+
+    // Отображаем ID
+    userIdDisplay.innerText = userId;
+
+    // Имитируем загрузку из Firebase (например, 2 секунды)
+    setTimeout(() => {
+        // Меняем текст загрузки на успех
+        document.querySelector(".loading-title").innerText = "ГОТОВО!";
+        document.querySelector(".spinner").style.display = "none";
+        
+        // Показываем кнопку "Продолжить"
+        continueBtn.classList.remove("hidden");
+    }, 2000);
+
+    // Логика нажатия кнопки
+    continueBtn.addEventListener("click", () => {
+        loadingScreen.style.opacity = "0";
+        setTimeout(() => {
+            loadingScreen.style.display = "none";
+            // Тут можно вызвать функцию старта фоновой музыки в меню
+            if (typeof startIceRain === 'function') startIceRain("menu");
+        }, 500);
+    });
+};
+
 function initAudio() {
     // Проигрываем и сразу ставим на паузу пустой звук или наш эффект
     soundCollect.play().then(() => {
@@ -614,3 +652,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
