@@ -1,40 +1,47 @@
-window.onload = function() {
+// Используем addEventListener, чтобы не конфликтовать с другими скриптами
+window.addEventListener('load', function() {
     const userIdDisplay = document.getElementById("user-id-display");
     const continueBtn = document.getElementById("continue-btn");
     const loadingScreen = document.getElementById("loading-screen");
 
-    // Получаем данные из Telegram (если доступно)
-    let userId = "Guest_" + Math.floor(Math.random() * 10000); // На случай, если нет TG
-    
+    // 1. ОПРЕДЕЛЯЕМ ID (Telegram или Гость)
+    let currentId = "Guest_" + Math.floor(Math.random() * 10000);
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-        userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-        // Можно также сохранить имя пользователя
-        console.log("User detected:", window.Telegram.WebApp.initDataUnsafe.user.first_name);
+        currentId = window.Telegram.WebApp.initDataUnsafe.user.id;
+    }
+    if (userIdDisplay) userIdDisplay.innerText = currentId;
+
+    // 2. ЗАГРУЖАЕМ ДАННЫЕ ИЗ FIREBASE
+    // Пока крутится спиннер, мы уже тянем монеты и рекорды
+    if (typeof loadUserData === 'function') {
+        loadUserData(currentId); 
     }
 
-    // Отображаем ID
-    userIdDisplay.innerText = userId;
-
-    // Имитируем загрузку из Firebase (например, 2 секунды)
+    // 3. ТАЙМЕР ЗАГРУЗКИ
     setTimeout(() => {
-        // Меняем текст загрузки на успех
-        document.querySelector(".loading-title").innerText = "ГОТОВО!";
-        document.querySelector(".spinner").style.display = "none";
+        const title = document.querySelector(".loading-title");
+        const spinner = document.querySelector(".spinner");
+        if (title) title.innerText = "ГОТОВО!";
+        if (spinner) spinner.style.display = "none";
         
-        // Показываем кнопку "Продолжить"
-        continueBtn.classList.remove("hidden");
+        if (continueBtn) {
+            continueBtn.classList.remove("hidden");
+            continueBtn.style.display = "block"; 
+        }
     }, 2000);
 
-    // Логика нажатия кнопки
-    continueBtn.addEventListener("click", () => {
-        loadingScreen.style.opacity = "0";
-        setTimeout(() => {
-            loadingScreen.style.display = "none";
-            // Тут можно вызвать функцию старта фоновой музыки в меню
-            if (typeof startIceRain === 'function') startIceRain("menu");
-        }, 500);
-    });
-};
+    // 4. ВХОД В МЕНЮ
+    if (continueBtn) {
+        continueBtn.onclick = function() {
+            loadingScreen.style.opacity = "0";
+            setTimeout(() => {
+                loadingScreen.style.display = "none";
+                // Запускаем анимацию льда только после входа
+                startIceRain("menu");
+            }, 500);
+        };
+    }
+});
 
 function initAudio() {
     // Проигрываем и сразу ставим на паузу пустой звук или наш эффект
@@ -171,12 +178,6 @@ function saveUserData() {
         inventory 
     });
 }
-
-window.onload = () => { 
-    if(userId) loadUserData(userId); 
-    else updateMenuInfo();
-    startIceRain("menu"); 
-};
 
 function updateMenuInfo() {
     if (nick) {
