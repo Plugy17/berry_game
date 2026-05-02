@@ -284,27 +284,17 @@ function handleCollision(obs, p) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
+    const comboEl = document.getElementById("combo-display");
+
     if (obs.dataset.type === "good") {
-        // --- 1. ВОЗВРАЩАЕМ ЗВУК С НАСТРОЙКОЙ ГРОМКОСТИ ---
+        // --- 1. ЗВУК ---
         if (typeof soundCollect !== 'undefined' && soundCollect) {
-            soundCollect.volume = 0.3; // Устанавливаем громкость на 30%
-            soundCollect.currentTime = 0; // Сброс в начало для частых сборов
-            soundCollect.play().catch(e => console.log("Audio play blocked or failed"));
+            soundCollect.volume = 0.3;
+            soundCollect.currentTime = 0;
+            soundCollect.play().catch(e => console.log("Audio blocked"));
         }
 
-        // --- 2. ЭФФЕКТЫ И ВИЗУАЛ ---
-        createCollectExplosion(centerX, centerY, "#FF69B4");
-        
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        }
-
-        createExplosion(centerX, centerY); 
-        p.classList.remove("berry-collect");
-        void p.offsetWidth; // Магия для перезапуска анимации
-        p.classList.add("berry-collect");
-
-        // --- 3. ЛОГИКА КОМБО И ОЧКОВ ---
+        // --- 2. ЛОГИКА КОМБО ---
         comboCount++;
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
@@ -312,11 +302,45 @@ function handleCollision(obs, p) {
         else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
 
+        // --- 3. ВИЗУАЛ КОМБО (x2, x3...) ---
+        if (comboEl && comboCount >= 2) {
+            comboEl.innerText = "x" + comboMultiplier;
+            comboEl.style.opacity = "1";
+            
+            // Цвет меняется от уровня комбо
+            if (comboMultiplier >= 5) comboEl.style.color = "#ffff00"; // Золотой
+            else if (comboMultiplier >= 3) comboEl.style.color = "#00f2ff"; // Голубой
+            else comboEl.style.color = "#ffffff"; // Белый
+
+            // Перезапуск анимации "прыжка" текста
+            comboEl.classList.remove("combo-pop");
+            void comboEl.offsetWidth; 
+            comboEl.classList.add("combo-pop");
+        }
+
+        // --- 4. ЭФФЕКТЫ СБОРА ---
+        // Если комбо высокое, делаем взрыв розовее/ярче
+        const explosionColor = comboMultiplier >= 3 ? "#ff00ff" : "#FF69B4";
+        createCollectExplosion(centerX, centerY, explosionColor);
+        
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+
+        createExplosion(centerX, centerY); 
+        p.classList.remove("berry-collect");
+        void p.offsetWidth; 
+        p.classList.add("berry-collect");
+
         coins += comboMultiplier; 
         updateScore(); 
         spawnObstacle();
     } else {
-        // Логика столкновения с врагом (щит или смерть)
+        // --- СБРОС КОМБО ПРИ СТОЛКНОВЕНИИ ---
+        comboCount = 0;
+        comboMultiplier = 1;
+        if (comboEl) comboEl.style.opacity = "0";
+
         if (shieldActive) {
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
