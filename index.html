@@ -58,6 +58,16 @@
 </div>
 
 <div id="game" class="screen hidden">
+    <!-- 1. НОВЫЙ БЛОК УПРАВЛЕНИЯ (Верхняя панель) -->
+    <div id="game-controls">
+        <button id="pauseBtn" class="ui-button" onclick="togglePause()">
+            <img id="pauseIcon" src="assets/pause.png" alt="Пауза">
+        </button>
+        
+        <button id="backBtn" class="home-button" onclick="backToMenu()">
+            <img src="assets/home.png" alt="Домой">
+        </button>
+    </div>
     <!-- Слой для взрывов и частиц -->
     <div id="effects-layer"></div>
     
