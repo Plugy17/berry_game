@@ -221,7 +221,10 @@ function updateBonusUI() {
 }
 
 function startGame() {
-    // 1. Проверяем ник (если его нет)
+    // Получаем выбранную сложность из выпадающего списка
+    const diffSelect = document.getElementById("difficulty");
+    const level = diffSelect ? diffSelect.value : 'medium';
+
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
@@ -230,19 +233,25 @@ function startGame() {
         localStorage.setItem("nick", nick);
     }
 
-    // 2. ОСТАНАВЛИВАЕМ старые процессы перед запуском новых
-    stopIceRain(); 
-    if (loopId) {
-        cancelAnimationFrame(loopId); // Убиваем старый цикл игры
-        loopId = null;
+    // Настраиваем параметры под сложность
+    if (level === 'easy') {
+        baseSpeed = 5;      // Медленнее
+        difficulty = 0.001; // Почти не ускоряется
+    } else if (level === 'medium') {
+        baseSpeed = 7;      // Стандарт
+        difficulty = 0.002;
+    } else if (level === 'hard') {
+        baseSpeed = 10;     // Сразу быстро
+        difficulty = 0.005; // Ускоряется агрессивно
     }
 
-    // 3. СКРЫВАЕМ ВСЕ ОКНА (и меню, и экран проигрыша)
+    stopIceRain(); 
+    if (loopId) cancelAnimationFrame(loopId);
+
     document.getElementById("menu").classList.add("hidden");
-    document.getElementById("gameOverScreen").classList.add("hidden"); // Важно добавить эту строку!
+    document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
-    // 4. СБРОС И ЗАПУСК
     resetGame();
 }
 
@@ -266,17 +275,28 @@ function spawnObstacle() {
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // --- ПРОВЕРКА ЛИМИТА ---
-    // Считаем, сколько сейчас .obstacle на экране
+    // --- ДИНАМИЧЕСКИЙ ЛИМИТ СЛОЖНОСТИ ---
+    const diffSelect = document.getElementById("difficulty");
+    const level = diffSelect ? diffSelect.value : 'medium'; // Получаем уровень из меню
+    
+    // Определяем, сколько максимум предметов может быть на экране одновременно
+    let maxItems = 3; 
+    if (level === 'easy') maxItems = 2;
+    if (level === 'hard') maxItems = 6; // На сложном уровне увеличиваем до 6
+
     const currentCount = document.querySelectorAll(".obstacle").length;
     
-    // Если их уже 3 или больше — выходим и не создаем новый
-    if (currentCount >= 3) return; 
+    // Если лимит достигнут — не создаем новый объект
+    if (currentCount >= maxItems) return; 
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
     
-    const isGood = Math.random() < 0.6;
+    // На сложном уровне делаем чуть больше плохих предметов (препятствий)
+    let goodChance = 0.6; // Шанс на мороженое
+    if (level === 'hard') goodChance = 0.4; // На сложном чаще выпадают препятствия
+
+    const isGood = Math.random() < goodChance;
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
@@ -471,8 +491,10 @@ function handleCollision(obs, p) {
 }
 
 function updateScore() {
-    const hud = document.getElementById("hud");
-    if(hud) hud.innerHTML = `${getIceIcon()} ${coins} | 🏆 ${best}`;
+    const coinEl = document.getElementById("coinCount");
+    const bestEl = document.getElementById("bestScore");
+    if(coinEl) coinEl.innerText = coins;
+    if(bestEl) bestEl.innerText = best;
 }
 
 function gameOver() {
