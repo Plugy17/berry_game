@@ -278,19 +278,18 @@ function spawnObstacle() {
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
 
-    // Минимальный интервал между появлением объектов (в мс)
-    // На сложном падают чаще, на легком — реже
     let spawnInterval = 1000; 
-    if (level === 'easy') spawnInterval = 1500;
-    if (level === 'hard') spawnInterval = 600;
+    if (level === 'easy') spawnInterval = 1800; // Увеличил задержку для легкости
+    if (level === 'hard') spawnInterval = 700;
 
+    // СТРОГАЯ ПРОВЕРКА: если прошло мало времени - выходим
     if (now - lastSpawnTime < spawnInterval) return;
 
     const gameLayer = document.getElementById("game");
     const currentCount = document.querySelectorAll(".obstacle").length;
     
-    // Лимит объектов на экране
-    let maxItems = (level === 'hard') ? 6 : 3;
+    // Ограничиваем количество объектов на экране, чтобы не лагало
+    let maxItems = (level === 'hard') ? 5 : 3;
     if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
@@ -300,13 +299,14 @@ function spawnObstacle() {
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
-    // Выбираем дорожку так, чтобы объекты не падали в одну и ту же точку одновременно
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
-    obs.style.top = "-100px"; // Чуть выше экрана
+    
+    // Ставим объект ЧУТЬ выше, чтобы он не "телепортировался" в кадр
+    obs.style.top = "-60px"; 
 
     gameLayer.appendChild(obs);
-    lastSpawnTime = now; // Запоминаем время спавна
+    lastSpawnTime = now; // Обновляем время
 }
 
 function update() {
@@ -403,51 +403,45 @@ function update() {
 }
 
 function handleCollision(obs, p) {
+    if (obs.dataset.collected_check) return; // Защита от двойного срабатывания
+    obs.dataset.collected_check = "true";
+
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const comboEl = document.getElementById("combo-display");
 
     if (obs.dataset.type === "good") {
-        obs.remove(); 
+        obs.remove(); // Удаляем СРАЗУ, до начала тяжелых эффектов
 
-        if (typeof soundCollect !== 'undefined' && soundCollect) {
-            soundCollect.volume = 0.3;
+        // Звук запускаем асинхронно, чтобы не тормозить поток
+        if (soundCollect) {
             soundCollect.currentTime = 0;
-            soundCollect.play().catch(e => console.log("Audio blocked"));
+            soundCollect.play().catch(() => {});
         }
 
         comboCount++;
-        if (comboCount >= 12) comboMultiplier = 5;
-        else if (comboCount >= 8) comboMultiplier = 4;
-        else if (comboCount >= 5) comboMultiplier = 3;
-        else if (comboCount >= 2) comboMultiplier = 2;
-        else comboMultiplier = 1;
+        // Упрощенная логика комбо
+        comboMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
 
+        const comboEl = document.getElementById("combo-display");
         if (comboEl && comboCount >= 2) {
             comboEl.innerText = "x" + comboMultiplier;
             comboEl.style.opacity = "1";
-            comboEl.classList.remove("combo-pop");
-            void comboEl.offsetWidth; 
-            comboEl.classList.add("combo-pop");
         }
 
+        // Облегченный взрыв (создаем меньше частиц)
         createExplosion(centerX, centerY); 
-        p.classList.remove("berry-collect");
-        void p.offsetWidth; 
-        p.classList.add("berry-collect");
 
         coins += comboMultiplier; 
         updateScore(); 
     } else {
         if (shieldActive) {
             obs.remove(); 
-            comboCount = 0; 
-            comboMultiplier = 1;
-            if (comboEl) comboEl.style.opacity = "0";
-            createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+            }
         } else {
             gameOver();
         }
