@@ -250,7 +250,7 @@ function update() {
             const pRect = p.getBoundingClientRect();
 
             // --- НОВАЯ ЛОГИКА: УВЕЛИЧЕННЫЙ РАДИУС (buffer) ---
-            const buffer = 20; 
+            const buffer = 10; 
 
             if (
                 obsRect.left < pRect.right + buffer &&
