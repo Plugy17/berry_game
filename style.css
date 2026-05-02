@@ -686,35 +686,42 @@ button:active { transform: scale(0.95); }
 #continue-btn.hidden { display: none; }
 
 .home-button {
+    /* 1. Полная очистка фона и рамок */
     background: none;
     border: none;
     padding: 0;
-    cursor: pointer;
     outline: none;
-    
-    /* Увеличиваем до среднего удобного размера */
-    width: 62px; 
-    height: 62px;
-    min-width: 62px;
-    max-width: 62px;
+    cursor: pointer;
 
+    /* 2. Масштаб для удобного нажатия */
+    width: 65px; 
+    height: 65px;
+    min-width: 65px;
+    max-width: 65px;
+
+    /* 3. Центрирование иконки */
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
+    /* 4. Мобильная оптимизация */
+    -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат при клике */
     
-    /* Убираем системную подсветку */
-    -webkit-tap-highlight-color: transparent;
-    
-    /* Добавим легкую тень, чтобы кнопка не казалась плоской */
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    
-    transition: transform 0.1s ease, filter 0.2s ease;
+    /* Эффекты */
+    transition: transform 0.1s ease;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4)); /* Тень самого домика */
 }
 
 .home-button img {
+    /* Картинка занимает всю область кнопки */
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: contain; /* Сохраняет пропорции без искажений */
+}
+
+/* Эффект «пружины» при клике — очень приятно для пальца */
+.home-button:active {
+    transform: scale(0.85);
 }
 
 /* Эффект при нажатии */
