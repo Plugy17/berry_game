@@ -207,10 +207,14 @@ function spawnObstacle() {
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // Создаем элемент
-    const obs = document.createElement("div");
+    // --- ПРОВЕРКА ЛИМИТА ---
+    // Считаем, сколько сейчас .obstacle на экране
+    const currentCount = document.querySelectorAll(".obstacle").length;
     
-    // ВАЖНО: устанавливаем КЛАСС, чтобы CSS его увидел
+    // Если их уже 3 или больше — выходим и не создаем новый
+    if (currentCount >= 3) return; 
+
+    const obs = document.createElement("div");
     obs.className = "obstacle"; 
     
     const isGood = Math.random() < 0.6;
@@ -219,7 +223,7 @@ function spawnObstacle() {
 
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
-    obs.style.top = "-100px"; 
+    obs.style.top = "-150px"; 
 
     gameLayer.appendChild(obs);
 }
