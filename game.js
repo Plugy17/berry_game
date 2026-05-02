@@ -206,35 +206,56 @@ function spawnObstacle() {
 function update() {
     if (!gameRunning) return;
 
-    const p = document.getElementById("player"); // Берем игрока один раз
+    // 1. ПОЛУЧАЕМ ИГРОКА (БЕРРИ)
+    const p = document.getElementById("player");
+    if (!p) return;
 
-if (p && Math.random() < 0.3) {
-    const rect = p.getBoundingClientRect(); // ИСПОЛЬЗУЕМ p (строка 235 была тут)
-    const gameLayer = document.getElementById("game");
-    
-    if (gameLayer) {
-        const part = document.createElement("div");
-        part.className = "speed-particle";
+    // 2. ЭФФЕКТ ШЛЕЙФА (Используем p, а не obs!)
+    if (Math.random() < 0.3) {
+        const rect = p.getBoundingClientRect();
+        const gameLayer = document.getElementById("game");
         
-        // Центрируем частицу под Берри
-        part.style.left = (rect.left + rect.width / 2) + "px";
-        part.style.top = (rect.top + rect.height - 10) + "px";
-        
-        const pdx = (Math.random() - 0.5) * 40 + "px";
-        part.style.setProperty('--pdx', pdx);
-        
-        gameLayer.appendChild(part);
-        setTimeout(() => part.remove(), 400);
+        if (gameLayer) {
+            const part = document.createElement("div");
+            part.className = "speed-particle";
+            part.style.left = (rect.left + rect.width / 2) + "px";
+            part.style.top = (rect.top + rect.height - 10) + "px";
+            
+            const pdx = (Math.random() - 0.5) * 40 + "px";
+            part.style.setProperty('--pdx', pdx);
+            
+            gameLayer.appendChild(part);
+            setTimeout(() => part.remove(), 400);
+        }
     }
-}
 
-    obs.style.top = obstacleY + "px";
-    const catchRange = (magnetActive && obs.dataset.type === "good") ? 120 : 60;
-    if (obstacleLane === targetLane && obstacleY > playerTop - catchRange && obstacleY < playerTop + catchRange) {
-        handleCollision(obs, p);
+    // 3. ДВИЖЕНИЕ ПРЕПЯТСТВИЙ (Убедитесь, что тут названия совпадают с вашими)
+    obstacleY += speed;
+    const obstacle = document.getElementById("obstacle");
+    if (obstacle) {
+        obstacle.style.top = obstacleY + "px";
+
+        // Проверка столкновения
+        if (obstacleY > window.innerHeight - 150) {
+            const obsRect = obstacle.getBoundingClientRect();
+            const pRect = p.getBoundingClientRect();
+
+            if (
+                obsRect.left < pRect.right &&
+                obsRect.right > pRect.left &&
+                obsRect.top < pRect.bottom &&
+                obsRect.bottom > pRect.top
+            ) {
+                // ВАЖНО: Тут мы передаем obstacle в функцию столкновения
+                handleCollision(obstacle, p); 
+            } else if (obstacleY > window.innerHeight) {
+                spawnObstacle(); // Если пролетел мимо
+            }
+        }
     }
-    if (obstacleY > window.innerHeight) spawnObstacle();
-    if (gameRunning) loopId = requestAnimationFrame(update);
+
+    speed += difficulty; // Постепенное ускорение
+    loopId = requestAnimationFrame(update); // Запуск следующего кадра
 }
 
 function handleCollision(obs, p) {
