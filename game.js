@@ -205,11 +205,9 @@ function spawnObstacle() {
 
 function update() {
     if (!gameRunning) return;
-
     // 1. ПОЛУЧАЕМ ИГРОКА (БЕРРИ)
     const p = document.getElementById("player");
     if (!p) return;
-
     // 2. ЭФФЕКТ ШЛЕЙФА (Используем p, а не obs!)
     if (Math.random() < 0.3) {
         const rect = p.getBoundingClientRect();
