@@ -519,3 +519,28 @@ button:active { transform: scale(0.95); }
     from { opacity: 1; }
     to { opacity: 0; }
 }
+
+/* --- АНИМАЦИЯ ДВИЖЕНИЯ БЕРРИ --- */
+
+/* Класс, который мы будем добавлять через JS при свайпе ВЛЕВО */
+.berry-move-left {
+    animation: berryJuicyLeft 0.3s ease-out;
+}
+
+/* Класс, который мы будем добавлять через JS при свайпе ВПРАВО */
+.berry-move-right {
+    animation: berryJuicyRight 0.3s ease-out;
+}
+
+/* Анимация для движения влево: наклон влево + пульсация */
+@keyframes berryJuicyLeft {
+    0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+    30% { transform: translateX(-50%) rotate(-15deg) scale(1.2); } /* Наклон + увеличился */
+    100% { transform: translateX(-50%) rotate(0deg) scale(1); }    /* Вернулся в норму */
+}
+
+/* Анимация для движения вправо: наклон вправо + пульсация */
+@keyframes berryJuicyRight {
+    0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+    30% { transform: translateX(-50%) rotate(15deg) scale(1.2); }  /* Наклон + увеличился */
+}
