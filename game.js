@@ -310,18 +310,17 @@ function spawnObstacle() {
 }
 
 function update() {
-    if (!gameRunning || isPaused) return;
+    if (!gameRunning || (typeof isPaused !== 'undefined' && isPaused)) return;
 
     const p = document.getElementById("player");
     if (!p) return;
 
-    const pRect = p.getBoundingClientRect();[cite: 5]
+    const pRect = p.getBoundingClientRect();
 
     // 1. ОПТИМИЗАЦИЯ СПАВНА
-    // Вызываем проверку создания объекта один раз за кадр, а не в цикле
     spawnObstacle(); 
 
-    // 2. ЭФФЕКТ ШЛЕЙФА (без изменений)
+    // 2. ЭФФЕКТ ШЛЕЙФА
     if (Math.random() < 0.3) {
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
@@ -337,15 +336,14 @@ function update() {
     }
 
     // 3. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
-    const obstacles = document.querySelectorAll(".obstacle");[cite: 5]
+    const obstacles = document.querySelectorAll(".obstacle");
 
     obstacles.forEach(obstacle => {
-        // Если объект уже помечен как собранный, пропускаем его (убирает лаги)
         if (obstacle.dataset.collected) return; 
 
-        let currentTop = parseFloat(obstacle.style.top) || -150;[cite: 5]
+        let currentTop = parseFloat(obstacle.style.top) || -150;
 
-        // ЛОГИКА МАГНИТА (без изменений)
+        // ЛОГИКА МАГНИТА
         if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
             const obsRect = obstacle.getBoundingClientRect();
             const pX = pRect.left + pRect.width / 2;
@@ -367,29 +365,28 @@ function update() {
             }
         }
 
-        // Плавное падение с учетом текущей скорости
-        currentTop += speed;[cite: 5]
+        currentTop += speed;
         obstacle.style.top = currentTop + "px";
 
         // УДАЛЕНИЕ ЗА ЭКРАНОМ
         if (currentTop > window.innerHeight) {
             if (obstacle.dataset.type === "good") {
-                comboCount = 0;[cite: 5]
-                comboMultiplier = 1;[cite: 5]
+                if (typeof comboCount !== 'undefined') comboCount = 0;
+                if (typeof comboMultiplier !== 'undefined') comboMultiplier = 1;
                 const comboEl = document.getElementById("combo-display");
-                if (comboEl) comboEl.style.opacity = "0";[cite: 5]
+                if (comboEl) comboEl.style.opacity = "0";
                 
                 if (window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');[cite: 5]
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
                 }
             }
-            obstacle.remove();[cite: 5]
+            obstacle.remove();
             return; 
         }
 
-        // ПРОВЕРКА СТОЛКНОВЕНИЙ (оптимизирована за счет inset)
-        const obsRect = obstacle.getBoundingClientRect();[cite: 5]
-        const inset = 15;[cite: 5]
+        // ПРОВЕРКА СТОЛКНОВЕНИЙ
+        const obsRect = obstacle.getBoundingClientRect();
+        const inset = 15;
 
         if (
             pRect.left + inset < obsRect.right &&
@@ -397,13 +394,12 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
-            // Помечаем объект, чтобы handleCollision не вызвался дважды
             obstacle.dataset.collected = "true"; 
-            handleCollision(obstacle, p);[cite: 5]
+            handleCollision(obstacle, p);
         }
     });
 
-    loopId = requestAnimationFrame(update);[cite: 5]
+    loopId = requestAnimationFrame(update);
 }
 
 function handleCollision(obs, p) {
