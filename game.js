@@ -375,6 +375,15 @@ function gameOver() {
     gameRunning = false;
     if (loopId) cancelAnimationFrame(loopId); // Останавливаем цикл немедленно
 
+    // --- ОБНУЛЯЕМ КОМБО ПРИ СМЕРТИ ---
+    comboCount = 0;
+    comboMultiplier = 1;
+    const comboEl = document.getElementById("combo-display");
+    if (comboEl) {
+        comboEl.style.opacity = "0"; // Прячем надпись x2, x3...
+        comboEl.innerText = "";
+    }
+
     totalCoins += coins;
     if (coins > best) best = coins;
     
@@ -384,7 +393,11 @@ function gameOver() {
     const goScreen = document.getElementById("gameOverScreen");
     if (goScreen) {
         goScreen.classList.remove("hidden");
-        document.getElementById("final-score").innerText = coins;
+        // Обновляем текст на экране "БА-БАХ!"
+        const finalScoreEl = document.getElementById("final-score");
+        if (finalScoreEl) {
+            finalScoreEl.innerText = coins;
+        }
     }
 }
 
