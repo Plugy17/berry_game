@@ -232,7 +232,7 @@ function update() {
 
     const pRect = p.getBoundingClientRect();
 
-    // 1. ЭФФЕКТ ШЛЕЙФА (оставляем без изменений)
+    // 1. ЭФФЕКТ ШЛЕЙФА
     if (Math.random() < 0.3) {
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
@@ -249,20 +249,25 @@ function update() {
 
     // 2. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
     const obstacles = document.querySelectorAll(".obstacle");
+    
+    // СТРАХОВКА: Если объектов почему-то нет совсем — создаем один
+    if (obstacles.length === 0 && gameRunning) {
+        spawnObstacle();
+    }
+
     obstacles.forEach(obstacle => {
-        // --- ДОБАВЛЯЕМ ДВИЖЕНИЕ ---
         let currentTop = parseFloat(obstacle.style.top) || -150;
-        currentTop += speed; // Убедись, что переменная speed у тебя объявлена (например, 5 или 7)
+        currentTop += speed; 
         obstacle.style.top = currentTop + "px";
 
-        // --- УДАЛЕНИЕ, ЕСЛИ УЛЕТЕЛ ЗА ЭКРАН ---
+        // УДАЛЕНИЕ, ЕСЛИ УЛЕТЕЛ ЗА ЭКРАН
         if (currentTop > window.innerHeight) {
             obstacle.remove();
-            spawnObstacle(); // Спавним новый взамен улетевшего
-            return; // Переходим к следующему объекту
+            spawnObstacle(); // Создаем новый ТОЛЬКО когда старый реально улетел
+            return; 
         }
 
-        // --- ПРОВЕРКА СТОЛКНОВЕНИЙ ---
+        // ПРОВЕРКА СТОЛКНОВЕНИЙ
         const obsRect = obstacle.getBoundingClientRect();
         const inset = 15; 
 
@@ -272,7 +277,10 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
+            // МЫ ВЫЗЫВАЕМ handleCollision
             handleCollision(obstacle, p);
+            // ПРЕРЫВАЕМ цикл для этого объекта, так как он уже обработан
+            return;
         }
     });
 
