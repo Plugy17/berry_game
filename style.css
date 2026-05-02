@@ -384,24 +384,21 @@ button:active { transform: scale(0.95); }
 
 /* --- HUD (ОБНОВЛЕННЫЙ: КОМПАКТНАЯ ПОЛОСКА В УРОВЕНЬ С ДОМИКОМ) --- */
 #hud {
-    position: absolute; 
-    top: 15px; /* Совпадает с top кнопки #backBtn */
-    left: 15px;
-    background: rgba(0, 0, 0, 0.6); 
-    backdrop-filter: blur(10px);
-    padding: 6px 15px; /* Уменьшены отступы */
-    border-radius: 15px;
-    border: 2px solid #ff4fd8; 
-    color: white; 
-    z-index: 100;
-    font-size: 18px; /* Уменьшен размер шрифта */
-    font-weight: 900;
-    display: flex; 
-    align-items: center; 
-    gap: 10px;
-    box-shadow: 0 0 15px rgba(255, 79, 216, 0.4);
-    height: 45px; /* Фиксированная высота как у кнопки #backBtn */
-    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hud-img {
+    width: 20px;
+    height: 20px;
 }
 
 .ice-icon {
@@ -787,34 +784,15 @@ button:active { transform: scale(0.95); }
     transform: scale(0.9);
 }
 
-/* Исправляем HUD, чтобы он не "плыл" */
-#hud {
-    pointer-events: auto;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px); /* Красивое размытие фона */
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-}
-/* Контейнер верхней панели — теперь он не дает элементам разлетаться */
 #game-top-bar {
     position: absolute;
-    top: env(safe-area-inset-top, 15px); /* Учитывает "челку" на iPhone */
+    top: 10px;
     left: 0;
     width: 100%;
-    height: 60px; /* Фиксируем высоту панели */
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Раскидывает паузу и дом по краям */
     align-items: center;
     padding: 0 15px;
+    z-index: 100;
     box-sizing: border-box;
-    z-index: 1000;
-    pointer-events: none; /* Чтобы сама панель не мешала кликам по игре */
 }
