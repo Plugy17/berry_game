@@ -58,13 +58,15 @@
 </div>
 
 <div id="game" class="screen hidden">
+    <!-- Верхняя панель: Пауза, Счет, Домой -->
     <div id="game-top-bar">
         <button id="pauseBtn" class="clean-button" onclick="togglePause()">
             <img id="pauseIcon" src="assets/pause.png" alt="Пауза">
         </button>
 
+        <!-- Исправленный HUD с правильными ID для скрипта -->
         <div id="hud">
-            <span class="ice-icon"></span> 0 | 🏆 0
+             <span class="ice-icon"></span> <span id="coinCount">0</span> | 🏆 <span id="bestScore">0</span>
         </div> 
 
         <button id="homeBtn" class="clean-button" onclick="backToMenu()">
@@ -72,11 +74,14 @@
         </button>
     </div>
 
+    <!-- Игровые слои -->
     <div id="effects-layer"></div>
     <div id="combo-display" class="combo-text"></div>
     
+    <!-- ПЕРСОНАЖ ТЕПЕРЬ ТУТ (ВНУТРИ ИГРЫ) -->
     <div id="player"></div> 
 
+    <!-- Бонусная панель -->
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
             <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
@@ -87,7 +92,7 @@
             <span id="count-magnet">0</span>
         </div>
     </div>
-</div>
+</div> <!-- ЗДЕСЬ ИГРА ЗАКРЫВАЕТСЯ ЕДИНСТВЕННЫЙ РАЗ -->
     
     <div id="player"></div> 
     <div id="obstacle"></div> 
