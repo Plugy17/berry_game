@@ -286,14 +286,15 @@ function handleCollision(obs, p) {
     const comboEl = document.getElementById("combo-display");
 
     if (obs.dataset.type === "good") {
-        // ЗВУК (тихий)
+        // --- 1. УДАЛЯЕМ ОБЪЕКТ СРАЗУ ---
+        obs.remove(); 
+
         if (typeof soundCollect !== 'undefined' && soundCollect) {
             soundCollect.volume = 0.3;
             soundCollect.currentTime = 0;
             soundCollect.play().catch(e => console.log("Audio blocked"));
         }
 
-        // ЛОГИКА КОМБО
         comboCount++;
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
@@ -301,7 +302,6 @@ function handleCollision(obs, p) {
         else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
 
-        // ВИЗУАЛ КОМБО
         if (comboEl && comboCount >= 2) {
             comboEl.innerText = "x" + comboMultiplier;
             comboEl.style.opacity = "1";
@@ -314,7 +314,6 @@ function handleCollision(obs, p) {
             comboEl.classList.add("combo-pop");
         }
 
-        // ЭФФЕКТЫ
         const explosionColor = comboMultiplier >= 3 ? "#ff00ff" : "#FF69B4";
         createCollectExplosion(centerX, centerY, explosionColor);
         
@@ -329,11 +328,13 @@ function handleCollision(obs, p) {
 
         coins += comboMultiplier; 
         updateScore(); 
-        spawnObstacle();
+        spawnObstacle(); // Теперь создастся только ОДИН новый
     } else {
-        // СТОЛКНОВЕНИЕ С ПРЕПЯТСТВИЕМ
         if (shieldActive) {
-            comboCount = 0; // Сбрасываем комбо даже при щите
+            // --- 2. УДАЛЯЕМ ВРАГА ПРИ УДАРЕ О ЩИТ ---
+            obs.remove(); 
+
+            comboCount = 0; 
             comboMultiplier = 1;
             if (comboEl) comboEl.style.opacity = "0";
 
@@ -351,7 +352,7 @@ function handleCollision(obs, p) {
             shieldActive = false; 
             p.classList.remove("shield-aura");
             p.classList.add("berry-hit-shield");
-            spawnObstacle();
+            spawnObstacle(); 
         } else {
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
