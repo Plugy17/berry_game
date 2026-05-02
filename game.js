@@ -207,23 +207,19 @@ function spawnObstacle() {
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // Создаем НОВЫЙ элемент
+    // Создаем элемент
     const obs = document.createElement("div");
-    obs.className = "obstacle"; // Важно: класс должен совпадать с тем, что в CSS
+    
+    // ВАЖНО: устанавливаем КЛАСС, чтобы CSS его увидел
+    obs.className = "obstacle"; 
     
     const isGood = Math.random() < 0.6;
     obs.dataset.type = isGood ? "good" : "bad";
-    
-    // Используем твои переменные путей к картинкам
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
-    // Выбираем линию из твоего массива lanes
-    const obstacleLane = Math.floor(Math.random() * lanes.length);
-    obs.style.left = lanes[obstacleLane] + "%";
-    
-    // Начальная позиция над экраном
-    obs.style.top = "-150px"; 
-    obs.style.display = "block";
+    const laneIndex = Math.floor(Math.random() * lanes.length);
+    obs.style.left = lanes[laneIndex] + "%";
+    obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
 }
