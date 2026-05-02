@@ -440,16 +440,19 @@ button:active { transform: scale(0.95); }
     text-shadow: 0 0 15px #fff, 0 0 30px #ff4fd8, 0 0 50px #ff00ff;
 }
 
-/* --- ПРЕПЯТСТВИЕ --- */
-#obstacle {
+/* --- ПРЕПЯТСТВИЕ (ИЗМЕНИЛИ # НА .) --- */
+.obstacle {
     position: absolute;
-    width: 70px; height: 70px;
+    width: 70px; 
+    height: 70px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     z-index: 90;
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-    transition: left 0.2s ease-out;
+    /* Убери transition для left, если хочешь, чтобы они спавнились мгновенно */
+    transition: left 0.2s ease-out; 
+    display: block; /* Убеждаемся, что элемент виден */
 }
 
 /* --- ПЕРСОНАЖ И ЭФФЕКТЫ --- */
