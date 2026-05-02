@@ -262,11 +262,12 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        // Безопасное проигрывание звука
-        if (soundCollect) {
-            soundCollect.currentTime = 0;
-            soundCollect.play().catch(() => {}); 
-        }
+    const rect = obs.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // ВЫЗЫВАЕМ ВЗРЫВ
+    createCollectExplosion(centerX, centerY, "#FF69B4");
         
         // Безопасная вибрация (проверяем существование метода)
         if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -452,3 +453,28 @@ document.addEventListener("keydown", (e) => {
         }, 300);
     }
 });
+
+function createCollectExplosion(x, y, color) {
+    const gameLayer = document.getElementById("game");
+    for (let i = 0; i < 8; i++) { // Создаем 8 искр
+        const p = document.createElement("div");
+        p.className = "collect-particle";
+        
+        // Цвет искр под цвет мороженого (или просто золотистый/белый)
+        p.style.background = color || "#ffcc00";
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+        
+        // Случайное направление разлета
+        const angle = (Math.PI * 2 / 8) * i;
+        const dist = 50 + Math.random() * 30;
+        const ex = Math.cos(angle) * dist + "px";
+        const ey = Math.sin(angle) * dist + "px";
+        
+        p.style.setProperty('--ex', ex);
+        p.style.setProperty('--ey', ey);
+        
+        gameLayer.appendChild(p);
+        setTimeout(() => p.remove(), 500);
+    }
+}
