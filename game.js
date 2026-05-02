@@ -7,6 +7,7 @@ function initAudio() {
 }
 
 const soundCollect = new Audio('assets/collect.mp3'); // Убедитесь, что файл лежит по этому пути
+soundCollect.volume = 0.3;
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
