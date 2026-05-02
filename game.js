@@ -215,13 +215,12 @@ function spawnObstacle() {
 function update() {
     if (!gameRunning) return;
 
-    // 1. ПОЛУЧАЕМ ИГРОКА (БЕРРИ)
     const p = document.getElementById("player");
     if (!p) return;
 
-    const pRect = p.getBoundingClientRect(); // Получаем рамки Берри один раз
+    const pRect = p.getBoundingClientRect();
 
-    // 2. ЭФФЕКТ ШЛЕЙФА
+    // ЭФФЕКТ ШЛЕЙФА
     if (Math.random() < 0.3) {
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
@@ -229,24 +228,20 @@ function update() {
             part.className = "speed-particle";
             part.style.left = (pRect.left + pRect.width / 2) + "px";
             part.style.top = (pRect.top + pRect.height - 10) + "px";
-            
             const pdx = (Math.random() - 0.5) * 40 + "px";
             part.style.setProperty('--pdx', pdx);
-            
             gameLayer.appendChild(part);
             setTimeout(() => part.remove(), 400);
         }
     }
 
-    // 3. ПРОВЕРКА СТОЛКНОВЕНИЙ (С ПРАВКОЙ ХИТБОКСА)
+    // ПРОВЕРКА СТОЛКНОВЕНИЙ
     const obstacles = document.querySelectorAll(".obstacle");
     obstacles.forEach(obstacle => {
         const obsRect = obstacle.getBoundingClientRect();
-
-        // НАСТРОЙКА ЧЕСТНОСТИ: 
-        // Чем больше inset, тем меньше зона поражения. 
-        // 12-15 пикселей — идеально, чтобы не задевать "воздухом".
-        const inset = 20; 
+        
+        // ЧЕСТНЫЙ ХИТБОКС (уменьшаем зону поражения на 15 пикселей)
+        const inset = 15; 
 
         if (
             pRect.left + inset < obsRect.right &&
@@ -261,63 +256,21 @@ function update() {
     loopId = requestAnimationFrame(update);
 }
 
-    // 3. ДВИЖЕНИЕ ПРЕПЯТСТВИЙ
-    obstacleY += speed;
-    const obstacle = document.getElementById("obstacle");
-    if (obstacle) {
-        obstacle.style.top = obstacleY + "px";
-
-        // Проверка столкновения (начинаем проверять чуть раньше)
-        if (obstacleY > window.innerHeight - 250) { 
-            const obsRect = obstacle.getBoundingClientRect();
-            const pRect = p.getBoundingClientRect();
-
-            // --- НОВАЯ ЛОГИКА: УВЕЛИЧЕННЫЙ РАДИУС (buffer) ---
-            const buffer = 7; 
-
-            if (
-                obsRect.left < pRect.right + buffer &&
-                obsRect.right > pRect.left - buffer &&
-                obsRect.top < pRect.bottom + buffer &&
-                obsRect.bottom > pRect.top - buffer
-            ) {
-                // ЭФФЕКТ ВЗРЫВА ПРИ СБОРЕ
-                if (obstacle.dataset.type === "good") {
-                    const centerX = obsRect.left + obsRect.width / 2;
-                    const centerY = obsRect.top + obsRect.height / 2;
-                    // Вызываем функцию взрыва, которую мы добавили в CSS и JS ранее
-                    if (typeof createCollectExplosion === "function") {
-                        createCollectExplosion(centerX, centerY, "#FF69B4");
-                    }
-                }
-
-                handleCollision(obstacle, p); 
-            } else if (obstacleY > window.innerHeight) {
-                spawnObstacle(); 
-            }
-        }
-    }
-
-    speed += difficulty; 
-    loopId = requestAnimationFrame(update); 
-}
-
 function handleCollision(obs, p) {
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-
     const comboEl = document.getElementById("combo-display");
 
     if (obs.dataset.type === "good") {
-        // --- 1. ЗВУК ---
+        // ЗВУК (тихий)
         if (typeof soundCollect !== 'undefined' && soundCollect) {
             soundCollect.volume = 0.3;
             soundCollect.currentTime = 0;
             soundCollect.play().catch(e => console.log("Audio blocked"));
         }
 
-        // --- 2. ЛОГИКА КОМБО ---
+        // ЛОГИКА КОМБО
         comboCount++;
         if (comboCount >= 12) comboMultiplier = 5;
         else if (comboCount >= 8) comboMultiplier = 4;
@@ -325,24 +278,20 @@ function handleCollision(obs, p) {
         else if (comboCount >= 2) comboMultiplier = 2;
         else comboMultiplier = 1;
 
-        // --- 3. ВИЗУАЛ КОМБО (x2, x3...) ---
+        // ВИЗУАЛ КОМБО
         if (comboEl && comboCount >= 2) {
             comboEl.innerText = "x" + comboMultiplier;
             comboEl.style.opacity = "1";
-            
-            // Цвет меняется от уровня комбо
-            if (comboMultiplier >= 5) comboEl.style.color = "#ffff00"; // Золотой
-            else if (comboMultiplier >= 3) comboEl.style.color = "#00f2ff"; // Голубой
-            else comboEl.style.color = "#ffffff"; // Белый
+            if (comboMultiplier >= 5) comboEl.style.color = "#ffff00";
+            else if (comboMultiplier >= 3) comboEl.style.color = "#00f2ff";
+            else comboEl.style.color = "#ffffff";
 
-            // Перезапуск анимации "прыжка" текста
             comboEl.classList.remove("combo-pop");
             void comboEl.offsetWidth; 
             comboEl.classList.add("combo-pop");
         }
 
-        // --- 4. ЭФФЕКТЫ СБОРА ---
-        // Если комбо высокое, делаем взрыв розовее/ярче
+        // ЭФФЕКТЫ
         const explosionColor = comboMultiplier >= 3 ? "#ff00ff" : "#FF69B4";
         createCollectExplosion(centerX, centerY, explosionColor);
         
@@ -359,12 +308,12 @@ function handleCollision(obs, p) {
         updateScore(); 
         spawnObstacle();
     } else {
-        // --- СБРОС КОМБО ПРИ СТОЛКНОВЕНИИ ---
-        comboCount = 0;
-        comboMultiplier = 1;
-        if (comboEl) comboEl.style.opacity = "0";
-
+        // СТОЛКНОВЕНИЕ С ПРЕПЯТСТВИЕМ
         if (shieldActive) {
+            comboCount = 0; // Сбрасываем комбо даже при щите
+            comboMultiplier = 1;
+            if (comboEl) comboEl.style.opacity = "0";
+
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
             }
