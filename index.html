@@ -58,33 +58,33 @@
 </div>
 
 <div id="game" class="screen hidden">
-    <!-- 1. НОВЫЙ БЛОК УПРАВЛЕНИЯ (Верхняя панель) -->
-    <div id="game-controls">
-        <button id="pauseBtn" class="ui-button" onclick="togglePause()">
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ: Здесь всё управление и счет -->
+    <div id="game-top-bar">
+        <!-- Кнопка Паузы (будет слева) -->
+        <button id="pauseBtn" class="clean-button" onclick="togglePause()">
             <img id="pauseIcon" src="assets/pause.png" alt="Пауза">
         </button>
-        
-        <button id="backBtn" class="home-button" onclick="backToMenu()">
+
+        <!-- HUD (будет по центру) -->
+        <div id="hud">
+            <span class="ice-icon"></span> 0 | 🏆 0
+        </div> 
+
+        <!-- Кнопка Домой (будет справа) -->
+        <button id="backBtn" class="clean-button" onclick="backToMenu()">
             <img src="assets/home.png" alt="Домой">
         </button>
     </div>
-    <!-- Слой для взрывов и частиц -->
+
+    <!-- Остальные слои игры -->
     <div id="effects-layer"></div>
-    
-<div id="combo-display" class="combo-text"></div>
-    <!-- HUD теперь управляется целиком через JS для компактности -->
-    <div id="hud">
-        <span class="ice-icon"></span> 0 | 🏆 0
-    </div> 
-    
-   <button id="backBtn" class="home-button" onclick="backToMenu()">
-    <img src="assets/home.png" alt="Домой">
-</button>
+    <div id="combo-display" class="combo-text"></div>
     
     <div id="combo-container">
         <div id="combo-ui" class="hidden">x2</div>
         <div id="combo-msg"></div> 
     </div>
+</div>
 
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
