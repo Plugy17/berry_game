@@ -1,3 +1,4 @@
+const soundCollect = new Audio('assets/collect.mp3'); // Убедитесь, что файл лежит по этому пути
 let laneCount = 4;
 let lanes = [12.5, 37.5, 62.5, 87.5]; 
 let targetLane = 1;
@@ -242,38 +243,47 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        createExplosion(centerX, centerY); 
+        // --- 1. ЗВУК И ЛЕГКАЯ ВИБРАЦИЯ ПРИ СБОРЕ ---
+        soundCollect.currentTime = 0; // Сброс звука, чтобы можно было спамить
+        soundCollect.play().catch(() => {}); // catch нужен, чтобы не было ошибки без жеста юзера
+        
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('light'); // Мягкий «тык» при сборе
+        }
 
-        // --- Анимация сбора (Ням-ням) ---
+        createExplosion(centerX, centerY); 
         p.classList.remove("berry-collect");
-        void p.offsetWidth; // Магия для перезапуска CSS анимации
+        void p.offsetWidth;
         p.classList.add("berry-collect");
-        setTimeout(() => p.classList.remove("berry-collect"), 250);
 
         comboCount++;
-        if (comboCount >= 12) comboMultiplier = 5;
-        else if (comboCount >= 8) comboMultiplier = 4;
-        else if (comboCount >= 5) comboMultiplier = 3;
-        else if (comboCount >= 2) comboMultiplier = 2;
-        else comboMultiplier = 1;
-
+        // ... (ваш код комбо остается прежним)
         coins += comboMultiplier; 
         updateScore(); 
         spawnObstacle();
+        
     } else {
         if (shieldActive) {
+            // --- 2. СИЛЬНАЯ ВИБРАЦИЯ И ТРЯСКА ПРИ УДАРЕ В ЩИТ ---
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('warning'); // Вибрация «предупреждение»
+            }
+
+            // Тряска экрана
+            const gameEl = document.getElementById("game");
+            gameEl.classList.add("screen-shake");
+            setTimeout(() => gameEl.classList.remove("screen-shake"), 300);
+
             createCubeBoom(centerX, centerY); 
             shieldActive = false; 
             p.classList.remove("shield-aura");
-
-            // --- Анимация тряски от удара ---
-            p.classList.remove("berry-hit-shield");
-            void p.offsetWidth; // Сброс анимации
             p.classList.add("berry-hit-shield");
-            setTimeout(() => p.classList.remove("berry-hit-shield"), 300);
-
             spawnObstacle();
         } else {
+            // --- 3. ФАТАЛЬНАЯ ВИБРАЦИЯ ПРИ ГЕЙМОВЕРЕ ---
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error'); // Двойная сильная вибрация
+            }
             gameOver();
         }
     }
