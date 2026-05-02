@@ -285,8 +285,9 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     if (obs.dataset.type === "good") {
-        // --- 1. ВОЗВРАЩАЕМ ЗВУК ---
+        // --- 1. ВОЗВРАЩАЕМ ЗВУК С НАСТРОЙКОЙ ГРОМКОСТИ ---
         if (typeof soundCollect !== 'undefined' && soundCollect) {
+            soundCollect.volume = 0.3; // Устанавливаем громкость на 30%
             soundCollect.currentTime = 0; // Сброс в начало для частых сборов
             soundCollect.play().catch(e => console.log("Audio play blocked or failed"));
         }
