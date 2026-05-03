@@ -176,7 +176,6 @@ function createCubeBoom(x, y) {
     setTimeout(() => boom.remove(), 500);
 }
 
-// --- FIREBASE ЛОГИКА ---
 function loadUserData(id) {
     if (!window.db || !id) return updateMenuInfo();
     db.ref('players/' + id).once('value').then((snapshot) => {
@@ -184,6 +183,11 @@ function loadUserData(id) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
+            
+            // Загружаем новую валюту и активный скин
+            totalDiamonds = data.totalDiamonds || 0; 
+            currentSkin = data.currentSkin || "default"; 
+
             inventory.shield = data.inventory?.shield || 0;
             inventory.magnet = data.inventory?.magnet || 0;
         } else {
@@ -195,11 +199,15 @@ function loadUserData(id) {
 
 function saveUserData() {
     if (!userId || !window.db) return;
+    
+    // Сохраняем все данные, включая новые ресурсы и состояние скина
     db.ref('players/' + userId).set({ 
         nick: nick, 
-        best, 
-        totalCoins, 
-        inventory 
+        best: best, 
+        totalCoins: totalCoins, 
+        totalDiamonds: totalDiamonds, // Новая валюта[cite: 2]
+        inventory: inventory,
+        currentSkin: currentSkin // Сохраняем, какой скин надет[cite: 2]
     });
 }
 
