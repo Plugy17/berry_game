@@ -219,23 +219,29 @@ function updateMenuInfo() {
         if(nickInput) nickInput.style.display = "none";
     }
 
-    // Обновляем основные монеты
+    // Подготавливаем HTML-код иконок из твоих стилей
+    const iceIcon = `<span class="ice-icon"></span>`;
+    const diamondIcon = `<span class="diamond-icon"></span>`;
+
+    // 1. Обновляем основные монеты (используем innerHTML)
     const totalBal = document.getElementById("total-balance");
     const menuCoins = document.getElementById("menuCoinCount");
     const shopCoins = document.getElementById("shop-balance");
     
-    if(totalBal) totalBal.innerText = totalCoins;
-    if(menuCoins) menuCoins.innerText = totalCoins;
-    if(shopCoins) shopCoins.innerText = totalCoins;
+    // Добавляем число + иконку
+    if(totalBal) totalBal.innerHTML = `${totalCoins} ${iceIcon}`;
+    if(menuCoins) menuCoins.innerHTML = `${totalCoins} ${iceIcon}`;
+    if(shopCoins) shopCoins.innerHTML = `${totalCoins} ${iceIcon}`;
 
-    // ОБНОВЛЯЕМ АЛМАЗЫ (везде: в HUD, меню и магазине)
+    // 2. ОБНОВЛЯЕМ АЛМАЗЫ (везде: в HUD, меню и магазине)
     const menuDiamonds = document.getElementById("menuDiamondCount");
     const shopDiamonds = document.getElementById("shop-diamonds");
     const hudDiamonds = document.getElementById("diamondCount");
 
-    if(menuDiamonds) menuDiamonds.innerText = totalDiamonds;
-    if(shopDiamonds) shopDiamonds.innerText = totalDiamonds;
-    if(hudDiamonds) hudDiamonds.innerText = totalDiamonds;
+    // Добавляем число + иконку алмаза
+    if(menuDiamonds) menuDiamonds.innerHTML = `${totalDiamonds} ${diamondIcon}`;
+    if(shopDiamonds) shopDiamonds.innerHTML = `${totalDiamonds} ${diamondIcon}`;
+    if(hudDiamonds) hudDiamonds.innerHTML = `${totalDiamonds} ${diamondIcon}`;
 
     updateBonusUI();
 }
