@@ -105,7 +105,6 @@ if (tg) {
     tg.ready();
     tg.disableVerticalSwipes(); 
 }
-}
 
 // Получаем данные пользователя Telegram
 const tgUser = tg?.initDataUnsafe?.user;
