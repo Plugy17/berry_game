@@ -144,7 +144,7 @@ function stopIceRain() {
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
-    const particleCount = 8;
+    const particleCount = 5;
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
