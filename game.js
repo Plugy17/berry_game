@@ -103,7 +103,6 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
     tg.expand();
     tg.ready();
-    tg.disableVerticalSwipes(); 
 }
 
 // Получаем данные пользователя Telegram
