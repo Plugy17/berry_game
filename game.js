@@ -420,24 +420,25 @@ function handleCollision(obs, p) {
     if (obs.dataset.collected_check) return; 
     obs.dataset.collected_check = "true";
 
-    // 1. МГНОВЕННОЕ СКРЫТИЕ (самое важное для плавности)
-    obs.style.visibility = 'hidden'; 
+    // 1. МГНОВЕННО прячем объект. 
+    // Это убирает визуальное ощущение, что игра "задумалась".
+    obs.style.display = 'none'; 
 
+    const type = obs.dataset.type;
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const type = obs.dataset.type;
 
-    // Используем планировщик, чтобы тяжелые эффекты не тормозили движение объектов
-    requestAnimationFrame(() => {
+    // 2. Выполняем логику в фоновом режиме
+    setTimeout(() => {
         if (type === "good") {
-            obs.remove(); 
-
+            // Звук (неблокирующий)
             if (soundCollect) {
                 soundCollect.currentTime = 0;
                 soundCollect.play().catch(() => {});
             }
 
+            // Логика комбо
             comboCount++;
             comboMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
 
@@ -447,13 +448,17 @@ function handleCollision(obs, p) {
                 comboEl.style.opacity = "1";
             }
 
-            // Создаем взрыв только если это не перегрузит систему
+            // Эффекты (Взрыв) - Самый "тяжелый" момент
+            // Если фризы останутся, попробуй временно закомментировать createExplosion
             if (typeof createExplosion === 'function') {
                 createExplosion(centerX, centerY); 
             }
 
             coins += comboMultiplier; 
             updateScore(); 
+            
+            // Удаляем из памяти окончательно
+            obs.remove(); 
         } else {
             if (shieldActive) {
                 obs.remove(); 
@@ -466,7 +471,7 @@ function handleCollision(obs, p) {
                 gameOver();
             }
         }
-    });
+    }, 0); // Таймаут 0 позволяет браузеру сначала закончить кадр анимации
 }
 
 function updateScore() {
