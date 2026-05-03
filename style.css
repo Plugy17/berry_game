@@ -910,3 +910,25 @@ button:active { transform: scale(0.95); }
     border-color: #00eaff !important; /* Голубая рамка */
     box-shadow: 0 0 15px rgba(0, 234, 255, 0.4); /* Голубое свечение */
 }
+
+/* Контейнер для статов в меню */
+.menu-stats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Настройка внутреннего разделения (черточки) */
+#total-balance {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Расстояние между мороженым и алмазами */
+    white-space: nowrap;
+}
+
+/* Цвет разделителя, чтобы он не был слишком ярким */
+#total-balance span:not([class]) {
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: normal;
+}
