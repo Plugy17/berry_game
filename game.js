@@ -70,6 +70,10 @@ function togglePause() {
     }
 }
 
+let totalDiamonds = 0; 
+let diamonds = 0; // Алмазы за текущий забег
+let currentSkin = localStorage.getItem("activeSkin") || "default";
+
 const soundCollect = new Audio('assets/collect.mp3'); // Убедитесь, что файл лежит по этому пути
 soundCollect.volume = 0.3;
 let laneCount = 4;
@@ -211,6 +215,8 @@ function updateMenuInfo() {
     const shopBalValue = document.getElementById("shop-balance");
     if(shopBalValue) shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
     updateBonusUI();
+    const diaBal = document.getElementById("diamondCount");
+if(diaBal) diaBal.innerText = totalDiamonds;
 }
 
 function updateBonusUI() {
@@ -218,6 +224,30 @@ function updateBonusUI() {
     const mCount = document.getElementById("count-magnet");
     if(sCount) sCount.innerText = inventory.shield;
     if(mCount) mCount.innerText = inventory.magnet;
+}
+
+function buyStarSkin() {
+    if (totalDiamonds >= 100) {
+        totalDiamonds -= 100;
+        currentSkin = "star";
+        localStorage.setItem("activeSkin", "star");
+        saveUserData();
+        updateMenuInfo();
+        alert("Скин 'Звездный Берри' надет!");
+    } else {
+        alert("Недостаточно алмазов!");
+    }
+}
+
+function exchangeIceToDiamond() {
+    if (totalCoins >= 1000) {
+        totalCoins -= 1000;
+        totalDiamonds += 10;
+        saveUserData();
+        updateMenuInfo();
+    } else {
+        alert("Нужно 1000 мороженого!");
+    }
 }
 
 function startGame() {
@@ -230,6 +260,8 @@ function startGame() {
         nick = val; 
         userId = val;
         localStorage.setItem("nick", nick);
+        const p = document.getElementById("player");
+if (currentSkin === "star") p.classList.add("skin-star");
     }
 
     // Настраиваем параметры под сложность
@@ -298,29 +330,43 @@ function spawnObstacle() {
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
 
-    // 2. ДИНАМИЧЕСКИЕ ЛИМИТЫ (чтобы убрать зависания сверху)
+    // 2. ДИНАМИЧЕСКИЕ ЛИМИТЫ
     const currentCount = document.querySelectorAll(".obstacle").length;
-    let maxItems = 5; // Для Medium
-    if (level === 'easy') maxItems = 6; // На Easy больше места, так как они медленные
-    if (level === 'hard') maxItems = 8; // На Hard больше объектов для сложности
+    let maxItems = 5; 
+    if (level === 'easy') maxItems = 6; 
+    if (level === 'hard') maxItems = 8; 
     
     if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
-    
-    // 3. ШАНС ПОЯВЛЕНИЯ (на Hard меньше хороших предметов)
-    const isGood = Math.random() < (level === 'hard' ? 0.45 : 0.65);
-    obs.dataset.type = isGood ? "good" : "bad";
-    
-    // Используем твои переменные ресурсов (imgIceCream и imgBad)
-    obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
-    // 4. ПОЗИЦИОНИРОВАНИЕ
+    // 3. НОВАЯ ЛОГИКА ШАНСОВ (Подарки и Алмазы)
+    const rand = Math.random();
+
+    if (rand < 0.03) { 
+        // 3% шанс на фиолетовый подарок (Алмаз) — очень редкий[cite: 2]
+        obs.dataset.type = "gift_purple";
+        obs.style.backgroundImage = "url('assets/purple.png')";
+        obs.classList.add("gift-purple-anim"); // Анимация свечения из CSS
+    } 
+    else if (rand < 0.10) { 
+        // 7% шанс на черный подарок (Минус монеты)
+        obs.dataset.type = "gift_black";
+        obs.style.backgroundImage = "url('assets/black.png')";
+    } 
+    else {
+        // 90% времени выпадают обычные объекты[cite: 2]
+        const isGood = Math.random() < (level === 'hard' ? 0.45 : 0.65);
+        obs.dataset.type = isGood ? "good" : "bad";
+        obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
+    }
+
+    // 4. ПОЗИЦИОНИРОВАНИЕ[cite: 2]
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
     
-    // Ставим строго за верхнюю границу, чтобы они плавно "выплывали"
+    // Ставим строго за верхнюю границу[cite: 2]
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
@@ -420,9 +466,6 @@ function handleCollision(obs, p) {
     if (obs.dataset.collected_check) return; 
     obs.dataset.collected_check = "true"; 
     obs.style.pointerEvents = 'none';
-
-    // 1. МГНОВЕННО прячем объект. 
-    // Это убирает визуальное ощущение, что игра "задумалась".
     obs.style.display = 'none'; 
 
     const type = obs.dataset.type;
@@ -430,37 +473,72 @@ function handleCollision(obs, p) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // 2. Выполняем логику в фоновом режиме
     setTimeout(() => {
+        // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
         if (type === "good") {
-            // Звук (неблокирующий)
             if (soundCollect) {
                 soundCollect.currentTime = 0;
                 soundCollect.play().catch(() => {});
             }
 
-            // Логика комбо
             comboCount++;
-            comboMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
+            // Используем динамический лимит: 8 для звезды, 5 для обычного
+            let maxComboLimit = (currentSkin === "star") ? 8 : 5;
+            comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
 
             const comboEl = document.getElementById("combo-display");
             if (comboEl && comboCount >= 2) {
                 comboEl.innerText = "x" + comboMultiplier;
                 comboEl.style.opacity = "1";
+                // Добавим эффект пульсации при росте комбо
+                comboEl.classList.remove("combo-bump");
+                void comboEl.offsetWidth; 
+                comboEl.classList.add("combo-bump");
             }
 
-            // Эффекты (Взрыв) - Самый "тяжелый" момент
-            // Если фризы останутся, попробуй временно закомментировать createExplosion
             if (typeof createExplosion === 'function') {
                 createExplosion(centerX, centerY); 
             }
 
             coins += comboMultiplier; 
             updateScore(); 
-            
-            // Удаляем из памяти окончательно
             obs.remove(); 
-        } else {
+        } 
+        
+        // --- 2. ЛОГИКА ФИОЛЕТОВОГО ПОДАРКА (АЛМАЗ) ---
+        else if (type === "gift_purple") {
+            // Редкая валюта: умеренно 1-2 алмаза
+            let addDia = Math.floor(Math.random() * 2) + 1;
+            totalDiamonds += addDia;
+            
+            // Визуальный эффект алмаза (синие искры)
+            if (typeof createExplosion === 'function') {
+                createExplosion(centerX, centerY); 
+            }
+            
+            updateMenuInfo(); // Обновляем счетчики везде
+            obs.remove();
+        }
+
+        // --- 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ) ---
+        else if (type === "gift_black") {
+            let loss = 15 + Math.floor(Math.random() * 15);
+            coins = Math.max(0, coins - loss);
+            
+            // Сбрасываем комбо при плохом подарке
+            comboCount = 0;
+            comboMultiplier = 1;
+            
+            if (typeof createCubeBoom === 'function') {
+                createCubeBoom(centerX, centerY); // Эффект взрыва
+            }
+            
+            updateScore();
+            obs.remove();
+        }
+
+        // --- 4. ПРЕПЯТСТВИЯ (BAD) ---
+        else {
             if (shieldActive) {
                 obs.remove(); 
                 shieldActive = false; 
@@ -472,7 +550,7 @@ function handleCollision(obs, p) {
                 gameOver();
             }
         }
-    }, 0); // Таймаут 0 позволяет браузеру сначала закончить кадр анимации
+    }, 0);
 }
 
 function updateScore() {
@@ -586,6 +664,7 @@ function useMagnet() {
         inventory.magnet--; magnetActive = true;
         document.getElementById("player").classList.add("magnet-aura");
         updateBonusUI();
+        let mDuration = (currentSkin === "star") ? 16000 : 10000; // +6 секунд
         setTimeout(() => { 
             magnetActive = false; 
             document.getElementById("player").classList.remove("magnet-aura"); 
