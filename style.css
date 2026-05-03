@@ -932,3 +932,20 @@ button:active { transform: scale(0.95); }
     color: rgba(255, 255, 255, 0.3);
     font-weight: normal;
 }
+
+/* Делаем текст в меню и HUD максимально ярким */
+#menuCoinCount, 
+#menuDiamondCount, 
+#diamondCount {
+    color: #ffffff !important; /* Принудительно белый */
+    font-weight: 900;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); /* Свечение для читаемости */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* Расстояние между цифрой и иконкой */
+}
+
+/* Убеждаемся, что CSS НЕ добавляет вторую иконку фоном */
+#menuCoinCount, #menuDiamondCount, #diamondCount {
+    background: none !important; 
+}
