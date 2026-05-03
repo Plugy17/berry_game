@@ -880,8 +880,8 @@ button:active { transform: scale(0.95); }
 
 /* Иконка Алмаза для HUD и Магазина */
 .diamond-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: url('assets/diamond.png') no-repeat center center;
     background-size: contain;
     display: inline-block;
@@ -902,4 +902,11 @@ button:active { transform: scale(0.95); }
     color: #fff;
     font-size: 24px;
     font-weight: 900;
+}
+
+/* Дополнительный стиль для строки алмазов в меню */
+.diamond-menu-row {
+    margin-top: 10px; /* Отступ от обычных монет */
+    border-color: #00eaff !important; /* Голубая рамка */
+    box-shadow: 0 0 15px rgba(0, 234, 255, 0.4); /* Голубое свечение */
 }
