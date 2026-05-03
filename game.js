@@ -144,7 +144,7 @@ function stopIceRain() {
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
-    const particleCount = 15;
+    const particleCount = 8;
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
@@ -418,7 +418,8 @@ function update() {
 
 function handleCollision(obs, p) {
     if (obs.dataset.collected_check) return; 
-    obs.dataset.collected_check = "true";
+    obs.dataset.collected_check = "true"; 
+    obs.style.pointerEvents = 'none';
 
     // 1. МГНОВЕННО прячем объект. 
     // Это убирает визуальное ощущение, что игра "задумалась".
