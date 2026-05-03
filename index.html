@@ -66,8 +66,10 @@
 
         <!-- Исправленный HUD с правильными ID для скрипта -->
         <div id="hud">
-             <span class="ice-icon"></span> <span id="coinCount">0</span> | 🏆 <span id="bestScore">0</span>
-        </div> 
+     <span class="ice-icon"></span> <span id="coinCount">0</span> | 
+     <span class="diamond-icon"></span> <span id="diamondCount">0</span> | 
+     🏆 <span id="bestScore">0</span>
+</div>
 
         <button id="homeBtn" class="clean-button" onclick="backToMenu()">
             <img src="assets/home.png" alt="Домой">
@@ -108,6 +110,15 @@
     </div>
 </div>
 
+    <!-- ОБМЕН ВАЛЮТЫ -->
+    <div class="exchange-block">
+        <div class="item-title" style="font-size: 18px;">ОБМЕННИК</div>
+        <button class="buy-button" onclick="exchangeIceToDiamond()" style="font-size: 14px;">
+            1000 <span class="ice-icon"></span> ➔ 10 <span class="diamond-icon"></span>
+        </button>
+    </div>
+</div>
+
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">МАГАЗИН</h2>
 
@@ -121,8 +132,13 @@
 
     <div class="shop-container">
         <div class="shop-item">
+            <img src="assets/berry2.png" alt="Star Berry">
             <img src="assets/shield_icon.png" alt="Shield">
+            <div class="item-title">ЗВЕЗДНЫЙ БЕРРИ</div>
+            <div style="color: #00eaff; font-size: 12px; margin-bottom: 10px;">Магнит +6с | Комбо x8</div>
             <div class="item-title">ЩИТ</div>
+            <button id="buySkinBtn" class="buy-button" onclick="buyStarSkin()">
+                100 <span class="diamond-icon"></span>
             <button class="buy-button" onclick="buyItem('shield')">
                 КУПИТЬ 300 <span class="ice-icon"></span>
             </button>
