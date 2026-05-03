@@ -235,9 +235,9 @@ function startGame() {
     // Настраиваем параметры под сложность
     let spawnRate = 1000; // Частота появления в мс
     if (level === 'easy') {
-        baseSpeed = 5;      
+        baseSpeed = 6;      
         difficulty = 0.001; 
-        spawnRate = 1500;   // Реже на легком
+        spawnRate = 1200;   // Реже на легком
     } else if (level === 'medium') {
         baseSpeed = 7;      
         difficulty = 0.002;
@@ -245,7 +245,7 @@ function startGame() {
     } else if (level === 'hard') {
         baseSpeed = 11;     
         difficulty = 0.005; 
-        spawnRate = 700;    // Чаще на сложном
+        spawnRate = 600;    // Чаще на сложном
     }
 
     speed = baseSpeed;       
@@ -294,27 +294,33 @@ function spawnObstacle() {
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // Проверяем количество объектов, чтобы не перегружать телефон
-    const currentCount = document.querySelectorAll(".obstacle").length;
+    // 1. ПОЛУЧАЕМ ТЕКУЩУЮ СЛОЖНОСТЬ
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
-    let maxItems = (level === 'hard') ? 6 : 4;
+
+    // 2. ДИНАМИЧЕСКИЕ ЛИМИТЫ (чтобы убрать зависания сверху)
+    const currentCount = document.querySelectorAll(".obstacle").length;
+    let maxItems = 5; // Для Medium
+    if (level === 'easy') maxItems = 6; // На Easy больше места, так как они медленные
+    if (level === 'hard') maxItems = 8; // На Hard больше объектов для сложности
     
     if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
     
+    // 3. ШАНС ПОЯВЛЕНИЯ (на Hard меньше хороших предметов)
     const isGood = Math.random() < (level === 'hard' ? 0.45 : 0.65);
     obs.dataset.type = isGood ? "good" : "bad";
     
-    // Используем твои переменные ресурсов
+    // Используем твои переменные ресурсов (imgIceCream и imgBad)
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
+    // 4. ПОЗИЦИОНИРОВАНИЕ
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
     
-    // Ставим строго за верхнюю границу
+    // Ставим строго за верхнюю границу, чтобы они плавно "выплывали"
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
