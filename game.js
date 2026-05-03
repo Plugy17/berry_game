@@ -218,13 +218,26 @@ function updateMenuInfo() {
         const nickInput = document.getElementById("nick");
         if(nickInput) nickInput.style.display = "none";
     }
+
+    // Обновляем основные монеты
     const totalBal = document.getElementById("total-balance");
-    if(totalBal) totalBal.innerHTML = `${totalCoins} ${getIceIcon()}`;
-    const shopBalValue = document.getElementById("shop-balance");
-    if(shopBalValue) shopBalValue.innerHTML = `${totalCoins} ${getIceIcon()}`;
+    const menuCoins = document.getElementById("menuCoinCount");
+    const shopCoins = document.getElementById("shop-balance");
+    
+    if(totalBal) totalBal.innerText = totalCoins;
+    if(menuCoins) menuCoins.innerText = totalCoins;
+    if(shopCoins) shopCoins.innerText = totalCoins;
+
+    // ОБНОВЛЯЕМ АЛМАЗЫ (везде: в HUD, меню и магазине)
+    const menuDiamonds = document.getElementById("menuDiamondCount");
+    const shopDiamonds = document.getElementById("shop-diamonds");
+    const hudDiamonds = document.getElementById("diamondCount");
+
+    if(menuDiamonds) menuDiamonds.innerText = totalDiamonds;
+    if(shopDiamonds) shopDiamonds.innerText = totalDiamonds;
+    if(hudDiamonds) hudDiamonds.innerText = totalDiamonds;
+
     updateBonusUI();
-    const diaBal = document.getElementById("diamondCount");
-if(diaBal) diaBal.innerText = totalDiamonds;
 }
 
 function updateBonusUI() {
@@ -313,16 +326,38 @@ if (currentSkin === "star") p.classList.add("skin-star");
 }
 
 function resetGame() {
-    coins = 0; comboCount = 0; comboMultiplier = 1;
-    shieldActive = false; magnetActive = false;
-    targetLane = 1; speed = baseSpeed; gameRunning = true;
+    // 1. Сброс игровых механик
+    coins = 0; 
+    comboCount = 0; 
+    comboMultiplier = 1;
+    shieldActive = false; 
+    magnetActive = false;
+    targetLane = 1; 
+    speed = baseSpeed; // Возвращаем к начальной скорости сложности
+    gameRunning = true;
+
+    // 2. Работа с персонажем
     const p = document.getElementById("player");
-    p.className = ""; 
-    p.style.left = lanes[targetLane] + "%";
+    if (p) {
+        p.className = ""; // Очищаем всё (ауры, анимации)
+        
+        // ВОЗВРАЩАЕМ СКИН: Если активен звездный скин, добавляем его класс обратно
+        if (currentSkin === "star") {
+            p.classList.add("skin-star");
+        }
+        
+        p.style.left = lanes[targetLane] + "%";
+    }
+
+    // 3. Обновление интерфейса и запуск
     updateScore(); 
-    spawnObstacle();
     updateBonusUI();
+    
+    // Очищаем старый цикл, чтобы игра не ускорялась в два раза при рестарте
     if (loopId) cancelAnimationFrame(loopId);
+    
+    // Запускаем первый объект и цикл отрисовки
+    spawnObstacle();
     update();
 }
 
@@ -669,15 +704,19 @@ function useShield() {
 
 function useMagnet() {
     if (inventory.magnet > 0 && !magnetActive && gameRunning) {
-        inventory.magnet--; magnetActive = true;
+        inventory.magnet--; 
+        magnetActive = true;
         document.getElementById("player").classList.add("magnet-aura");
         updateBonusUI();
-        let mDuration = (currentSkin === "star") ? 16000 : 10000; // +6 секунд
+        
+        // Бонус времени для Звездного Берри
+        let mDuration = (currentSkin === "star") ? 16000 : 10000; 
+
         setTimeout(() => { 
             magnetActive = false; 
             document.getElementById("player").classList.remove("magnet-aura"); 
             updateBonusUI();
-        }, 10000);
+        }, mDuration); // Используем переменную, а не 10000!
     }
 }
 
