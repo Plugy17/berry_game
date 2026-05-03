@@ -235,15 +235,22 @@ function startGame() {
 
     // Настраиваем параметры под сложность
     if (level === 'easy') {
-        baseSpeed = 5;      // Медленнее
-        difficulty = 0.001; // Почти не ускоряется
+        baseSpeed = 5;      
+        difficulty = 0.001; 
     } else if (level === 'medium') {
-        baseSpeed = 7;      // Стандарт
+        baseSpeed = 7;      
         difficulty = 0.002;
     } else if (level === 'hard') {
-        baseSpeed = 10;     // Сразу быстро
-        difficulty = 0.005; // Ускоряется агрессивно
+        baseSpeed = 10;     
+        difficulty = 0.005; 
     }
+
+    // --- КРИТИЧЕСКИЕ ПРАВКИ ДЛЯ УСТРАНЕНИЯ ЗАВИСАНИЙ ---
+    speed = baseSpeed;       // Принудительно ставим текущую скорость равной базовой
+    lastSpawnTime = 0;       // Сбрасываем таймер спавна, чтобы первый объект упал сразу
+    
+    // Очищаем старые объекты перед стартом, чтобы они не висели "кучей"
+    document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
 
     stopIceRain(); 
     if (loopId) cancelAnimationFrame(loopId);
@@ -275,38 +282,40 @@ function spawnObstacle() {
     if (!gameRunning || isPaused) return;
 
     const now = Date.now();
+    // 1. ПРОВЕРКА СЛОЖНОСТИ (Добавим значение по умолчанию 'medium')
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
 
+    // 2. КОРРЕКТИРОВКА ИНТЕРВАЛОВ (Сделаем их более стабильными)
     let spawnInterval = 1000; 
-    if (level === 'easy') spawnInterval = 1800; // Увеличил задержку для легкости
-    if (level === 'hard') spawnInterval = 700;
+    if (level === 'easy') spawnInterval = 1300; // Немного быстрее, чтобы не было "пустоты"
+    if (level === 'hard') spawnInterval = 800;  // Немного медленнее, чтобы не было "каши"
 
-    // СТРОГАЯ ПРОВЕРКА: если прошло мало времени - выходим
     if (now - lastSpawnTime < spawnInterval) return;
 
     const gameLayer = document.getElementById("game");
     const currentCount = document.querySelectorAll(".obstacle").length;
     
-    // Ограничиваем количество объектов на экране, чтобы не лагало
-    let maxItems = (level === 'hard') ? 5 : 3;
+    // 3. ЛИМИТ ОБЪЕКТОВ (Важно для производительности)
+    let maxItems = (level === 'hard') ? 6 : 4;
     if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
     
-    const isGood = Math.random() < (level === 'hard' ? 0.4 : 0.6);
+    const isGood = Math.random() < (level === 'hard' ? 0.45 : 0.65);
     obs.dataset.type = isGood ? "good" : "bad";
     obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
 
+    // 4. ГАРАНТИРОВАННЫЙ РАНДОМ ДОРОЖКИ
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
     
-    // Ставим объект ЧУТЬ выше, чтобы он не "телепортировался" в кадр
-    obs.style.top = "-60px"; 
+    // Сдвигаем чуть выше, чтобы падение было плавным с самого края
+    obs.style.top = "-80px"; 
 
     gameLayer.appendChild(obs);
-    lastSpawnTime = now; // Обновляем время
+    lastSpawnTime = now; 
 }
 
 function update() {
