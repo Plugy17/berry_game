@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BERRY RUNNER ONLINE</title>
-    <!-- Обновлена ссылка на стили для стабильной загрузки -->
     <link rel="stylesheet" href="style.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -13,7 +12,7 @@
 </head>
 <body>
 
-    <div id="loading-screen">
+<div id="loading-screen">
     <div class="loader-content">
         <div class="spinner"></div>
         <h1 class="loading-title">ЗАГРУЗКА...</h1>
@@ -24,7 +23,7 @@
     </div>
 </div>
 
-    <div class="background-wrapper">
+<div class="background-wrapper">
     <div class="nebula-1"></div>
     <div class="nebula-2"></div>
     <div class="stars-overlay"></div>
@@ -36,9 +35,11 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
-            <!-- Основной баланс игрока -->
-            <div id="total-balance" class="balance-info">0 <span class="ice-icon"></span></div>
-            <!-- Рекорд -->
+            <!-- Исправленный баланс в меню: Мороженое + Алмазы -->
+            <div id="total-balance" class="balance-info">
+                <span id="menuCoinCount">0</span> <span class="ice-icon"></span> | 
+                <span id="menuDiamondCount">0</span> <span class="diamond-icon"></span>
+            </div>
             <div id="menuLeaderboard" class="record-info">🏆 0</div>
         </div>
     </div>
@@ -58,32 +59,26 @@
 </div>
 
 <div id="game" class="screen hidden">
-    <!-- Верхняя панель: Пауза, Счет, Домой -->
     <div id="game-top-bar">
         <button id="pauseBtn" class="clean-button" onclick="togglePause()">
             <img id="pauseIcon" src="assets/pause.png" alt="Пауза">
         </button>
 
-        <!-- Исправленный HUD с правильными ID для скрипта -->
         <div id="hud">
-     <span class="ice-icon"></span> <span id="coinCount">0</span> | 
-     <span class="diamond-icon"></span> <span id="diamondCount">0</span> | 
-     🏆 <span id="bestScore">0</span>
-</div>
+            <span class="ice-icon"></span> <span id="coinCount">0</span> | 
+            <span class="diamond-icon"></span> <span id="diamondCount">0</span> | 
+            🏆 <span id="bestScore">0</span>
+        </div>
 
         <button id="homeBtn" class="clean-button" onclick="backToMenu()">
             <img src="assets/home.png" alt="Домой">
         </button>
     </div>
 
-    <!-- Игровые слои -->
     <div id="effects-layer"></div>
     <div id="combo-display" class="combo-text"></div>
-    
-    <!-- ПЕРСОНАЖ ТЕПЕРЬ ТУТ (ВНУТРИ ИГРЫ) -->
     <div id="player"></div> 
 
-    <!-- Бонусная панель -->
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
             <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
@@ -94,7 +89,7 @@
             <span id="count-magnet">0</span>
         </div>
     </div>
-</div> <!-- ЗДЕСЬ ИГРА ЗАКРЫВАЕТСЯ ЕДИНСТВЕННЫЙ РАЗ -->
+</div>
 
 <div id="gameOverScreen" class="hidden">
     <div class="go-card">
@@ -110,45 +105,51 @@
     </div>
 </div>
 
-    <!-- ОБМЕН ВАЛЮТЫ -->
-    <div class="exchange-block">
-        <div class="item-title" style="font-size: 18px;">ОБМЕННИК</div>
-        <button class="buy-button" onclick="exchangeIceToDiamond()" style="font-size: 14px;">
-            1000 <span class="ice-icon"></span> ➔ 10 <span class="diamond-icon"></span>
-        </button>
-    </div>
-</div>
-
+<!-- Магазин теперь с четкой структурой -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">МАГАЗИН</h2>
 
     <div class="shop-balance-container">
-        <!-- Обертка для анимации покупки -->
         <div id="balance-anim-target" class="shop-balance-wrapper">
-            <!-- Сюда JS вставит число и иконку -->
-            <span id="shop-balance">0 <span class="ice-icon"></span></span>
+            <span id="shop-balance">0 <span class="ice-icon"></span></span> | 
+            <span id="shop-diamonds">0 <span class="diamond-icon"></span></span>
         </div>
     </div>
 
     <div class="shop-container">
+        <!-- ТОВАР 1: СКИН -->
         <div class="shop-item">
             <img src="assets/berry2.png" alt="Star Berry">
-            <img src="assets/shield_icon.png" alt="Shield">
             <div class="item-title">ЗВЕЗДНЫЙ БЕРРИ</div>
-            <div style="color: #00eaff; font-size: 12px; margin-bottom: 10px;">Магнит +6с | Комбо x8</div>
-            <div class="item-title">ЩИТ</div>
+            <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">Магнит +6с | Комбо x8</div>
             <button id="buySkinBtn" class="buy-button" onclick="buyStarSkin()">
                 100 <span class="diamond-icon"></span>
+            </button>
+        </div>
+
+        <!-- ТОВАР 2: ЩИТ -->
+        <div class="shop-item">
+            <img src="assets/shield_icon.png" alt="Shield">
+            <div class="item-title">ЩИТ</div>
             <button class="buy-button" onclick="buyItem('shield')">
                 КУПИТЬ 300 <span class="ice-icon"></span>
             </button>
         </div>
 
+        <!-- ТОВАР 3: МАГНИТ -->
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
             <div class="item-title">МАГНИТ</div>
             <button class="buy-button" onclick="buyItem('magnet')">
                 КУПИТЬ 500 <span class="ice-icon"></span>
+            </button>
+        </div>
+
+        <!-- ТОВАР 4: ОБМЕННИК -->
+        <div class="shop-item exchange-block">
+            <div class="item-title" style="font-size: 16px;">ОБМЕН ВАЛЮТЫ</div>
+            <button class="buy-button" onclick="exchangeIceToDiamond()" style="font-size: 13px; margin-top: 5px;">
+                1000 <span class="ice-icon"></span> ➔ 10 <span class="diamond-icon"></span>
             </button>
         </div>
     </div>
@@ -168,10 +169,12 @@
     measurementId: "G-LLJ9L848G0"
   };
   try {
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     window.db = firebase.database();
   } catch (e) { console.error("Firebase init error:", e); window.db = null; }
 </script>
-<script src="game.js?v=15.9"></script>
+<script src="game.js?v=16.0"></script>
 </body>
 </html>
