@@ -411,49 +411,56 @@ function update() {
 }
 
 function handleCollision(obs, p) {
-    if (obs.dataset.collected_check) return; // Защита от двойного срабатывания
+    if (obs.dataset.collected_check) return; 
     obs.dataset.collected_check = "true";
+
+    // 1. МГНОВЕННОЕ СКРЫТИЕ (самое важное для плавности)
+    obs.style.visibility = 'hidden'; 
 
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
+    const type = obs.dataset.type;
 
-    if (obs.dataset.type === "good") {
-        obs.remove(); // Удаляем СРАЗУ, до начала тяжелых эффектов
-
-        // Звук запускаем асинхронно, чтобы не тормозить поток
-        if (soundCollect) {
-            soundCollect.currentTime = 0;
-            soundCollect.play().catch(() => {});
-        }
-
-        comboCount++;
-        // Упрощенная логика комбо
-        comboMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
-
-        const comboEl = document.getElementById("combo-display");
-        if (comboEl && comboCount >= 2) {
-            comboEl.innerText = "x" + comboMultiplier;
-            comboEl.style.opacity = "1";
-        }
-
-        // Облегченный взрыв (создаем меньше частиц)
-        createExplosion(centerX, centerY); 
-
-        coins += comboMultiplier; 
-        updateScore(); 
-    } else {
-        if (shieldActive) {
+    // Используем планировщик, чтобы тяжелые эффекты не тормозили движение объектов
+    requestAnimationFrame(() => {
+        if (type === "good") {
             obs.remove(); 
-            shieldActive = false; 
-            p.classList.remove("shield-aura");
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+
+            if (soundCollect) {
+                soundCollect.currentTime = 0;
+                soundCollect.play().catch(() => {});
             }
+
+            comboCount++;
+            comboMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
+
+            const comboEl = document.getElementById("combo-display");
+            if (comboEl && comboCount >= 2) {
+                comboEl.innerText = "x" + comboMultiplier;
+                comboEl.style.opacity = "1";
+            }
+
+            // Создаем взрыв только если это не перегрузит систему
+            if (typeof createExplosion === 'function') {
+                createExplosion(centerX, centerY); 
+            }
+
+            coins += comboMultiplier; 
+            updateScore(); 
         } else {
-            gameOver();
+            if (shieldActive) {
+                obs.remove(); 
+                shieldActive = false; 
+                p.classList.remove("shield-aura");
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+                }
+            } else {
+                gameOver();
+            }
         }
-    }
+    });
 }
 
 function updateScore() {
