@@ -35,6 +35,17 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
+            <div class="skin-selector-container">
+    <button class="skin-arrow" id="prevSkin">❮</button>
+    
+    <div class="skin-display-window">
+        <!-- Сюда JS будет подставлять картинку текущего скина -->
+        <div id="skinPreview" class="skin-preview-img"></div>
+        <div id="skinName" class="skin-label">Стандартный</div>
+    </div>
+    
+    <button class="skin-arrow" id="nextSkin">❯</button>
+</div>
             <!-- Исправленный баланс в меню: Мороженое + Алмазы -->
             <div id="total-balance" class="balance-info">
                 <span id="menuCoinCount">0</span> | 
