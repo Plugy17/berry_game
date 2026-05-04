@@ -447,7 +447,7 @@ function startGame() {
     // Запуск цикла появления препятствий
     window.gameInterval = setInterval(() => {
         if (gameRunning && !isPaused) spawnObstacle();
-    }, spawnRate);[cite: 1]
+    }, spawnRate);
 
     if (loopId) cancelAnimationFrame(loopId);
 
