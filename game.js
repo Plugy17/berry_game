@@ -3,6 +3,13 @@ window.addEventListener('load', function() {
     const userIdDisplay = document.getElementById("user-id-display");
     const continueBtn = document.getElementById("continue-btn");
     const loadingScreen = document.getElementById("loading-screen");
+    
+    const skinFiles = {
+    'default': 'berry.png',
+    'pirate': 'berry3.png',  // Предположим, что berry2 — это пират
+    'silver': 'berry4.png',  // А berry3 — серебряный
+    'star': 'berry2.png'     // И berry4 — звездный
+};
 
     // 1. ОПРЕДЕЛЯЕМ ID (Telegram или Гость)
     let currentId = "Guest_" + Math.floor(Math.random() * 10000);
