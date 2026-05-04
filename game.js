@@ -880,3 +880,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Запускаем обновление интерфейса скинов сразу при загрузке скрипта
+updateSkinUI();
+
