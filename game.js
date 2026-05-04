@@ -449,7 +449,6 @@ function resetGame() {
         if (currentSkin === "pirate") p.classList.add("skin-pirate");
         if (currentSkin === "silver") p.classList.add("skin-silver");
         if (currentSkin === "star") p.classList.add("skin-star");[cite: 1]
-        
         if (currentSkin === "pirate") {
             p.classList.add("skin-pirate-aura"); // Пират всегда с аурой значков
         }
