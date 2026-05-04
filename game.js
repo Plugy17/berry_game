@@ -406,7 +406,25 @@ function exchangeIceToDiamond() {
 function startGame() {
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
-    const p = document.getElementById("player"); // Находим игрока сразу
+    const p = document.getElementById("player");
+
+    if (p) {
+        // 1. Очищаем старые ауры
+        p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");[cite: 3]
+        
+        // 2. Устанавливаем актуальную картинку из activeSkin
+        const skinPath = skinFiles[activeSkin] || skinFiles['default'];
+        p.style.backgroundImage = `url('${skinPath}')`;[cite: 1]
+        
+        // 3. Добавляем ауру, если скин не дефолтный
+        if (activeSkin !== "default") {
+            p.classList.add(`skin-${activeSkin}-aura`);[cite: 3]
+        }
+    }
+
+    // Дальше идет остальной твой код (запуск таймера, появление препятствий и т.д.)
+    console.log("Игра запущена со скином:", activeSkin, "на сложности:", level);[cite: 1]
+}
 
     // 1. Логика ника (оставляем как есть)
     if (!nick) {
