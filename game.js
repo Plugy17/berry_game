@@ -396,11 +396,12 @@ function exchangeIceToDiamond() {
 }
 
 function startGame() {
+    // 1. Сбор данных из интерфейса
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
     const p = document.getElementById("player");
 
-    // 1. Проверка ника
+    // 2. Логика ника (если ника нет — просим ввести)
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
@@ -409,13 +410,14 @@ function startGame() {
         localStorage.setItem("nick", nick);[cite: 1]
     }
 
-    // 2. Установка скина и ауры
+    // 3. Установка скина из активного выбора
     if (p) {
         const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
         p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
+        // Очищаем старые ауры и стили
         p.classList.remove(
             "skin-star", "skin-pirate", "skin-silver",
             "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
@@ -427,7 +429,7 @@ function startGame() {
         }
     }
 
-    // 3. Сложность
+    // 4. Настройка баланса сложности
     let spawnRate = 1000;
     if (level === 'easy') {
         baseSpeed = 6; difficulty = 0.001; spawnRate = 1200;
@@ -438,33 +440,27 @@ function startGame() {
     }
     speed = baseSpeed;
 
-    // 4. Очистка и запуск
+    // 5. Очистка игрового поля перед стартом
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
+    // Запуск цикла появления препятствий
     window.gameInterval = setInterval(() => {
         if (gameRunning && !isPaused) spawnObstacle();
     }, spawnRate);[cite: 1]
 
     if (loopId) cancelAnimationFrame(loopId);
 
-    // 5. Показ игры
+    // 6. Переключение экранов (УБИРАЕМ ЗАГРУЗКУ)
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
+    
+    // Если у тебя есть экран загрузки в HTML, скрываем его здесь
+    const loadingScreen = document.getElementById("loadingScreen");
+    if (loadingScreen) loadingScreen.classList.add("hidden");
 
     resetGame();[cite: 1]
-    console.log("Игра запущена!");
-}
-// 1. ФУНКЦИЯ ОТРИСОВКИ
-// Вызывается в игровом цикле update()
-function drawPlayer() {
-    const p = document.getElementById("player");
-    if (!p) return;
-
-    // Используем только проценты для позиции, чтобы избежать конфликтов
-    p.style.left = lanes[targetLane] + "%";
-    
-    // Картинку здесь НЕ ТРОГАЕМ, чтобы игра не лагала
+    console.log("Игра успешно запущена на сложности:", level);
 }
 
 // 2. ИСПРАВЛЕННЫЙ БЛОК СБРОСА ИГРЫ
