@@ -410,22 +410,27 @@ function startGame() {
         localStorage.setItem("nick", nick);
     }
 
-    // 2. ФИКС СКИНОВ: Теперь это работает ВСЕГДА при старте
+    // 2. ФИКС СКИНОВ: Теперь картинка подтягивается напрямую из assets
     if (p) {
-        // Сначала очищаем все классы скинов, чтобы они не путались
+        // Убираем старые классы (если они использовались для аур или старых стилей)
         p.classList.remove("skin-star", "skin-pirate", "skin-silver");
         
-        // Применяем текущий выбранный скин[cite: 1]
-        if (currentSkin === "star") {
-            p.classList.add("skin-star");
-        } else if (currentSkin === "pirate") {
-            p.classList.add("skin-pirate");
-        } else if (currentSkin === "silver") {
-            p.classList.add("skin-silver");
+        // Берем путь к файлу из нашего объекта skinFiles
+        // На Снимок экрана 2026-05-04 в 09.13.36.jpg видно, что файлы называются berry2, berry3 и т.д.
+        const skinPath = skinFiles[currentSkin] || skinFiles['default'];
+        
+        // Применяем фоновое изображение напрямую к элементу
+        p.style.backgroundImage = `url('${skinPath}')`;
+        p.style.backgroundSize = "contain";
+        p.style.backgroundRepeat = "no-repeat";
+
+        // Если для скина все же нужен CSS-класс (например, для анимации или свечения)
+        if (currentSkin !== "default") {
+            p.classList.add(`skin-${currentSkin}`);
         }
     }
 
-    // 3. Настройка сложности (без изменений)[cite: 1]
+    // 3. Настройка сложности (без изменений)
     let spawnRate = 1000;
     if (level === 'easy') {
         baseSpeed = 6;      
@@ -444,7 +449,7 @@ function startGame() {
     speed = baseSpeed;      
     lastSpawnTime = 0;      
     
-    // 4. Очистка и запуск цикла[cite: 1]
+    // 4. Очистка и запуск цикла
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
@@ -483,15 +488,21 @@ function resetGame() {
     const p = document.getElementById("player");
     
     if (p) {
-        p.className = ""; // Очищаем старые ауры и эффекты
+        // Очищаем старые ауры и эффекты
+        p.className = ""; 
         p.style.filter = "none";
         
-        // Применяем скин
-        if (currentSkin === "star") p.classList.add("skin-star");
+        // --- ФИКС КАРТИНКИ И ЭФФЕКТОВ ---
+        // Берем актуальный путь из assets через наш словарь
+        const skinPath = skinFiles[currentSkin] || skinFiles['default'];
+        p.style.backgroundImage = `url('${skinPath}')`;
+        p.style.backgroundSize = "contain";
+        p.style.backgroundRepeat = "no-repeat";
+
+        // Добавляем спецэффекты (ауры), если они нужны
+        if (currentSkin === "star") p.classList.add("skin-star-aura");
         if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");
-        if (currentSkin === "silver") {
-            // Свечение Силвера включится только после поимки алмаза
-        }
+        // -------------------------------
         
         p.style.left = lanes[targetLane] + "%";
     }
