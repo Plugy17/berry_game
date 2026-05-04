@@ -105,7 +105,8 @@ function drawPlayer() {
 }
 
 // 1. Устанавливаем активный скин из памяти или по умолчанию
-let activeSkin = localStorage.getItem("activeSkin") || "default"; 
+ activeSkin = localStorage.getItem("activeSkin") || "default"; 
+ gameState.currentSkin = activeSkin;
 
 // 2. Находим индекс активного скина в массиве, чтобы меню открывалось на нужном месте
 let currentSkinIndex = skins.findIndex(s => s.id === activeSkin);
@@ -434,18 +435,17 @@ function startGame() {
         localStorage.setItem("nick", nick);
     }
 
-    // 3. Установка скина из активного выбора
+    // 3. Установка скина и синхронизация с gameState
+    // ПРАВКА: Убеждаемся, что gameState знает, какой скин выбран в меню
+    gameState.currentSkin = activeSkin; 
+    
     if (p) {
-        const skinData = skins.find(s => s.id === activeSkin) || skins[0];
-        p.style.backgroundImage = `url('${skinData.img}')`;
-        p.style.backgroundSize = "contain";
-        p.style.backgroundRepeat = "no-repeat";
+        // Используем нашу новую функцию для отрисовки
+        drawPlayer(); 
 
         // Очищаем старые ауры и стили
-        p.classList.remove(
-            "skin-star", "skin-pirate", "skin-silver",
-            "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
-        );
+        p.className = ""; // Сбрасываем классы, оставляя только нужные
+        p.id = "player";
         
         if (activeSkin !== "default") {
             p.classList.add(`skin-${activeSkin}`);
@@ -464,27 +464,35 @@ function startGame() {
     }
     speed = baseSpeed;
 
-    // 5. Очистка игрового поля перед стартом
+    // 5. Очистка игрового поля и ПЕРЕЗАПУСК генерации
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
+    
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
-    // Запуск цикла появления препятствий
+    // Включаем флаг игры ДО запуска интервала
+    gameRunning = true; 
+    isPaused = false;
+
+    // Запуск цикла появления препятствий (используем проверку флага)
     window.gameInterval = setInterval(() => {
-        if (gameRunning && !isPaused) spawnObstacle();
+        if (gameRunning && !isPaused) {
+            spawnObstacle(); 
+        }
     }, spawnRate);
 
+    // 6. Запуск основного цикла анимации (update)
     if (loopId) cancelAnimationFrame(loopId);
+    loopId = requestAnimationFrame(update);
 
-    // 6. Переключение экранов (УБИРАЕМ ЗАГРУЗКУ)
+    // 7. Переключение экранов
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     
-    // Если у тебя есть экран загрузки в HTML, скрываем его здесь
-    const loadingScreen = document.getElementById("loadingScreen");
-    if (loadingScreen) loadingScreen.classList.add("hidden");
+    const loadingScreen = document.getElementById("loading-screen") || document.getElementById("loadingScreen");
+    if (loadingScreen) loadingScreen.style.display = "none";
 
     resetGame();
-    console.log("Игра успешно запущена на сложности:", level);
+    console.log("Игра запущена. Сложность:", level, "Скин:", gameState.currentSkin);
 }
 
 // 2. ИСПРАВЛЕННЫЙ БЛОК СБРОСА ИГРЫ
