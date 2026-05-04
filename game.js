@@ -444,9 +444,21 @@ function resetGame() {
     const p = document.getElementById("player");
     if (p) {
         p.style.filter = "none";
+        p.className = "";
         // Установка новых классов скинов[cite: 1]
         if (currentSkin === "pirate") p.classList.add("skin-pirate");
         if (currentSkin === "silver") p.classList.add("skin-silver");
+        if (currentSkin === "star") p.classList.add("skin-star");[cite: 1]
+        
+        if (currentSkin === "pirate") {
+            p.classList.add("skin-pirate-aura"); // Пират всегда с аурой значков
+        }
+        
+        if (currentSkin === "silver") {
+            // Силвер начинает без свечения (оно появится от алмаза)
+        }
+        
+        p.style.left = lanes[targetLane] + "%";[cite: 1]
     }
 
     // 3. Обновление интерфейса и запуск
@@ -627,6 +639,16 @@ function handleCollision(obs, p) {
         return; 
     }
 
+        else if (currentSkin === "pirate" && !pirateShieldUsed) {
+    pirateShieldUsed = true;
+    createCubeBoom(centerX, centerY);[cite: 1]
+    
+    // Убираем пиратскую ауру, так как защита потрачена
+    if (p) p.classList.remove("skin-pirate-aura");
+    
+    obs.remove();[cite: 1]
+}
+
             else {
     if (shieldActive) {
         // ... код щита
@@ -660,6 +682,10 @@ function activateSilverInvincibility() {
     shieldActive = true; // Используем существующую механику щита[cite: 1]
     const p = document.getElementById("player");
     if (p) p.classList.add("shield-aura");[cite: 1]
+    
+    if (p) {
+        p.classList.add("skin-silver-aura");
+ }
 
     if (silverTimer) clearTimeout(silverTimer);
     
