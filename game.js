@@ -412,12 +412,10 @@ function startGame() {
     // 2. Установка скина и ауры
     if (p) {
         const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
-        
         p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Очистка старых классов
         p.classList.remove(
             "skin-star", "skin-pirate", "skin-silver",
             "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
@@ -438,10 +436,9 @@ function startGame() {
     } else if (level === 'hard') {
         baseSpeed = 11; difficulty = 0.005; spawnRate = 600;
     }
-
     speed = baseSpeed;
-    
-    // 4. Запуск циклов
+
+    // 4. Очистка и запуск
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
@@ -451,14 +448,13 @@ function startGame() {
 
     if (loopId) cancelAnimationFrame(loopId);
 
-    // 5. Скрытие загрузки и показ игры
+    // 5. Показ игры
     document.getElementById("menu").classList.add("hidden");
-    document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
     resetGame();[cite: 1]
+    console.log("Игра запущена!");
 }
-
 // 1. ФУНКЦИЯ ОТРИСОВКИ
 // Вызывается в игровом цикле update()
 function drawPlayer() {
