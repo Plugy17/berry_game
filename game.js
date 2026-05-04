@@ -1,11 +1,3 @@
-// ЭТО В САМОМ ВЕРХУ
-const skinFiles = {
-    'default': 'assets/berry.png',
-    'pirate': 'assets/berry3.png',
-    'silver': 'assets/berry4.png',
-    'star': 'assets/berry2.png'
-};
-
 const loadedSkins = {};
 
 // Предзагрузка запускается СРАЗУ
@@ -408,54 +400,39 @@ function startGame() {
     const level = diffSelect ? diffSelect.value : 'medium';
     const p = document.getElementById("player");
 
-    if (p) {
-        // 1. Очищаем старые ауры
-        p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");[cite: 3]
-        
-        // 2. Устанавливаем актуальную картинку из activeSkin
-        const skinPath = skinFiles[activeSkin] || skinFiles['default'];
-        p.style.backgroundImage = `url('${skinPath}')`;[cite: 1]
-        
-        // 3. Добавляем ауру, если скин не дефолтный
-        if (activeSkin !== "default") {
-            p.classList.add(`skin-${activeSkin}-aura`);[cite: 3]
-        }
-    }
-
-    // Дальше идет остальной твой код (запуск таймера, появление препятствий и т.д.)
-    console.log("Игра запущена со скином:", activeSkin, "на сложности:", level);[cite: 1]
-}
-
-    // 1. Логика ника (оставляем как есть)
+    // 1. Логика ника
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
         nick = val; 
         userId = val;
-        localStorage.setItem("nick", nick);
+        localStorage.setItem("nick", nick);[cite: 1]
     }
 
-    // 2. ФИКС СКИНОВ: Теперь картинка подтягивается напрямую из assets
+    // 2. ФИКС СКИНОВ И АУР (Единая логика)
     if (p) {
-        // Убираем старые классы (если они использовались для аур или старых стилей)
-        p.classList.remove("skin-star", "skin-pirate", "skin-silver");
+        // Находим данные скина в массиве по ID
+        const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
         
-        // Берем путь к файлу из нашего объекта skinFiles
-        // На Снимок экрана 2026-05-04 в 09.13.36.jpg видно, что файлы называются berry2, berry3 и т.д.
-        const skinPath = skinFiles[currentSkin] || skinFiles['default'];
-        
-        // Применяем фоновое изображение напрямую к элементу
-        p.style.backgroundImage = `url('${skinPath}')`;
+        // Устанавливаем картинку напрямую
+        p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Если для скина все же нужен CSS-класс (например, для анимации или свечения)
-        if (currentSkin !== "default") {
-            p.classList.add(`skin-${currentSkin}`);
+        // Очищаем ВСЕ старые классы (и ауры, и скины)
+        p.classList.remove(
+            "skin-star", "skin-pirate", "skin-silver",
+            "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
+        );[cite: 3]
+        
+        // Добавляем актуальные эффекты, если скин не дефолтный
+        if (activeSkin !== "default") {
+            p.classList.add(`skin-${activeSkin}`); // Для стилей
+            p.classList.add(`skin-${activeSkin}-aura`); // Для ауры
         }
     }
 
-    // 3. Настройка сложности (без изменений)
+    // 3. Настройка сложности
     let spawnRate = 1000;
     if (level === 'easy') {
         baseSpeed = 6;      
@@ -482,16 +459,18 @@ function startGame() {
         if (gameRunning && !isPaused) {
             spawnObstacle();
         }
-    }, spawnRate);
+    }, spawnRate);[cite: 1]
 
     stopIceRain(); 
     if (loopId) cancelAnimationFrame(loopId);
 
+    // 5. Переключение экранов
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
     resetGame();
+    console.log("Игра запущена со скином:", activeSkin, "на сложности:", level);[cite: 1]
 }
 
 // 1. ФУНКЦИЯ ОТРИСОВКИ
@@ -1107,36 +1086,46 @@ function onPurchaseSuccess(skinId) {
 }
 
 function selectSkin(skinId) {
+    // Проверяем наличие скина в инвентаре
     if (inventory.skins && inventory.skins.includes(skinId)) {
         activeSkin = skinId;
         currentSkin = skinId; // Синхронизируем обе переменные
 
+        // Находим данные о скине в основном массиве skins
+        const skinData = skins.find(s => s.id === skinId);
+        
+        if (!skinData) {
+            console.error("Данные скина не найдены в массиве skins:", skinId);
+            return;
+        }
+
         // 1. Обновляем картинку в меню превью
-        const skin = skins.find(s => s.id === skinId);
         const preview = document.getElementById("skinPreview");
-        if (preview && skin) {
-            preview.style.backgroundImage = `url('${skin.img}')`;
+        if (preview) {
+            preview.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         }
 
         // 2. СРАЗУ обновляем игрока (картинку + ауру)
         const p = document.getElementById("player");
         if (p) {
-            // Устанавливаем путь к файлу
-            const imgUrl = skinFiles[skinId] || skinFiles['default'];
-            p.style.backgroundImage = `url('${imgUrl}')`;
+            // Берем путь к файлу напрямую из данных скина (skinData.img)
+            p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
             
-            // ОБЯЗАТЕЛЬНО: Обновляем классы аур прямо здесь
+            // ОБЯЗАТЕЛЬНО: Обновляем классы аур
             // Сначала удаляем все возможные старые ауры
-            p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");
+            p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");[cite: 3]
             
-            // Добавляем новую ауру, если она нужна
+            // Добавляем новую ауру, если она нужна (не дефолтный скин)
             if (skinId !== 'default') {
-                p.classList.add(`skin-${skinId}-aura`);
+                p.classList.add(`skin-${skinId}-aura`);[cite: 3]
             }
         }
 
-        saveUserData(); // Сохраняем в Firebase
-        updateSkinUI(); 
-        console.log("Скин успешно применен: " + skinId);
+        // Сохраняем состояние
+        saveUserData(); // Отправляем обновленный activeSkin в Firebase
+        localStorage.setItem("activeSkin", skinId); // Дублируем в локальную память для надежности[cite: 1]
+        
+        updateSkinUI(); // Обновляем кнопки в меню (Выбрано/Выбрать)
+        console.log("Скин успешно применен: " + skinId);[cite: 1]
     }
 }
