@@ -363,23 +363,38 @@ function exchangeIceToDiamond() {
 function startGame() {
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
+    const p = document.getElementById("player"); // Находим игрока сразу
 
+    // 1. Логика ника (оставляем как есть)
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
         nick = val; 
         userId = val;
         localStorage.setItem("nick", nick);
-        const p = document.getElementById("player");
-if (currentSkin === "star") p.classList.add("skin-star");
     }
 
-    // Настраиваем параметры под сложность
-    let spawnRate = 1000; // Частота появления в мс
+    // 2. ФИКС СКИНОВ: Теперь это работает ВСЕГДА при старте
+    if (p) {
+        // Сначала очищаем все классы скинов, чтобы они не путались
+        p.classList.remove("skin-star", "skin-pirate", "skin-silver");
+        
+        // Применяем текущий выбранный скин[cite: 1]
+        if (currentSkin === "star") {
+            p.classList.add("skin-star");
+        } else if (currentSkin === "pirate") {
+            p.classList.add("skin-pirate");
+        } else if (currentSkin === "silver") {
+            p.classList.add("skin-silver");
+        }
+    }
+
+    // 3. Настройка сложности (без изменений)[cite: 1]
+    let spawnRate = 1000;
     if (level === 'easy') {
         baseSpeed = 6;      
         difficulty = 0.001; 
-        spawnRate = 1200;   // Реже на легком
+        spawnRate = 1200;
     } else if (level === 'medium') {
         baseSpeed = 7;      
         difficulty = 0.002;
@@ -387,17 +402,16 @@ if (currentSkin === "star") p.classList.add("skin-star");
     } else if (level === 'hard') {
         baseSpeed = 11;     
         difficulty = 0.005; 
-        spawnRate = 600;    // Чаще на сложном
+        spawnRate = 600;
     }
 
-    speed = baseSpeed;       
-    lastSpawnTime = 0;       
+    speed = baseSpeed;      
+    lastSpawnTime = 0;      
     
-    // 1. Очистка старых данных
+    // 4. Очистка и запуск цикла[cite: 1]
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
-    if (window.gameInterval) clearInterval(window.gameInterval); // Убиваем старый таймер спавна
+    if (window.gameInterval) clearInterval(window.gameInterval); 
 
-    // 2. ЗАПУСК АВТОНОМНОГО СПАВНА (Это решит проблему зависаний)
     window.gameInterval = setInterval(() => {
         if (gameRunning && !isPaused) {
             spawnObstacle();
