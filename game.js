@@ -654,24 +654,23 @@ function handleCollision(obs, p) {
     }
 }
 
-        let silverTimer = null;
+let silverTimer = null;
 
 function activateSilverInvincibility() {
-    shieldActive = true; // Используем существующую механику щита[cite: 1]
+    shieldActive = true; 
     const p = document.getElementById("player");
-    if (p) p.classList.add("shield-aura");[cite: 1]
     
     if (p) {
         p.classList.add("skin-silver-aura");
- }
+    }
 
     if (silverTimer) clearTimeout(silverTimer);
     
     silverTimer = setTimeout(() => {
         shieldActive = false;
-        if (p) p.classList.remove("shield-aura");[cite: 1]
+        if (p) p.classList.remove("skin-silver-aura");
         console.log("Защита Силвера закончилась");
-    }, 30000); // 30 секунд
+    }, 30000); 
 }
         // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
         if (type === "good") {
