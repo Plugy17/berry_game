@@ -610,49 +610,89 @@ function handleCollision(obs, p) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // --- НАЧАЛО ЛОГИКИ СТОЛКНОВЕНИЙ ---
+    // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
+    if (type === "good") {
+        if (soundCollect) {
+            soundCollect.currentTime = 0;
+            soundCollect.play().catch(() => {});
+        }
 
-    if (type === "gift_purple") {
-        // Логика фиолетового подарка (Алмазы)
+        comboCount++;
+        let maxComboLimit = (currentSkin === "star") ? 8 : 5;
+        comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
+
+        const comboEl = document.getElementById("combo-display");
+        if (comboEl && comboCount >= 2) {
+            comboEl.innerText = "x" + comboMultiplier;
+            comboEl.style.opacity = "1";
+            comboEl.classList.remove("combo-bump");
+            void comboEl.offsetWidth; 
+            comboEl.classList.add("combo-bump");
+        }
+
+        if (typeof createExplosion === 'function') {
+            createExplosion(centerX, centerY); 
+        }
+
+        coins += comboMultiplier; 
+        updateScore(); 
+        obs.remove(); 
+    } 
+    
+    // --- 2. ЛОГИКА ФИОЛЕТОВОГО ПОДАРКА (АЛМАЗ) ---
+    else if (type === "gift_purple") {
         let addDia = Math.floor(Math.random() * 2) + 1;
         totalDiamonds += addDia;
 
         if (currentSkin === "silver") {
-            activateSilverInvincibility(); // Запуск защиты на 30 сек
+            activateSilverInvincibility(); // Защита Силвера на 30 сек
         }
         
-        updateMenuInfo();
-        obs.remove();
-    } 
-    else if (type === "gift_black") {
-        // Логика черного подарка (Препятствие/Штраф)
+        if (typeof createExplosion === 'function') {
+            createExplosion(centerX, centerY); 
+        }
         
+        updateMenuInfo(); 
+        obs.remove();
+    }
+
+    // --- 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ) ---
+    else if (type === "gift_black") {
         if (currentSkin === "pirate") {
-            // Пират просто игнорирует штраф, если это подарок-штраф
             console.log("Пират игнорирует штраф!");
             obs.remove();
-            return; 
-        } 
-        else if (shieldActive) {
-            // Если активен обычный щит (бонус)
-            shieldActive = false;
-            createCubeBoom(centerX, centerY);
+        } else {
+            let loss = 15 + Math.floor(Math.random() * 15);
+            coins = Math.max(0, coins - loss);
+            comboCount = 0;
+            comboMultiplier = 1;
+
+            if (typeof createCubeBoom === 'function') {
+                createCubeBoom(centerX, centerY);
+            }
+
+            updateScore();
             obs.remove();
-        } 
-        else if (currentSkin === "pirate" && !pirateShieldUsed) {
-            // Если пират врезался в ОПАСНОЕ препятствие (как щит)
+        }
+    }
+
+    // --- 4. ПРЕПЯТСТВИЯ (BAD) ---
+    else if (type === "bad") { 
+        if (shieldActive) {
+            obs.remove();
+            shieldActive = false;
+            if (p) p.classList.remove("shield-aura");
+            if (p) p.classList.remove("skin-silver-aura");
+        } else if (currentSkin === "pirate" && !pirateShieldUsed) {
             pirateShieldUsed = true;
             createCubeBoom(centerX, centerY);
-            
-            if (p) p.classList.remove("skin-pirate-aura"); 
+            if (p) p.classList.remove("skin-pirate-aura");
             obs.remove();
-        } 
-        else {
-            // В остальных случаях — конец игры
+        } else {
             gameOver();
         }
     }
-}
+} // <--- ЗАКРЫВАЮЩАЯ СКОБКА ВСЕЙ ФУНКЦИИ
 
 let silverTimer = null;
 
@@ -672,92 +712,7 @@ function activateSilverInvincibility() {
         console.log("Защита Силвера закончилась");
     }, 30000); 
 }
-        // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
-        if (type === "good") {
-            if (soundCollect) {
-                soundCollect.currentTime = 0;
-                soundCollect.play().catch(() => {});
-            }
-
-            comboCount++;
-            // Используем динамический лимит: 8 для звезды, 5 для обычного
-            let maxComboLimit = (currentSkin === "star") ? 8 : 5;
-            comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
-
-            const comboEl = document.getElementById("combo-display");
-            if (comboEl && comboCount >= 2) {
-                comboEl.innerText = "x" + comboMultiplier;
-                comboEl.style.opacity = "1";
-                // Добавим эффект пульсации при росте комбо
-                comboEl.classList.remove("combo-bump");
-                void comboEl.offsetWidth; 
-                comboEl.classList.add("combo-bump");
-            }
-
-            if (typeof createExplosion === 'function') {
-                createExplosion(centerX, centerY); 
-            }
-
-            coins += comboMultiplier; 
-            updateScore(); 
-            obs.remove(); 
-        } 
         
-        // --- 2. ЛОГИКА ФИОЛЕТОВОГО ПОДАРКА (АЛМАЗ) ---
-        else if (type === "gift_purple") {
-            // Редкая валюта: умеренно 1-2 алмаза
-            let addDia = Math.floor(Math.random() * 2) + 1;
-            totalDiamonds += addDia;
-            
-            // Визуальный эффект алмаза (синие искры)
-            if (typeof createExplosion === 'function') {
-                createExplosion(centerX, centerY); 
-            }
-            
-            updateMenuInfo(); // Обновляем счетчики везде
-            obs.remove();
-        }
-
-        // 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ)
-    else if (type === "gift_black") {
-        if (currentSkin === "pirate") {
-            console.log("Пират игнорирует штраф!");
-            obs.remove();
-            return; 
-        }
-        
-        let loss = 15 + Math.floor(Math.random() * 15);
-        coins = Math.max(0, coins - loss);
-        comboCount = 0;
-        comboMultiplier = 1;
-
-        if (typeof createCubeBoom === 'function') {
-            createCubeBoom(centerX, centerY);
-        }
-
-        updateScore();
-        obs.remove();
-    }
-    // 4. ПРЕПЯТСТВИЯ (BAD) — здесь исправляем 'else' на 'else if'
-    else if (type === "bad") { 
-        if (shieldActive) {
-            obs.remove();
-            shieldActive = false;
-            p.classList.remove("shield-aura");
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
-            }
-        } else if (currentSkin === "pirate" && !pirateShieldUsed) {
-            pirateShieldUsed = true;
-            createCubeBoom(centerX, centerY);
-            if (p) p.classList.remove("skin-pirate-aura");
-            obs.remove();
-        } else {
-            gameOver();
-        }
-    }
-} // Закрывающая скобка функции handleCollision
-
 function updateScore() {
     // Используем textContent — это в десятки раз быстрее, чем innerHTML
     const coinCountEl = document.getElementById("coinCount");
