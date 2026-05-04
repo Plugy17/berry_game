@@ -1053,3 +1053,27 @@ button:active { transform: scale(0.95); }
     50% { opacity: 1; }
     100% { transform: translate(-120%, -40px) rotate(360deg); opacity: 0; }
 }
+
+.pirate-preview { 
+    background-image: url('assets/berry3.png'); 
+    filter: drop-shadow(0 0 10px #704214);
+}
+.silver-preview { 
+    background-image: url('assets/berry4.png'); 
+    filter: drop-shadow(0 0 10px #c0c0c0);
+}
+
+/* Общий стиль кнопок покупки в магазине */
+.buy-btn {
+    background: #00ff88 !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.buy-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #00ff88;
+}
