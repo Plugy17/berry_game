@@ -45,7 +45,9 @@ window.addEventListener('load', function() {
 
 const skins = [
     { id: "default", name: "Берри", img: "assets/berry.png" },
-    { id: "star", name: "Звездный Берри", img: "assets/berry2.png" }
+    { id: "star", name: "Звездный", img: "assets/berry2.png" },
+    { id: "pirate", name: "Пират", img: "assets/berry3.png" },
+    { id: "silver", name: "Силвер", img: "assets/berry4.png" }
 ];
 let currentSkinIndex = 0;
 let activeSkin = "default"; // Тот, что реально выбран для игры
@@ -604,6 +606,57 @@ function handleCollision(obs, p) {
     const centerY = rect.top + rect.height / 2;
 
     setTimeout(() => {
+
+        else if (type === "gift_black") {
+    // Если игрок Пират — штраф не списывается
+    if (currentSkin === "pirate") {
+        console.log("Пират игнорирует штраф!");
+        obs.remove();
+        return; 
+    }
+
+            else {
+    if (shieldActive) {
+        // ... код щита
+    } else if (currentSkin === "pirate" && !pirateShieldUsed) {
+        // Пират ломает препятствие один раз за забег
+        pirateShieldUsed = true;
+        createCubeBoom(centerX, centerY); // Эффект взрыва[cite: 1]
+        obs.remove();
+        // Можно добавить визуальный эффект, что броня спала
+        p.style.filter = "grayscale(0.5)"; 
+    } else {
+        gameOver();[cite: 1]
+    }
+}
+
+            else if (type === "gift_purple") {
+    let addDia = Math.floor(Math.random() * 2) + 1;[cite: 1]
+    totalDiamonds += addDia;[cite: 1]
+
+    if (currentSkin === "silver") {
+        activateSilverInvincibility(); // Запуск 30 сек защиты[cite: 1]
+    }
+    
+    updateMenuInfo();[cite: 1]
+    obs.remove();[cite: 1]
+}
+
+        let silverTimer = null;
+
+function activateSilverInvincibility() {
+    shieldActive = true; // Используем существующую механику щита[cite: 1]
+    const p = document.getElementById("player");
+    if (p) p.classList.add("shield-aura");[cite: 1]
+
+    if (silverTimer) clearTimeout(silverTimer);
+    
+    silverTimer = setTimeout(() => {
+        shieldActive = false;
+        if (p) p.classList.remove("shield-aura");[cite: 1]
+        console.log("Защита Силвера закончилась");
+    }, 30000); // 30 секунд
+}
         // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
         if (type === "good") {
             if (soundCollect) {
