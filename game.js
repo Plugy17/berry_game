@@ -507,23 +507,23 @@ function resetGame() {
     // --- 2. ЖЕСТКАЯ ПРИВЯЗКА ВИЗУАЛА К ВЫБРАННОМУ СКИНУ ---
     const p = document.getElementById("player");
     if (p) {
-        // Полностью очищаем классы, чтобы убрать старые ауры
-        p.className = ""; 
+        // Очищаем классы, чтобы убрать ауры, но оставляем базовый класс игрока если он нужен
+        p.className = "player-base"; 
         p.style.filter = "none";
         
-        // Достаем путь к картинке из твоего словаря skinFiles по текущему ID[cite: 3]
-        // Если currentSkin = "star", выберется путь к звездной ягоде
-        const skinPath = skinFiles[currentSkin] || skinFiles['default'];
+        // Находим данные активного скина в массиве по его ID[cite: 1, 2]
+        const activeSkinData = skins.find(s => s.id === activeSkin) || skins[0];
         
-        // Принудительно ставим картинку в стили[cite: 3]
-        p.style.backgroundImage = `url('${skinPath}')`;
+        // Принудительно ставим картинку из объекта скина[cite: 1, 3]
+        p.style.backgroundImage = `url('${activeSkinData.img}')`;
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Добавляем класс ауры только если выбран спец-скин[cite: 3]
-        if (currentSkin === "star") p.classList.add("skin-star-aura");
-        if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");
-        if (currentSkin === "silver") p.classList.add("skin-silver-aura");
+        // Добавляем класс ауры в зависимости от activeSkin
+        // Теперь используем переменную activeSkin, которую сохраняли в localStorage
+        if (activeSkin !== "default") {
+            p.classList.add(`skin-${activeSkin}-aura`);
+        }
         
         // Начальная позиция
         p.style.left = lanes[targetLane] + "%";
