@@ -86,8 +86,8 @@ function updateSkinUI() {
         selectBtn.classList.add("active");
     } else {
         // Проверка: куплен ли скин
-        const isOwned = skin.id === "default" || (inventory.skins && inventory.skins.includes(skin.id));
-        
+        // Замени эту строку в updateSkinUI
+const isOwned = skin.id === "default" || (inventory && inventory.skins && inventory.skins.includes(skin.id));
         if (isOwned) {
             selectBtn.innerText = "ВЫБРАТЬ";
             selectBtn.classList.remove("active");
