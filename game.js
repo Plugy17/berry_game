@@ -409,68 +409,54 @@ function startGame() {
         localStorage.setItem("nick", nick);[cite: 1]
     }
 
-    // 2. Установка скина и ауры (Исправленный блок)
+    // 2. Установка скина и ауры
     if (p) {
-        // Находим данные скина в массиве
         const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
         
-        // Устанавливаем картинку
         p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Очищаем старые эффекты
+        // Очистка старых классов
         p.classList.remove(
             "skin-star", "skin-pirate", "skin-silver",
             "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
         );[cite: 3]
         
-        // Добавляем новые, если нужно
         if (activeSkin !== "default") {
             p.classList.add(`skin-${activeSkin}`);
             p.classList.add(`skin-${activeSkin}-aura`);[cite: 3]
         }
     }
 
-    // 3. Настройка сложности
+    // 3. Сложность
     let spawnRate = 1000;
     if (level === 'easy') {
-        baseSpeed = 6;      
-        difficulty = 0.001; 
-        spawnRate = 1200;
+        baseSpeed = 6; difficulty = 0.001; spawnRate = 1200;
     } else if (level === 'medium') {
-        baseSpeed = 7;      
-        difficulty = 0.002;
-        spawnRate = 1000;
+        baseSpeed = 7; difficulty = 0.002; spawnRate = 1000;
     } else if (level === 'hard') {
-        baseSpeed = 11;     
-        difficulty = 0.005; 
-        spawnRate = 600;
+        baseSpeed = 11; difficulty = 0.005; spawnRate = 600;
     }
 
-    speed = baseSpeed;      
-    lastSpawnTime = 0;      
+    speed = baseSpeed;
     
-    // 4. Очистка и запуск интервала
+    // 4. Запуск циклов
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
     window.gameInterval = setInterval(() => {
-        if (gameRunning && !isPaused) {
-            spawnObstacle();
-        }
+        if (gameRunning && !isPaused) spawnObstacle();
     }, spawnRate);[cite: 1]
 
-    stopIceRain(); 
     if (loopId) cancelAnimationFrame(loopId);
 
-    // 5. Переключение интерфейса
+    // 5. Скрытие загрузки и показ игры
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
-    resetGame();
-    console.log("Игра успешно запущена!");[cite: 1]
+    resetGame();[cite: 1]
 }
 
 // 1. ФУНКЦИЯ ОТРИСОВКИ
