@@ -35,16 +35,23 @@
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
-            <div class="skin-selector-container">
-    <button class="skin-arrow" id="prevSkin">❮</button>
-    
-    <div class="skin-display-window">
-        <!-- Сюда JS будет подставлять картинку текущего скина -->
-        <div id="skinPreview" class="skin-preview-img"></div>
-        <div id="skinName" class="skin-label">Стандартный</div>
+            <div class="skin-menu-section">
+    <div class="skin-carousel">
+        <button class="nav-btn prev" id="prevSkin">❮</button>
+        
+        <!-- Теперь Берри просто «парит» в меню без рамок -->
+        <div class="skin-item-preview">
+            <div id="skinPreview" class="skin-main-img"></div>
+        </div>
+        
+        <button class="nav-btn next" id="nextSkin">❯</button>
     </div>
-    
-    <button class="skin-arrow" id="nextSkin">❯</button>
+
+    <!-- Название и статус выбора -->
+    <div class="skin-info">
+        <div id="skinName" class="skin-title-text">БЕРРИ</div>
+        <button id="selectSkinBtn" class="select-btn">ВЫБРАТЬ</button>
+    </div>
 </div>
             <!-- Исправленный баланс в меню: Мороженое + Алмазы -->
             <div id="total-balance" class="balance-info">
