@@ -43,6 +43,68 @@ window.addEventListener('load', function() {
     }
 });
 
+const skins = [
+    { id: "default", name: "Берри", img: "assets/berry.png" },
+    { id: "star", name: "Звездный Берри", img: "assets/berry2.png" }
+];
+let currentSkinIndex = 0;
+let activeSkin = "default"; // Тот, что реально выбран для игры
+
+function updateSkinUI() {
+    const skin = skins[currentSkinIndex];
+    const preview = document.getElementById("skinPreview");
+    const nameLabel = document.getElementById("skinName");
+    const selectBtn = document.getElementById("selectSkinBtn");
+
+    // Ставим картинку
+    preview.style.backgroundImage = `url('${skin.img}')`;
+    nameLabel.innerText = skin.name;
+
+    // Проверяем, этот ли скин сейчас "надет"
+    if (activeSkin === skin.id) {
+        selectBtn.innerText = "ВЫБРАНО";
+        selectBtn.classList.add("active");
+    } else {
+        // Проверка: куплен ли скин
+        const isOwned = skin.id === "default" || (inventory.skins && inventory.skins.includes(skin.id));
+        
+        if (isOwned) {
+            selectBtn.innerText = "ВЫБРАТЬ";
+            selectBtn.classList.remove("active");
+            selectBtn.style.opacity = "1";
+        } else {
+            selectBtn.innerText = "КУПИТЬ";
+            selectBtn.classList.remove("active");
+            selectBtn.style.opacity = "0.5";
+        }
+    }
+}
+
+// Кнопка выбора/надевания
+document.getElementById("selectSkinBtn").onclick = () => {
+    const skin = skins[currentSkinIndex];
+    const isOwned = skin.id === "default" || (inventory.skins && inventory.skins.includes(skin.id));
+
+    if (isOwned) {
+        activeSkin = skin.id;
+        currentSkin = skin.id; // Для механики в game_2.js
+        updateSkinUI();
+    } else {
+        // Если не куплен, можно перекинуть в магазин
+        openShop();
+    }
+};
+
+// Стрелки
+document.getElementById("nextSkin").onclick = () => {
+    currentSkinIndex = (currentSkinIndex + 1) % skins.length;
+    updateSkinUI();
+};
+document.getElementById("prevSkin").onclick = () => {
+    currentSkinIndex = (currentSkinIndex - 1 + skins.length) % skins.length;
+    updateSkinUI();
+};
+
 function initAudio() {
     // Проигрываем и сразу ставим на паузу пустой звук или наш эффект
     soundCollect.play().then(() => {
@@ -817,41 +879,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-// Список доступных скинов
-const skins = [
-    { id: "default", name: "Обычный", imgClass: "default" },
-    { id: "star", name: "Звездный", imgClass: "star" }
-];
-let currentSkinIndex = 0;
-
-function updateSkinPreview() {
-    const skin = skins[currentSkinIndex];
-    const preview = document.getElementById("skinPreview");
-    const label = document.getElementById("skinName");
-
-    // Сбрасываем классы и ставим нужный
-    preview.className = "skin-preview-img " + skin.imgClass;
-    
-    // Проверка владения (если скин звездный и он еще не куплен)
-    if (skin.id === "star" && !inventory.skins.includes("star")) {
-        label.innerText = "ЗАБЛОКИРОВАНО";
-        label.style.color = "#ff4f4f";
-    } else {
-        label.innerText = skin.name;
-        label.style.color = "#fff";
-        currentSkin = skin.id; // Устанавливаем текущий скин для игры
-    }
-}
-
-// Слушатели кнопок
-document.getElementById("nextSkin").onclick = () => {
-    currentSkinIndex = (currentSkinIndex + 1) % skins.length;
-    updateSkinPreview();
-};
-
-document.getElementById("prevSkin").onclick = () => {
-    currentSkinIndex = (currentSkinIndex - 1 + skins.length) % skins.length;
-    updateSkinPreview();
-};
 
