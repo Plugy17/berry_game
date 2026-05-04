@@ -4,12 +4,29 @@ window.addEventListener('load', function() {
     const continueBtn = document.getElementById("continue-btn");
     const loadingScreen = document.getElementById("loading-screen");
     
-    const skinFiles = {
+    // 1. Создаем карту соответствия ID скина и имени файла из твоего проекта
+const skinFiles = {
     'default': 'berry.png',
-    'pirate': 'berry3.png',  // Предположим, что berry2 — это пират
-    'silver': 'berry4.png',  // А berry3 — серебряный
-    'star': 'berry2.png'     // И berry4 — звездный
+    'pirate': 'berry2.png',
+    'silver': 'berry3.png',
+    'star': 'berry4.png'
 };
+
+// 2. Объект, где будут храниться уже загруженные картинки
+const loadedSkins = {};
+
+// 3. Запускаем цикл предзагрузки всех доступных скинов
+Object.keys(skinFiles).forEach(skinId => {
+    const img = new Image();
+    img.src = skinFiles[skinId];
+    img.onload = () => {
+        console.log(`Спрайт ${skinId} успешно загружен`);
+    };
+    img.onerror = () => {
+        console.error(`Ошибка загрузки спрайта: ${skinFiles[skinId]}`);
+    };
+    loadedSkins[skinId] = img;
+});
 
     // 1. ОПРЕДЕЛЯЕМ ID (Telegram или Гость)
     let currentId = "Guest_" + Math.floor(Math.random() * 10000);
@@ -1049,5 +1066,14 @@ function selectSkin(skinId) {
         updateSkinUI(); 
         console.log("Скин изменен на: " + skinId);
     }
+}
+
+function drawPlayer() {
+    // Выбираем картинку на основе текущего активного скина
+    // Если активный скин не найден, используем default
+    const currentImg = loadedSkins[activeSkin] || loadedSkins['default'];
+
+    // Отрисовка на canvas
+    ctx.drawImage(currentImg, player.x, player.y, player.width, player.height);
 }
 
