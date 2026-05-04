@@ -422,36 +422,40 @@ function resetGame() {
     shieldActive = false; 
     magnetActive = false;
     targetLane = 1; 
-    speed = baseSpeed; // Возвращаем к начальной скорости сложности
+    speed = baseSpeed;[cite: 1]
     gameRunning = true;
     
-    // Сброс способностей новых скинов
+    // Сброс уникальных способностей скинов
     pirateShieldUsed = false; 
     if (typeof silverTimer !== 'undefined' && silverTimer) clearTimeout(silverTimer);
 
-    // 2. Работа с персонажем
-    const p = document.getElementById("player"); // ОБЪЯВЛЯЕМ ТОЛЬКО ОДИН РАЗ
+    // 2. РАБОТА С ПЕРСОНАЖЕМ (Объявляем 'p' только ОДИН раз)
+    const p = document.getElementById("player");[cite: 1]
+    
     if (p) {
-        p.className = ""; // Полная очистка всех старых аур и классов
+        p.className = ""; // Очищаем старые ауры и эффекты
         p.style.filter = "none";
         
-        // ПРИМЕНЯЕМ СКИНЫ
+        // Добавляем класс в зависимости от активного скина
         if (currentSkin === "star") p.classList.add("skin-star");[cite: 1]
-        if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");[cite: 1]
+        
+        if (currentSkin === "pirate") {
+            p.classList.add("skin-pirate-aura"); // Аура со значками для Пирата
+        }
+        
         if (currentSkin === "silver") {
-            // Силвер начинает без свечения, оно появится от алмаза
+            // Силвер начинает без визуальных эффектов (они появятся от алмаза)
         }
         
         p.style.left = lanes[targetLane] + "%";[cite: 1]
     }
 
-    // 3. Обновление интерфейса и запуск[cite: 1]
+    // 3. Запуск игрового цикла
     updateScore(); 
     updateBonusUI();
-    
     if (loopId) cancelAnimationFrame(loopId);
     spawnObstacle();
-    update();
+    update();[cite: 1]
 }
 
 let lastSpawnTime = 0; // Время последнего появления объекта
