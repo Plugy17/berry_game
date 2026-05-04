@@ -1,23 +1,35 @@
-// 1. Глобальное состояние
+// ========================================================
+// 1. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (Единый источник правды)
+// ========================================================
 let gameState = {
     currentSkin: "default",
     inventory: {
         skins: ["default"],
-        items: { magnet: 0, shield: 0, diamonds: 0 }
+        items: { 
+            magnet: 0, 
+            shield: 0, 
+            diamonds: 0 
+        }
     }
 };
 
-// --- МОСТИК ДЛЯ СТАРОГО КОДА ---
-// Эти строчки связывают старый код с новой структурой, чтобы элементы снова падали
-let currentSkin = gameState.currentSkin;
+// ========================================================
+// 2. МОСТИКИ ДЛЯ СОВМЕСТИМОСТИ (Чтобы старый код не ломался)
+// ========================================================
+// Убираем 'let' у этих переменных ниже по коду, если они там есть!
+let currentSkin = gameState.currentSkin; 
 let inventory = {
     get magnet() { return gameState.inventory.items.magnet; },
+    set magnet(val) { gameState.inventory.items.magnet = val; },
     get shield() { return gameState.inventory.items.shield; },
-    get skins() { return gameState.inventory.skins; }
+    set shield(val) { gameState.inventory.items.shield = val; },
+    get skins() { return gameState.inventory.skins; },
+    set skins(val) { gameState.inventory.skins = val; }
 };
-// -------------------------------
 
-// 2. Данные о скинах
+// ========================================================
+// 3. КОНФИГУРАЦИЯ СКИНОВ И ПРЕДЗАГРУЗКА
+// ========================================================
 const skins = [
     { id: "default", name: "Берри", img: "assets/berry.png" },
     { id: "star", name: "Звездный", img: "assets/berry2.png" },
@@ -27,63 +39,70 @@ const skins = [
 
 const loadedSkins = {};
 
-// 3. Блок предзагрузки
+// Предзагрузка изображений для плавности
 skins.forEach(skin => {
     const img = new Image();
     img.src = skin.img;
     img.onload = () => {
-        console.log(`Скин ${skin.id} успешно загружен из assets`);
+        console.log(`Скин ${skin.id} загружен`);
         loadedSkins[skin.id] = img;
     };
-    img.onerror = () => {
-        console.error(`Ошибка: файл не найден по пути ${skin.img}`);
-    };
+    img.onerror = () => console.error(`Ошибка загрузки: ${skin.img}`);
 });
 
-// Используем addEventListener, чтобы не конфликтовать с другими скриптами
-window.addEventListener('load', function() {
-    const userIdDisplay = document.getElementById("user-id-display");
-    const continueBtn = document.getElementById("continue-btn");
-    const loadingScreen = document.getElementById("loading-screen");
+// ========================================================
+// 4. ПЕРЕМЕННЫЕ ИГРЫ (ОБЪЯВЛЯЕМ ОДИН РАЗ)
+// ========================================================
+let totalDiamonds = 0; 
+let diamonds = 0; // Алмазы за текущий забег
+let coins = 0;
+let best = 0;
+let totalCoins = 0;
+
+// ВНИМАНИЕ: Здесь больше НЕТ 'let', так как переменные объявлены выше
+currentSkin = localStorage.getItem('activeSkin') || "default";
+
+const soundCollect = new Audio('assets/collect.mp3');
+if (soundCollect) soundCollect.volume = 0.3;
+
+let laneCount = 4;
+let lanes = [12.5, 37.5, 62.5, 87.5]; 
+let targetLane = 1;
+let gameRunning = false;
+let obstacleLane = 0;
+let obstacleY = -150; 
+let loopId = null;
+let speed = 7;
+let baseSpeed = 7;
+let isPaused = false;
+let difficulty = 0.002;
+
+let nick = localStorage.getItem("nick");
+let userId = nick; 
+
+const PRICES = { magnet: 500, shield: 300 };
+
+let shieldActive = false;
+let magnetActive = false;
+let comboCount = 0;
+let comboMultiplier = 1;
+
+// ========================================================
+// 5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОТРИСОВКИ
+// ========================================================
+function drawPlayer() {
+    const p = document.getElementById("player");
+    if (!p) return;
+
+    const skinId = gameState.currentSkin; 
+    const skinData = skins.find(s => s.id === skinId);
     
-    // 1. ОПРЕДЕЛЯЕМ ID (Telegram или Гость)
-    let currentId = "Guest_" + Math.floor(Math.random() * 10000);
-    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-        currentId = window.Telegram.WebApp.initDataUnsafe.user.id;
+    if (skinData) {
+        p.style.backgroundImage = `url(${skinData.img})`;
+        p.style.backgroundSize = "contain";
+        p.style.backgroundRepeat = "no-repeat";
     }
-    if (userIdDisplay) userIdDisplay.innerText = currentId;
-
-    // 2. ЗАГРУЖАЕМ ДАННЫЕ ИЗ FIREBASE
-    // Пока крутится спиннер, мы уже тянем монеты и рекорды
-    if (typeof loadUserData === 'function') {
-        loadUserData(currentId); 
-    }
-
-    // 3. ТАЙМЕР ЗАГРУЗКИ
-    setTimeout(() => {
-        const title = document.querySelector(".loading-title");
-        const spinner = document.querySelector(".spinner");
-        if (title) title.innerText = "ГОТОВО!";
-        if (spinner) spinner.style.display = "none";
-        
-        if (continueBtn) {
-            continueBtn.classList.remove("hidden");
-            continueBtn.style.display = "block"; 
-        }
-    }, 2000);
-
-    // 4. ВХОД В МЕНЮ
-    if (continueBtn) {
-        continueBtn.onclick = function() {
-            loadingScreen.style.opacity = "0";
-            setTimeout(() => {
-                loadingScreen.style.display = "none";
-                // Запускаем анимацию льда только после входа
-                startIceRain("menu");
-            }, 500);
-        };
-    }
-});
+}
 
 // 1. Устанавливаем активный скин из памяти или по умолчанию
 let activeSkin = localStorage.getItem("activeSkin") || "default"; 
@@ -175,38 +194,6 @@ function togglePause() {
         console.log("Игра продолжается");
     }
 }
-
-let totalDiamonds = 0; 
-let diamonds = 0; // Алмазы за текущий забег
-let currentSkin = localStorage.getItem("activeSkin") || "default";
-
-const soundCollect = new Audio('assets/collect.mp3'); // Убедитесь, что файл лежит по этому пути
-soundCollect.volume = 0.3;
-let laneCount = 4;
-let lanes = [12.5, 37.5, 62.5, 87.5]; 
-let targetLane = 1;
-let gameRunning = false;
-let obstacleLane = 0;
-let obstacleY = -150; 
-let loopId = null;
-let speed = 7;
-let isPaused = false;
-let baseSpeed = 7;
-let difficulty = 0.002;
-
-// --- 1. ПЕРЕМЕННЫЕ ИГРОКА (ОБЪЯВЛЯЕМ ТОЛЬКО ОДИН РАЗ) ---
-let nick = localStorage.getItem("nick");
-let userId = nick; // По умолчанию ID равен нику
-let coins = 0;
-let best = 0;
-let totalCoins = 0;
-let inventory = { magnet: 0, shield: 0 };
-const PRICES = { magnet: 500, shield: 300 };
-
-let shieldActive = false;
-let magnetActive = false;
-let comboCount = 0;
-let comboMultiplier = 1;
 
 // --- 2. ИНИЦИАЛИЗАЦИЯ TELEGRAM ---
 const tg = window.Telegram?.WebApp;
@@ -607,24 +594,6 @@ function spawnObstacle() {
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
-}
-
-function drawPlayer() {
-    const p = document.getElementById("player");
-    if (!p) return;
-
-    // Берем ID текущего скина
-    const skinId = gameState.currentSkin; 
-    
-    // Ищем данные об этом скине в массиве skins
-    const skinData = skins.find(s => s.id === skinId);
-    
-    if (skinData) {
-        // Устанавливаем картинку
-        p.style.backgroundImage = `url(${skinData.img})`;
-        p.style.backgroundSize = "contain";
-        p.style.backgroundRepeat = "no-repeat";
-    }
 }
 
 function update() {
