@@ -242,24 +242,41 @@ function createCubeBoom(x, y) {
 
 function loadUserData(id) {
     if (!window.db || !id) return updateMenuInfo();
+    
     db.ref('players/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
-            
-            // Загружаем новую валюту и активный скин
             totalDiamonds = data.totalDiamonds || 0; 
-            currentSkin = data.currentSkin || "default";
+            
+            // Загружаем текущий надетый скин
             activeSkin = data.currentSkin || "default";
+            currentSkin = activeSkin;
 
-            inventory.shield = data.inventory?.shield || 0;
-            inventory.magnet = data.inventory?.magnet || 0;
+            // ИСПРАВЛЕНО: Загружаем весь инвентарь, включая массив skins
+            if (data.inventory) {
+                inventory.shield = data.inventory.shield || 0;
+                inventory.magnet = data.inventory.magnet || 0;
+                // Ключевая строчка: восстанавливаем список купленных скинов
+                inventory.skins = data.inventory.skins || ["default"];
+            } else {
+                // Если инвентаря в базе нет, создаем базу
+                inventory = { magnet: 0, shield: 0, skins: ["default"] };
+            }
+            
+            // После загрузки всех данных обновляем UI
+            if (typeof updateSkinUI === "function") {
+                updateSkinUI(); 
+            }
         } else {
             saveUserData();
         }
         updateMenuInfo();
-    }).catch(() => updateMenuInfo());
+    }).catch((err) => {
+        console.error("Ошибка загрузки:", err);
+        updateMenuInfo();
+    });
 }
 
 function saveUserData() {
@@ -945,41 +962,49 @@ document.addEventListener('DOMContentLoaded', () => {
 updateSkinUI();
 
 function buySkin(skinId, price) {
-    // ПРОВЕРКА: Если цена не пришла из HTML, берем её из списка здесь
-    if (!price) {
+    // 1. Приводим все к числам сразу, чтобы избежать проблем со сравнением "100" > 50
+    let numericPrice = Number(price);
+    totalDiamonds = Number(totalDiamonds);
+
+    // Если цена не пришла, берем из справочника
+    if (!numericPrice) {
         const prices = { 'pirate': 300, 'silver': 500, 'star': 100 };
-        price = prices[skinId];
+        numericPrice = prices[skinId] || 0;
     }
 
-    // Убеждаемся, что мы сравниваем числа
-    const currentDiamonds = Number(totalDiamonds);
-    
-    // 1. Проверяем, не куплен ли он уже
-    if (inventory.skins && inventory.skins.includes(skinId)) {
-        alert("Этот скин уже куплен!");
+    // 2. Убеждаемся, что inventory и массив skins существуют (защита от ошибок при первом запуске)
+    if (!inventory) inventory = { magnet: 0, shield: 0, skins: ["default"] };
+    if (!inventory.skins) inventory.skins = ["default"];
+
+    // 3. Проверяем, не куплен ли он уже
+    if (inventory.skins.includes(skinId)) {
+        alert("Этот скин уже куплен! Просто выбери его в меню.");
         return;
     }
 
-    // 2. Проверяем баланс алмазов
-    if (totalDiamonds >= price) {
-        totalDiamonds -= price; // Списываем валюту
+    // 4. Проверяем баланс
+    if (totalDiamonds >= numericPrice) {
+        totalDiamonds -= numericPrice; 
         
-        // 3. Добавляем в инвентарь
-        if (!inventory.skins) inventory.skins = ["default"];
+        // Добавляем в список купленных
         inventory.skins.push(skinId);
 
-        // 4. Устанавливаем как активный
+        // Устанавливаем как активный
         activeSkin = skinId;
-        currentSkin = skinId; // Для мгновенной синхронизации
+        currentSkin = skinId; 
 
-        // 5. Сохраняем в Firebase и обновляем UI
-        saveUserData(); // Отправка данных в облако
-        updateMenuInfo(); // Обновление счетчиков алмазов
-        updateSkinUI(); // Обновление выбора скина в главном меню[cite: 1]
+        // 5. Сохраняем и обновляем
+        saveUserData(); // Теперь в Firebase уйдет обновленный массив со скином
+        updateMenuInfo(); 
         
-        alert(`Поздравляем! Вы открыли скин: ${skinId}`);
+        // Важно: вызываем обновление кнопок, чтобы "Купить" исчезло
+        if (typeof updateSkinUI === "function") {
+            updateSkinUI(); 
+        }
+        
+        alert(`Поздравляем! Вы открыли новый облик!`);
     } else {
-        alert("Недостаточно алмазов для этой покупки!");
+        alert("Вам не хватает " + (numericPrice - totalDiamonds) + " алмазов!");
     }
 }
 
