@@ -1025,6 +1025,16 @@ button:active { transform: scale(0.95); }
     animation: silverPulse 2s ease-in-out infinite;
 }
 
+/* Эффект для Пирата в меню выбора */
+#skinPreview[style*="berry3.png"] {
+    filter: drop-shadow(0 0 15px #704214) !important;
+}
+
+/* Эффект для Силвера в меню выбора */
+#skinPreview[style*="berry4.png"] {
+    filter: drop-shadow(0 0 15px #c0c0c0) brightness(1.2) !important;
+}
+
 @keyframes silverPulse {
     0%, 100% { filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.8)) brightness(1.2); }
     50% { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)) brightness(1.4); }
