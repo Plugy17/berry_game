@@ -1,3 +1,16 @@
+// Глобальное состояние игры — всегда в начале файла
+let gameState = {
+    currentSkin: "default",
+    inventory: {
+        skins: ["default"],
+        items: { 
+            magnet: 0, 
+            shield: 0, 
+            diamonds: 0 
+        }
+    }
+};
+
 const loadedSkins = {};
 
 // Предзагрузка запускается СРАЗУ
@@ -264,30 +277,43 @@ function loadUserData(id) {
     db.ref('players/' + id).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
+            
+            // 1. Обновляем глобальные переменные рекордов
             best = data.best || 0;
             totalCoins = data.totalCoins || 0;
             totalDiamonds = data.totalDiamonds || 0; 
             
-            // Загружаем текущий надетый скин
-            activeSkin = data.currentSkin || "default";
-            currentSkin = activeSkin;
+            // 2. Синхронизируем новое единое состояние gameState
+            gameState.currentSkin = data.currentSkin || "default";
+            activeSkin = gameState.currentSkin; // Для совместимости со старым кодом
+            currentSkin = gameState.currentSkin;
 
-            // ИСПРАВЛЕНО: Загружаем весь инвентарь, включая массив skins
+            // 3. Загружаем инвентарь (защита от потери данных)
             if (data.inventory) {
-                inventory.shield = data.inventory.shield || 0;
-                inventory.magnet = data.inventory.magnet || 0;
-                // Ключевая строчка: восстанавливаем список купленных скинов
-                inventory.skins = data.inventory.skins || ["default"];
+                gameState.inventory.items.shield = data.inventory.shield || 0;
+                gameState.inventory.items.magnet = data.inventory.magnet || 0;
+                gameState.inventory.items.diamonds = data.totalDiamonds || 0;
+                gameState.inventory.skins = data.inventory.skins || ["default"];
+                
+                // Дублируем в старый объект inventory для подстраховки
+                inventory.shield = gameState.inventory.items.shield;
+                inventory.magnet = gameState.inventory.items.magnet;
+                inventory.skins = gameState.inventory.skins;
             } else {
-                // Если инвентаря в базе нет, создаем базу
+                // Если данных нет, ставим значения по умолчанию
+                gameState.inventory = { 
+                    skins: ["default"], 
+                    items: { magnet: 0, shield: 0, diamonds: 0 } 
+                };
                 inventory = { magnet: 0, shield: 0, skins: ["default"] };
             }
             
-            // После загрузки всех данных обновляем UI
+            // 4. Обновляем интерфейс
             if (typeof updateSkinUI === "function") {
                 updateSkinUI(); 
             }
         } else {
+            // Если игрока нет в базе, создаем запись
             saveUserData();
         }
         updateMenuInfo();
@@ -583,8 +609,8 @@ function update() {
 
     const pRect = p.getBoundingClientRect(); 
 
-    // 2. ЭФФЕКТ ШЛЕЙФА
-    if (Math.random() < 0.3) {
+    // 2. ЭФФЕКТ ШЛЕЙФА (Оптимизировано: создаем реже для плавности на мобильных)
+    if (Math.random() < 0.2) { // Немного снизил частоту до 0.2
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
             const part = document.createElement("div");
@@ -594,7 +620,8 @@ function update() {
             const pdx = (Math.random() - 0.5) * 40 + "px";
             part.style.setProperty('--pdx', pdx);
             gameLayer.appendChild(part);
-            setTimeout(() => part.remove(), 400);
+            // Удаляем через 300мс вместо 400мс, чтобы не копить мусор в DOM
+            setTimeout(() => part.remove(), 300); 
         }
     }
 
@@ -602,7 +629,8 @@ function update() {
     const obstacles = document.querySelectorAll(".obstacle");
 
     obstacles.forEach(obstacle => {
-        if (obstacle.dataset.collected) return; 
+        // ПРАВКА: Добавил проверку на dataset.processing для исключения двойных срабатываний
+        if (obstacle.dataset.collected || obstacle.dataset.processing) return; 
 
         let currentTop = parseFloat(obstacle.style.top) || -150;
 
@@ -657,7 +685,9 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
+            // ПРАВКА: Сразу помечаем объект как обработанный до вызова handleCollision
             obstacle.dataset.collected = "true"; 
+            obstacle.dataset.processing = "true"; 
             handleCollision(obstacle, p);
         }
     });
@@ -675,6 +705,30 @@ function handleCollision(obs, p) {
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
+
+    if (obs.dataset.processing === "true") return; 
+    
+    const type = obs.dataset.type;
+
+    if (type === "bad") {
+        obs.dataset.processing = "true"; // Блокируем объект
+        gameOver();
+        return; // Прерываем выполнение, чтобы не считать бонусы после смерти
+    }
+
+    if (type === "good" || type === "diamond") {
+        obs.dataset.processing = "true";
+        
+        // Логика сбора
+        if (type === "diamond") {
+            gameState.inventory.items.diamonds++;
+        }
+        
+        // Мгновенное удаление из DOM для освобождения памяти
+        obs.remove(); 
+        updateScore(); 
+    }
+}
 
     // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
     if (type === "good") {
