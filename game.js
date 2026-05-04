@@ -68,8 +68,15 @@ const skins = [
     { id: "pirate", name: "Пират", img: "assets/berry3.png" },
     { id: "silver", name: "Силвер", img: "assets/berry4.png" }
 ];
-let currentSkinIndex = 0;
-let activeSkin = "default"; // Тот, что реально выбран для игры
+
+// 1. Устанавливаем активный скин из памяти или по умолчанию
+let activeSkin = localStorage.getItem("activeSkin") || "default"; 
+
+// 2. Находим индекс активного скина в массиве, чтобы меню открывалось на нужном месте
+let currentSkinIndex = skins.findIndex(s => s.id === activeSkin);
+
+// Если вдруг в памяти старый ID, которого нет в массиве, ставим 0
+if (currentSkinIndex === -1) currentSkinIndex = 0;
 
 function updateSkinUI() {
     const skin = skins[currentSkinIndex];
