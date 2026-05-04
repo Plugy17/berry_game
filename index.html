@@ -201,7 +201,6 @@
     <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
 </div>
 
-<!-- ИНИЦИАЛИЗАЦИЯ FIREBASE -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
@@ -220,6 +219,22 @@
     }
     window.db = firebase.database();
     console.log("Firebase подключен успешно!");
+
+    // ГИРЯ: Сразу после инициализации БД пробуем загрузить игрока
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        // Получаем ID. Если запускаем в бразуере для теста — ставим 'test_user'
+        const userId = tg.initDataUnsafe?.user?.id || "test_user";
+        
+        // Проверяем, готова ли функция загрузки (она в game.js)
+        if (typeof loadUserData === "function") {
+            loadUserData(userId);
+        } else {
+            // Если game.js еще не загрузился, подождем немного
+            window.addEventListener('load', () => loadUserData(userId));
+        }
+    }
   } catch (e) { 
     console.error("Firebase init error:", e); 
     window.db = null; 
