@@ -1087,3 +1087,19 @@ button:active { transform: scale(0.95); }
     transform: scale(1.05);
     box-shadow: 0 0 15px #00ff88;
 }
+
+/* Скин Пирата */
+.skin-pirate {
+    background-image: url('img/berry3.png') !important;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Скин Силвер */
+.skin-silver {
+    background-image: url('img/berry4.png') !important;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
