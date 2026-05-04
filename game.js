@@ -1051,3 +1051,41 @@ function closeShop() {
         console.log("Магазин закрыт");
     }
 }
+
+function startMenuAnimation() {
+    if (gameRunning) return; // Не пускаем в игре
+
+    const menuLayer = document.getElementById("menu"); 
+    if (!menuLayer) return;
+
+    const decor = document.createElement("div");
+    decor.className = "obstacle decor-item"; // Добавь decor-item в CSS
+    decor.style.left = Math.random() * 100 + "%";
+    decor.style.top = "-50px";
+    
+    // Выбираем случайную картинку
+    const images = ["url('assets/icecream.png')", "url('assets/purple.png')"];
+    decor.style.backgroundImage = images[Math.floor(Math.random() * images.length)];
+    decor.style.position = "absolute";
+    decor.style.width = "30px";
+    decor.style.height = "30px";
+    decor.style.backgroundSize = "contain";
+    decor.style.opacity = "0.6"; // Немного прозрачности для фона
+
+    menuLayer.appendChild(decor);
+
+    // Плавное падение
+    const fallDuration = 3000 + Math.random() * 2000;
+    decor.animate([
+        { top: "-50px", transform: "rotate(0deg)" },
+        { top: "110vh", transform: `rotate(${Math.random() * 360}deg)` }
+    ], {
+        duration: fallDuration,
+        easing: "linear"
+    }).onfinish = () => decor.remove();
+}
+
+// Запускай каждые 1.5 секунды
+setInterval(() => {
+    if (!gameRunning) startMenuAnimation();
+}, 1500);
