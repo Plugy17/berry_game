@@ -1093,11 +1093,21 @@ function selectSkin(skinId) {
             preview.style.backgroundImage = `url('${skin.img}')`;
         }
 
-        // 2. СРАЗУ обновляем картинку игрока, если он уже на экране
+        // 2. СРАЗУ обновляем игрока (картинку + ауру)
         const p = document.getElementById("player");
         if (p) {
+            // Устанавливаем путь к файлу
             const imgUrl = skinFiles[skinId] || skinFiles['default'];
             p.style.backgroundImage = `url('${imgUrl}')`;
+            
+            // ОБЯЗАТЕЛЬНО: Обновляем классы аур прямо здесь
+            // Сначала удаляем все возможные старые ауры
+            p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");
+            
+            // Добавляем новую ауру, если она нужна
+            if (skinId !== 'default') {
+                p.classList.add(`skin-${skinId}-aura`);
+            }
         }
 
         saveUserData(); // Сохраняем в Firebase
