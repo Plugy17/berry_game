@@ -7,7 +7,17 @@ let gameState = {
     }
 };
 
-// 2. Данные о скинах (используем массив skins как единый источник правды)
+// --- МОСТИК ДЛЯ СТАРОГО КОДА ---
+// Эти строчки связывают старый код с новой структурой, чтобы элементы снова падали
+let currentSkin = gameState.currentSkin;
+let inventory = {
+    get magnet() { return gameState.inventory.items.magnet; },
+    get shield() { return gameState.inventory.items.shield; },
+    get skins() { return gameState.inventory.skins; }
+};
+// -------------------------------
+
+// 2. Данные о скинах
 const skins = [
     { id: "default", name: "Берри", img: "assets/berry.png" },
     { id: "star", name: "Звездный", img: "assets/berry2.png" },
@@ -17,10 +27,10 @@ const skins = [
 
 const loadedSkins = {};
 
-// 3. Блок предзагрузки (исправлен под массив skins)
+// 3. Блок предзагрузки
 skins.forEach(skin => {
     const img = new Image();
-    img.src = skin.img; // Берем путь прямо из объекта скина
+    img.src = skin.img;
     img.onload = () => {
         console.log(`Скин ${skin.id} успешно загружен из assets`);
         loadedSkins[skin.id] = img;
@@ -597,6 +607,24 @@ function spawnObstacle() {
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
+}
+
+function drawPlayer() {
+    const p = document.getElementById("player");
+    if (!p) return;
+
+    // Берем ID текущего скина
+    const skinId = gameState.currentSkin; 
+    
+    // Ищем данные об этом скине в массиве skins
+    const skinData = skins.find(s => s.id === skinId);
+    
+    if (skinData) {
+        // Устанавливаем картинку
+        p.style.backgroundImage = `url(${skinData.img})`;
+        p.style.backgroundSize = "contain";
+        p.style.backgroundRepeat = "no-repeat";
+    }
 }
 
 function update() {
