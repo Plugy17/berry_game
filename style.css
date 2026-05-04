@@ -1018,3 +1018,38 @@ button:active { transform: scale(0.95); }
     filter: drop-shadow(0 0 15px #00eaff) drop-shadow(0 0 5px #ff4fd8);
     transform: scale(1.1); /* Сделаем его чуть величественнее */
 }
+
+/* СЕРЕБРЯНОЕ СВЕЧЕНИЕ С ЛУЧАМИ (Silver Berry) */
+.skin-silver-aura {
+    filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.8)) brightness(1.2) !important;
+    animation: silverPulse 2s ease-in-out infinite;
+}
+
+@keyframes silverPulse {
+    0%, 100% { filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.8)) brightness(1.2); }
+    50% { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)) brightness(1.4); }
+}
+
+/* ЭФФЕКТ ПИРАТСКОЙ АУРЫ (Pirate Berry) */
+.skin-pirate-aura {
+    position: relative;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+}
+
+/* Маленькие кости/черепа вокруг Пирата */
+.skin-pirate-aura::after {
+    content: "☠️";
+    position: absolute;
+    font-size: 14px;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: pirateFloat 3s linear infinite;
+    opacity: 0.8;
+}
+
+@keyframes pirateFloat {
+    0% { transform: translate(-50%, 0) rotate(0deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-120%, -40px) rotate(360deg); opacity: 0; }
+}
