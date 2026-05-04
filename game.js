@@ -1,24 +1,24 @@
 // ========================================================
 // 1. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (Единый источник правды)
 // ========================================================
-let gameState = {
-    currentSkin: "default",
+window.gameState = {
+    currentSkin: localStorage.getItem('activeSkin') || "default",
     inventory: {
-        skins: ["default"],
+        skins: JSON.parse(localStorage.getItem('boughtSkins')) || ["default"],
         items: { 
-            magnet: 0, 
-            shield: 0, 
-            diamonds: 0 
+            magnet: Number(localStorage.getItem('magnetCount')) || 0, 
+            shield: Number(localStorage.getItem('shieldCount')) || 0, 
+            diamonds: Number(localStorage.getItem('totalDiamonds')) || 0 
         }
     }
 };
 
 // ========================================================
-// 2. МОСТИКИ ДЛЯ СОВМЕСТИМОСТИ (Чтобы старый код не ломался)
+// 2. МОСТИКИ ДЛЯ СОВМЕСТИМОСТИ
 // ========================================================
-// Убираем 'let' у этих переменных ниже по коду, если они там есть!
- currentSkin = gameState.currentSkin; 
- inventory = {
+// Теперь эти переменные ссылаются напрямую в gameState
+currentSkin = gameState.currentSkin; 
+inventory = {
     get magnet() { return gameState.inventory.items.magnet; },
     set magnet(val) { gameState.inventory.items.magnet = val; },
     get shield() { return gameState.inventory.items.shield; },
@@ -38,29 +38,24 @@ const skins = [
 ];
 
 const loadedSkins = {};
-
-// Предзагрузка изображений для плавности
 skins.forEach(skin => {
     const img = new Image();
     img.src = skin.img;
-    img.onload = () => {
-        console.log(`Скин ${skin.id} загружен`);
-        loadedSkins[skin.id] = img;
-    };
+    img.onload = () => { loadedSkins[skin.id] = img; };
     img.onerror = () => console.error(`Ошибка загрузки: ${skin.img}`);
 });
 
 // ========================================================
-// 4. ПЕРЕМЕННЫЕ ИГРЫ (ОБЪЯВЛЯЕМ ОДИН РАЗ)
+// 4. ПЕРЕМЕННЫЕ ИГРЫ
 // ========================================================
-let totalDiamonds = 0; 
-let diamonds = 0; // Алмазы за текущий забег
+let totalDiamonds = gameState.inventory.items.diamonds; 
+let diamonds = 0; 
 let coins = 0;
-let best = 0;
+let best = Number(localStorage.getItem('highScore')) || 0;
 let totalCoins = 0;
 
-// ВНИМАНИЕ: Здесь больше НЕТ 'let', так как переменные объявлены выше
-currentSkin = localStorage.getItem('activeSkin') || "default";
+// Синхронизируем активный скин
+activeSkin = gameState.currentSkin;
 
 const soundCollect = new Audio('assets/collect.mp3');
 if (soundCollect) soundCollect.volume = 0.3;
@@ -77,8 +72,8 @@ let baseSpeed = 7;
 let isPaused = false;
 let difficulty = 0.002;
 
-let nick = localStorage.getItem("nick");
-let userId = nick; 
+let nick = localStorage.getItem("nick") || "Guest";
+let userId = localStorage.getItem("userId") || "0"; 
 
 const PRICES = { magnet: 500, shield: 300 };
 
@@ -104,14 +99,7 @@ function drawPlayer() {
     }
 }
 
-// 1. Устанавливаем активный скин из памяти или по умолчанию
- activeSkin = localStorage.getItem("activeSkin") || "default"; 
- gameState.currentSkin = activeSkin;
-
-// 2. Находим индекс активного скина в массиве, чтобы меню открывалось на нужном месте
 let currentSkinIndex = skins.findIndex(s => s.id === activeSkin);
-
-// Если вдруг в памяти старый ID, которого нет в массиве, ставим 0
 if (currentSkinIndex === -1) currentSkinIndex = 0;
 
 function updateSkinUI() {
@@ -120,18 +108,14 @@ function updateSkinUI() {
     const nameLabel = document.getElementById("skinName");
     const selectBtn = document.getElementById("selectSkinBtn");
 
-    // Ставим картинку
-    preview.style.backgroundImage = `url('${skin.img}')`;
-    nameLabel.innerText = skin.name;
+    if (preview) preview.style.backgroundImage = `url('${skin.img}')`;
+    if (nameLabel) nameLabel.innerText = skin.name;
 
-    // Проверяем, этот ли скин сейчас "надет"
     if (activeSkin === skin.id) {
         selectBtn.innerText = "ВЫБРАНО";
         selectBtn.classList.add("active");
     } else {
-        // Проверка: куплен ли скин
-        // Замени эту строку в updateSkinUI
-const isOwned = skin.id === "default" || (inventory && inventory.skins && inventory.skins.includes(skin.id));
+        const isOwned = skin.id === "default" || (gameState.inventory.skins.includes(skin.id));
         if (isOwned) {
             selectBtn.innerText = "ВЫБРАТЬ";
             selectBtn.classList.remove("active");
@@ -144,22 +128,22 @@ const isOwned = skin.id === "default" || (inventory && inventory.skins && invent
     }
 }
 
-// Кнопка выбора/надевания
 document.getElementById("selectSkinBtn").onclick = () => {
     const skin = skins[currentSkinIndex];
-    const isOwned = skin.id === "default" || (inventory.skins && inventory.skins.includes(skin.id));
+    const isOwned = skin.id === "default" || (gameState.inventory.skins.includes(skin.id));
 
     if (isOwned) {
         activeSkin = skin.id;
-        currentSkin = skin.id; // Для механики в game_2.js
+        gameState.currentSkin = skin.id;
+        currentSkin = skin.id;
+        localStorage.setItem("activeSkin", skin.id);
         updateSkinUI();
+        drawPlayer();
     } else {
-        // Если не куплен, можно перекинуть в магазин
-        openShop();
+        if (typeof openShop === 'function') openShop();
     }
 };
 
-// Стрелки
 document.getElementById("nextSkin").onclick = () => {
     currentSkinIndex = (currentSkinIndex + 1) % skins.length;
     updateSkinUI();
@@ -170,14 +154,12 @@ document.getElementById("prevSkin").onclick = () => {
 };
 
 function initAudio() {
-    // Проигрываем и сразу ставим на паузу пустой звук или наш эффект
     soundCollect.play().then(() => {
         soundCollect.pause();
         soundCollect.currentTime = 0;
     }).catch(e => console.log("Audio waiting for user tap"));
 }
 
-// --- ФУНКЦИЯ ПАУЗЫ (Должна стоять отдельно) ---
 function togglePause() {
     if (!gameRunning) return; 
 
@@ -185,14 +167,13 @@ function togglePause() {
     const pauseIcon = document.getElementById("pauseIcon");
 
     if (isPaused) {
-        if (pauseIcon) pauseIcon.src = "assets/play.png"; // У тебя файл play.jpg
+        if (pauseIcon) pauseIcon.src = "assets/play.png"; 
         cancelAnimationFrame(loopId);
         stopIceRain();
-        console.log("Пауза включена");
     } else {
         if (pauseIcon) pauseIcon.src = "assets/pause.png";
         requestAnimationFrame(update);
-        console.log("Игра продолжается");
+        if (gameRunning) startIceRain('game-container'); // Укажите ваш ID контейнера
     }
 }
 
@@ -201,21 +182,17 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
     tg.expand();
     tg.ready();
+    const tgUser = tg.initDataUnsafe?.user;
+    if (tgUser) {
+        nick = tgUser.username || tgUser.first_name; 
+        userId = tgUser.id;
+    }
 }
 
-// Получаем данные пользователя Telegram
-const tgUser = tg?.initDataUnsafe?.user;
-if (tgUser) {
-    // Присваиваем значения БЕЗ слова let, так как они уже созданы выше
-    nick = tgUser.username || tgUser.first_name; 
-    userId = tgUser.id;
-}
-
-// --- 3. ОСТАЛЬНОЙ ФУНКЦИОНАЛ (БЕЗ ИЗМЕНЕНИЙ) ---
+// --- 3. ОСТАЛЬНОЙ ФУНКЦИОНАЛ ---
 let rainInterval = null;
 const imgIceCream = "url('assets/icecream.png')";
 const imgBad = "url('assets/obstacle.png')";
-const getIceIcon = () => `<span class="ice-icon"></span>`;
 
 function createRainDrop(containerId) {
     const container = document.getElementById(containerId);
@@ -227,7 +204,7 @@ function createRainDrop(containerId) {
     const duration = Math.random() * 2 + 3; 
     drop.style.animationDuration = duration + "s";
     container.appendChild(drop);
-    setTimeout(() => drop.remove(), duration * 1000);
+    setTimeout(() => { if(drop.parentNode) drop.remove(); }, duration * 1000);
 }
 
 function startIceRain(id) {
@@ -242,16 +219,13 @@ function stopIceRain() {
 function createExplosion(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
     if (!layer) return;
-    const particleCount = 5;
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < 5; i++) {
         const particle = document.createElement("div");
         particle.className = "ice-particle";
         const angle = Math.random() * Math.PI * 2;
         const dist = 80 + Math.random() * 120; 
-        const dx = Math.cos(angle) * dist + "px";
-        const dy = Math.sin(angle) * dist + "px";
-        particle.style.setProperty('--dx', dx);
-        particle.style.setProperty('--dy', dy);
+        particle.style.setProperty('--dx', Math.cos(angle) * dist + "px");
+        particle.style.setProperty('--dy', Math.sin(angle) * dist + "px");
         particle.style.left = x + "px";
         particle.style.top = y + "px";
         particle.style.backgroundImage = imgIceCream;
@@ -262,68 +236,57 @@ function createExplosion(x, y) {
 
 function createCubeBoom(x, y) {
     const layer = document.getElementById("effects-layer") || document.getElementById("game");
+    if (!layer) return;
     const boom = document.createElement('div');
     boom.className = 'cube-boom';
     boom.style.left = x + 'px';
     boom.style.top = y + 'px';
     layer.appendChild(boom);
-    setTimeout(() => boom.remove(), 500);
+    setTimeout(() => { if(boom.parentNode) boom.remove(); }, 500);
 }
 
 function loadUserData(id) {
     if (!window.db || !id) return updateMenuInfo();
     
-    db.ref('players/' + id).once('value').then((snapshot) => {
+    const userRef = db.ref('players/' + id);
+    userRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // 1. Обновляем глобальные переменные рекордов
-            best = data.best || 0;
-            totalCoins = data.totalCoins || 0;
-            totalDiamonds = data.totalDiamonds || 0; 
+            // 1. Обновляем глобальные переменные
+            best = Number(data.best) || 0;
+            totalCoins = Number(data.totalCoins) || 0;
+            totalDiamonds = Number(data.totalDiamonds) || 0; 
             
-            // 2. Синхронизируем новое единое состояние gameState
+            // 2. Синхронизируем gameState
             gameState.currentSkin = data.currentSkin || "default";
-            activeSkin = gameState.currentSkin; // Для совместимости со старым кодом
+            activeSkin = gameState.currentSkin;
             currentSkin = gameState.currentSkin;
 
-            // 3. Загружаем инвентарь (защита от потери данных)
+            // 3. Загружаем инвентарь
             if (data.inventory) {
-                gameState.inventory.items.shield = data.inventory.shield || 0;
-                gameState.inventory.items.magnet = data.inventory.magnet || 0;
-                gameState.inventory.items.diamonds = data.totalDiamonds || 0;
+                gameState.inventory.items.shield = Number(data.inventory.shield) || 0;
+                gameState.inventory.items.magnet = Number(data.inventory.magnet) || 0;
+                gameState.inventory.items.diamonds = totalDiamonds;
                 gameState.inventory.skins = data.inventory.skins || ["default"];
                 
-                // Дублируем в старый объект inventory для подстраховки
+                // Синхронизация мостика
                 inventory.shield = gameState.inventory.items.shield;
                 inventory.magnet = gameState.inventory.items.magnet;
                 inventory.skins = gameState.inventory.skins;
-            } else {
-                // Если данных нет, ставим значения по умолчанию
-                gameState.inventory = { 
-                    skins: ["default"], 
-                    items: { magnet: 0, shield: 0, diamonds: 0 } 
-                };
-                inventory = { magnet: 0, shield: 0, skins: ["default"] };
             }
             
-            // 4. Обновляем интерфейс
-            if (typeof updateSkinUI === "function") {
-                updateSkinUI(); 
-            }
+            if (typeof updateSkinUI === "function") updateSkinUI(); 
         } else {
-            // Если игрока нет в базе, создаем запись
             saveUserData();
         }
         updateMenuInfo();
         const loader = document.getElementById("loadingScreen") || document.getElementById("loading-screen");
         if (loader) loader.classList.add("hidden"); 
     }).catch((err) => {
-        console.error("Ошибка загрузки:", err);
-    }).catch((err) => {
-        console.error("Ошибка загрузки:", err);
+        console.error("Ошибка Firebase:", err);
         updateMenuInfo();
-    const loader = document.getElementById("loadingScreen");
+        const loader = document.getElementById("loadingScreen");
         if (loader) loader.classList.add("hidden");
     });
 }
@@ -331,18 +294,22 @@ function loadUserData(id) {
 function saveUserData() {
     if (!userId || !window.db) return;
     
+    // Сохраняем расширенный объект для надежности
     db.ref('players/' + userId).set({ 
         nick: nick, 
         best: best, 
         totalCoins: totalCoins, 
         totalDiamonds: totalDiamonds,
-        inventory: inventory, // Теперь сюда входят и скины, и бонусы
-        currentSkin: activeSkin // Сохраняем именно надетый скин
-    });
+        inventory: {
+            shield: gameState.inventory.items.shield,
+            magnet: gameState.inventory.items.magnet,
+            skins: gameState.inventory.skins
+        },
+        currentSkin: activeSkin
+    }).then(() => console.log("Данные сохранены")).catch(e => console.error("Ошибка сохранения:", e));
 }
 
 function updateMenuInfo() {
-    // 1. Приветствие
     if (nick) {
         const welcomeElem = document.getElementById("welcome");
         if(welcomeElem) welcomeElem.innerHTML = `Герой <b>${nick}</b>`;
@@ -350,19 +317,16 @@ function updateMenuInfo() {
         if(nickInput) nickInput.style.display = "none";
     }
 
-    // Подготавливаем иконки из стилей
     const iceIcon = `<span class="ice-icon"></span>`;
     const diamondIcon = `<span class="diamond-icon"></span>`;
 
     // 2. ОБНОВЛЯЕМ МОРОЖЕНОЕ
-    // Обновляем только конкретные числа, не трогая весь контейнер total-balance
     const menuCoins = document.getElementById("menuCoinCount");
     const shopCoins = document.getElementById("shop-balance");
-    
     if(menuCoins) menuCoins.innerHTML = `${totalCoins} ${iceIcon}`;
     if(shopCoins) shopCoins.innerHTML = `${totalCoins} ${iceIcon}`;
 
-    // 3. ОБНОВЛЯЕМ АЛМАЗЫ[cite: 2, 5]
+    // 3. ОБНОВЛЯЕМ АЛМАЗЫ
     const menuDiamonds = document.getElementById("menuDiamondCount");
     const shopDiamonds = document.getElementById("shop-diamonds");
     const hudDiamonds = document.getElementById("diamondCount");
@@ -371,7 +335,7 @@ function updateMenuInfo() {
     if(shopDiamonds) shopDiamonds.innerHTML = `${totalDiamonds} ${diamondIcon}`;
     if(hudDiamonds) hudDiamonds.innerHTML = `${totalDiamonds} ${diamondIcon}`;
 
-    // 4. ОБНОВЛЯЕМ РЕКОРД[cite: 5]
+    // 4. ОБНОВЛЯЕМ РЕКОРД
     const menuBest = document.getElementById("menuLeaderboard");
     if(menuBest) menuBest.innerText = `🏆 ${best}`;
 
@@ -381,35 +345,28 @@ function updateMenuInfo() {
 function updateBonusUI() {
     const sCount = document.getElementById("count-shield");
     const mCount = document.getElementById("count-magnet");
-    if(sCount) sCount.innerText = inventory.shield;
-    if(mCount) mCount.innerText = inventory.magnet;
+    if(sCount) sCount.innerText = gameState.inventory.items.shield;
+    if(mCount) mCount.innerText = gameState.inventory.items.magnet;
 }
 
 function buyStarSkin() {
-    const price = 100; // Твоя цена
-
-    // 1. Проверяем, не куплен ли он уже (смотрим в inventory)
-    if (inventory.skins && inventory.skins.includes("star")) {
-        alert("Этот скин уже куплен! Выбери его в меню выбора персонажа.");
+    const price = 100;
+    if (gameState.inventory.skins.includes("star")) {
+        alert("Этот скин уже куплен!");
         return;
     }
 
     if (totalDiamonds >= price) {
         totalDiamonds -= price;
-        
-        // 2. ДОБАВЛЯЕМ В ИНВЕНТАРЬ (чтобы updateSkinUI увидел его)
-        if (!inventory.skins) inventory.skins = ["default"];
-        inventory.skins.push("star");
-
-        // 3. Сразу делаем его активным
+        gameState.inventory.items.diamonds = totalDiamonds;
+        gameState.inventory.skins.push("star");
         activeSkin = "star";
-        currentSkin = "star";
+        gameState.currentSkin = "star";
         
-        saveUserData(); // Сохраняем в Firebase
+        saveUserData();
         updateMenuInfo();
-        updateSkinUI(); // Обновляем кнопки в меню выбора
-        
-        alert("Звездный Берри теперь твой навсегда!");
+        updateSkinUI();
+        alert("Звездный Берри теперь твой!");
     } else {
         alert("Недостаточно алмазов!");
     }
@@ -419,6 +376,7 @@ function exchangeIceToDiamond() {
     if (totalCoins >= 1000) {
         totalCoins -= 1000;
         totalDiamonds += 10;
+        gameState.inventory.items.diamonds = totalDiamonds;
         saveUserData();
         updateMenuInfo();
     } else {
@@ -427,39 +385,28 @@ function exchangeIceToDiamond() {
 }
 
 function startGame() {
-    // 1. Сбор данных из интерфейса
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
     const p = document.getElementById("player");
 
-    // 2. Логика ника (если ника нет — просим ввести)
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
-        nick = val; 
-        userId = val;
+        nick = val; userId = val;
         localStorage.setItem("nick", nick);
     }
 
-    // 3. Установка скина и синхронизация с gameState
-    // ПРАВКА: Убеждаемся, что gameState знает, какой скин выбран в меню
     gameState.currentSkin = activeSkin; 
-    
     if (p) {
-        // Используем нашу новую функцию для отрисовки
         drawPlayer(); 
-
-        // Очищаем старые ауры и стили
-        p.className = ""; // Сбрасываем классы, оставляя только нужные
+        p.className = ""; 
         p.id = "player";
-        
         if (activeSkin !== "default") {
             p.classList.add(`skin-${activeSkin}`);
             p.classList.add(`skin-${activeSkin}-aura`);
         }
     }
 
-    // 4. Настройка баланса сложности
     let spawnRate = 1000;
     if (level === 'easy') {
         baseSpeed = 6; difficulty = 0.001; spawnRate = 1200;
@@ -470,40 +417,35 @@ function startGame() {
     }
     speed = baseSpeed;
 
-    // 5. Очистка игрового поля и ПЕРЕЗАПУСК генерации
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     
+    // Очистка всех старых интервалов
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
-    // Включаем флаг игры ДО запуска интервала
     gameRunning = true; 
     isPaused = false;
 
-    // Запуск цикла появления препятствий (используем проверку флага)
     window.gameInterval = setInterval(() => {
-        if (gameRunning && !isPaused) {
-            spawnObstacle(); 
-        }
+        if (gameRunning && !isPaused) spawnObstacle(); 
     }, spawnRate);
 
-    // 6. Запуск основного цикла анимации (update)
     if (loopId) cancelAnimationFrame(loopId);
     loopId = requestAnimationFrame(update);
 
-    // 7. Переключение экранов
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
     
-    const loadingScreen = document.getElementById("loading-screen") || document.getElementById("loadingScreen");
-    if (loadingScreen) loadingScreen.style.display = "none";
+    const ls = document.getElementById("loading-screen") || document.getElementById("loadingScreen");
+    if (ls) ls.style.display = "none";
 
-    resetGame();
-    console.log("Игра запущена. Сложность:", level, "Скин:", gameState.currentSkin);
+    if (typeof resetGame === 'function') resetGame();
+    console.log("Старт:", level, "| Скин:", gameState.currentSkin);
 }
 
 // 2. ИСПРАВЛЕННЫЙ БЛОК СБРОСА ИГРЫ
 function resetGame() {
     // --- 1. Сброс игровых механик ---
+    score = 0; // Сбрасываем текущий счет
     coins = 0; 
     comboCount = 0; 
     comboMultiplier = 1;
@@ -514,97 +456,90 @@ function resetGame() {
     gameRunning = true;
     
     // Сброс уникальных способностей скинов
-    pirateShieldUsed = false; 
-    if (typeof silverTimer !== 'undefined' && silverTimer) clearTimeout(silverTimer);
+    if (typeof pirateShieldUsed !== 'undefined') pirateShieldUsed = false; 
+    if (typeof silverTimer !== 'undefined' && silverTimer) {
+        clearTimeout(silverTimer);
+        silverTimer = null;
+    }
 
     // --- 2. ЖЕСТКАЯ ПРИВЯЗКА ВИЗУАЛА К ВЫБРАННОМУ СКИНУ ---
     const p = document.getElementById("player");
     if (p) {
-        // Очищаем классы, чтобы убрать ауры, но оставляем базовый класс игрока если он нужен
         p.className = "player-base"; 
         p.style.filter = "none";
         
-        // Находим данные активного скина в массиве по его ID[cite: 1, 2]
+        // Находим данные активного скина
         const activeSkinData = skins.find(s => s.id === activeSkin) || skins[0];
         
-        // Принудительно ставим картинку из объекта скина[cite: 1, 3]
         p.style.backgroundImage = `url('${activeSkinData.img}')`;
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Добавляем класс ауры в зависимости от activeSkin
-        // Теперь используем переменную activeSkin, которую сохраняли в localStorage
+        // Добавляем класс ауры
         if (activeSkin !== "default") {
             p.classList.add(`skin-${activeSkin}-aura`);
         }
         
         // Начальная позиция
         p.style.left = lanes[targetLane] + "%";
+        p.style.top = ""; // Сбрасываем возможные смещения
     }
 
     // --- 3. Обновление интерфейса и старт ---
-    updateScore(); 
-    updateBonusUI();
+    if (typeof updateScore === 'function') updateScore(); 
+    if (typeof updateBonusUI === 'function') updateBonusUI();
     
     if (loopId) cancelAnimationFrame(loopId);
     
-    // Очищаем старые объекты с поля[cite: 3]
+    // Очищаем старые объекты с поля
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove());
     
+    // Запускаем первый объект вручную (необязательно, но для старта полезно)
     spawnObstacle();
-    update();
+    loopId = requestAnimationFrame(update);
 }
 
-let lastSpawnTime = 0; // Время последнего появления объекта
-
 function spawnObstacle() {
-    if (!gameRunning || isPaused) return;
+    if (!gameRunning || (typeof isPaused !== 'undefined' && isPaused)) return;
 
     const gameLayer = document.getElementById("game");
     if (!gameLayer) return;
 
-    // 1. ПОЛУЧАЕМ ТЕКУЩУЮ СЛОЖНОСТЬ
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
 
-    // 2. ДИНАМИЧЕСКИЕ ЛИМИТЫ
     const currentCount = document.querySelectorAll(".obstacle").length;
     let maxItems = 5; 
-    if (level === 'easy') maxItems = 6; 
-    if (level === 'hard') maxItems = 8; 
+    if (level === 'easy') maxItems = 4; 
+    if (level === 'hard') maxItems = 7; 
     
     if (currentCount >= maxItems) return;
 
     const obs = document.createElement("div");
     obs.className = "obstacle"; 
 
-    // 3. НОВАЯ ЛОГИКА ШАНСОВ (Подарки и Алмазы)
     const rand = Math.random();
 
     if (rand < 0.03) { 
-        // 3% шанс на фиолетовый подарок (Алмаз) — очень редкий[cite: 2]
+        // 3% шанс на Алмаз
         obs.dataset.type = "gift_purple";
         obs.style.backgroundImage = "url('assets/purple.png')";
-        obs.classList.add("gift-purple-anim"); // Анимация свечения из CSS
+        obs.classList.add("gift-purple-anim");
     } 
     else if (rand < 0.10) { 
-        // 7% шанс на черный подарок (Минус монеты)
+        // 7% шанс на Штраф
         obs.dataset.type = "gift_black";
         obs.style.backgroundImage = "url('assets/black.png')";
     } 
     else {
-        // 90% времени выпадают обычные объекты[cite: 2]
+        // Обычные объекты
         const isGood = Math.random() < (level === 'hard' ? 0.45 : 0.65);
         obs.dataset.type = isGood ? "good" : "bad";
         obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     }
-    
 
-    // 4. ПОЗИЦИОНИРОВАНИЕ[cite: 2]
     const laneIndex = Math.floor(Math.random() * lanes.length);
     obs.style.left = lanes[laneIndex] + "%";
-    
-    // Ставим строго за верхнюю границу[cite: 2]
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
@@ -616,13 +551,10 @@ function update() {
     const p = document.getElementById("player");
     if (!p) return;
 
-    // Вызываем обновление картинки скина
-    drawPlayer();
-
     const pRect = p.getBoundingClientRect(); 
 
-    // 2. ЭФФЕКТ ШЛЕЙФА (Оптимизировано: создаем реже для плавности на мобильных)
-    if (Math.random() < 0.2) { // Немного снизил частоту до 0.2
+    // ЭФФЕКТ ШЛЕЙФА
+    if (Math.random() < 0.2) { 
         const gameLayer = document.getElementById("game");
         if (gameLayer) {
             const part = document.createElement("div");
@@ -632,21 +564,19 @@ function update() {
             const pdx = (Math.random() - 0.5) * 40 + "px";
             part.style.setProperty('--pdx', pdx);
             gameLayer.appendChild(part);
-            // Удаляем через 300мс вместо 400мс, чтобы не копить мусор в DOM
-            setTimeout(() => part.remove(), 300); 
+            setTimeout(() => { if(part.parentNode) part.remove(); }, 300); 
         }
     }
 
-    // 3. ДВИЖЕНИЕ И ПРОВЕРКА СТОЛКНОВЕНИЙ
     const obstacles = document.querySelectorAll(".obstacle");
 
     obstacles.forEach(obstacle => {
-        // ПРАВКА: Добавил проверку на dataset.processing для исключения двойных срабатываний
-        if (obstacle.dataset.collected || obstacle.dataset.processing) return; 
+        // Защита от двойного сбора
+        if (obstacle.dataset.collected === "true" || obstacle.dataset.processing === "true") return; 
 
         let currentTop = parseFloat(obstacle.style.top) || -150;
 
-        // ЛОГИКА МАГНИТА
+        // МАГНИТ (только для "good")
         if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
             const obsRect = obstacle.getBoundingClientRect();
             const pX = pRect.left + pRect.width / 2;
@@ -658,7 +588,7 @@ function update() {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 400) {
-                const force = 10;
+                const force = 12; // Чуть усилил магнит
                 if (obstacle.style.left.includes('%')) {
                     obstacle.style.left = obsRect.left + "px";
                 }
@@ -671,7 +601,7 @@ function update() {
         currentTop += speed;
         obstacle.style.top = currentTop + "px";
 
-        // УДАЛЕНИЕ ЗА ЭКРАНОМ
+        // Удаление за экраном + сброс комбо
         if (currentTop > window.innerHeight) {
             if (obstacle.dataset.type === "good") {
                 comboCount = 0;
@@ -689,7 +619,7 @@ function update() {
 
         // ПРОВЕРКА СТОЛКНОВЕНИЙ
         const obsRect = obstacle.getBoundingClientRect();
-        const inset = 15;
+        const inset = 18; // Увеличил отступ для более честных столкновений
 
         if (
             pRect.left + inset < obsRect.right &&
@@ -697,10 +627,10 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
-            // ПРАВКА: Сразу помечаем объект как обработанный до вызова handleCollision
+            // Мгновенная блокировка до вызова логики
             obstacle.dataset.collected = "true"; 
             obstacle.dataset.processing = "true"; 
-            handleCollision(obstacle, p);
+            if (typeof handleCollision === 'function') handleCollision(obstacle, p);
         }
     });
 
