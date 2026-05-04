@@ -697,48 +697,32 @@ function update() {
 }
 
 function handleCollision(obs, p) {
-    if (obs.dataset.collected_check) return; 
+    // 1. Проверка: если объект уже собран или обрабатывается — выходим
+    if (obs.dataset.collected_check === "true" || obs.dataset.processing === "true") return; 
+
+    // 2. Блокируем объект сразу, чтобы не было фризов
     obs.dataset.collected_check = "true"; 
+    obs.dataset.processing = "true";
+    
+    // Прячем визуально
     obs.style.pointerEvents = 'none';
     obs.style.display = 'none'; 
 
+    // 3. Берем данные ОДИН раз
     const type = obs.dataset.type;
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    if (obs.dataset.processing === "true") return; 
-    
-    const type = obs.dataset.type;
-
-    if (type === "bad") {
-        obs.dataset.processing = "true"; // Блокируем объект
-        gameOver();
-        return; // Прерываем выполнение, чтобы не считать бонусы после смерти
-    }
-
-    if (type === "good" || type === "diamond") {
-        obs.dataset.processing = "true";
-        
-        // Логика сбора
-        if (type === "diamond") {
-            gameState.inventory.items.diamonds++;
-        }
-        
-        // Мгновенное удаление из DOM для освобождения памяти
-        obs.remove(); 
-        updateScore(); 
-    }
-}
-
-    // --- 1. ЛОГИКА МОРОЖЕНОГО (GOOD) ---
+    // --- ЛОГИКА МОРОЖЕНОГО (GOOD) ---
     if (type === "good") {
-        if (soundCollect) {
+        if (typeof soundCollect !== 'undefined' && soundCollect) {
             soundCollect.currentTime = 0;
             soundCollect.play().catch(() => {});
         }
 
         comboCount++;
+        // Способность Звездного скина увеличивать лимит комбо
         let maxComboLimit = (currentSkin === "star") ? 8 : 5;
         comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
 
@@ -747,7 +731,7 @@ function handleCollision(obs, p) {
             comboEl.innerText = "x" + comboMultiplier;
             comboEl.style.opacity = "1";
             comboEl.classList.remove("combo-bump");
-            void comboEl.offsetWidth; 
+            void comboEl.offsetWidth; // Магия для перезапуска анимации
             comboEl.classList.add("combo-bump");
         }
 
@@ -760,13 +744,19 @@ function handleCollision(obs, p) {
         obs.remove(); 
     } 
     
-    // --- 2. ЛОГИКА ФИОЛЕТОВОГО ПОДАРКА (АЛМАЗ) ---
-    else if (type === "gift_purple") {
+    // --- ЛОГИКА ФИОЛЕТОВОГО ПОДАРКА (АЛМАЗ) ---
+    else if (type === "gift_purple" || type === "diamond") {
         let addDia = Math.floor(Math.random() * 2) + 1;
+        
+        // Обновляем и старую переменную, и новое состояние gameState
         totalDiamonds += addDia;
+        if (typeof gameState !== 'undefined') {
+            gameState.inventory.items.diamonds += addDia;
+        }
 
-        if (currentSkin === "silver") {
-            activateSilverInvincibility(); // Защита Силвера на 30 сек
+        // Способность Силвера: бессмертие при подборе алмаза
+        if (currentSkin === "silver" && typeof activateSilverInvincibility === 'function') {
+            activateSilverInvincibility(); 
         }
         
         if (typeof createExplosion === 'function') {
@@ -777,10 +767,11 @@ function handleCollision(obs, p) {
         obs.remove();
     }
 
-    // --- 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ) ---
+    // --- ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ) ---
     else if (type === "gift_black") {
+        // Пират игнорирует штрафы черных подарков
         if (currentSkin === "pirate") {
-            console.log("Пират игнорирует штраф!");
+            console.log("🏴‍☠️ Пират игнорирует штраф!");
             obs.remove();
         } else {
             let loss = 15 + Math.floor(Math.random() * 15);
@@ -797,23 +788,25 @@ function handleCollision(obs, p) {
         }
     }
 
-    // --- 4. ПРЕПЯТСТВИЯ (BAD) ---
+    // --- ПРЕПЯТСТВИЯ (BAD) ---
     else if (type === "bad") { 
-        if (shieldActive) {
+        if (typeof shieldActive !== 'undefined' && shieldActive) {
             obs.remove();
             shieldActive = false;
-            if (p) p.classList.remove("shield-aura");
-            if (p) p.classList.remove("skin-silver-aura");
-        } else if (currentSkin === "pirate" && !pirateShieldUsed) {
+            if (p) p.classList.remove("shield-aura", "skin-silver-aura");
+        } 
+        // Вторая жизнь Пирата (один раз за забег)
+        else if (currentSkin === "pirate" && typeof pirateShieldUsed !== 'undefined' && !pirateShieldUsed) {
             pirateShieldUsed = true;
-            createCubeBoom(centerX, centerY);
+            if (typeof createCubeBoom === 'function') createCubeBoom(centerX, centerY);
             if (p) p.classList.remove("skin-pirate-aura");
             obs.remove();
-        } else {
+        } 
+        else {
             gameOver();
         }
     }
-} // <--- ЗАКРЫВАЮЩАЯ СКОБКА ВСЕЙ ФУНКЦИИ
+} // Конец функции handleCollision
 
 let silverTimer = null;
 
