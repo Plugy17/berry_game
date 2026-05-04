@@ -978,3 +978,37 @@ function selectSkin(skinId) {
         if (typeof updateSkinUI === "function") updateSkinUI();
     }
 }
+
+// --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ---
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Прячем загрузочный экран (если он есть), так как скрипт дочитан до конца
+    const loader = document.getElementById("loader") || document.querySelector(".loading");
+    if (loader) loader.style.display = "none";
+
+    // 2. Настраиваем кнопки на экране проигрыша
+    const retryBtn = document.getElementById("retryBtn");
+    const menuBtn = document.getElementById("menuBtn");
+
+    if (retryBtn) {
+        retryBtn.onclick = () => {
+            if (typeof initAudio === 'function') initAudio(); 
+            startGame(); // Перезапуск игры
+        };
+    }
+
+    if (menuBtn) {
+        menuBtn.onclick = () => {
+            if (typeof initAudio === 'function') initAudio();
+            backToMenu(); // Возврат в меню
+        };
+    }
+
+    // 3. Обновляем визуальную часть магазина и меню
+    try {
+        if (typeof updateSkinUI === "function") updateSkinUI();
+        if (typeof updateMenuInfo === "function") updateMenuInfo();
+        console.log("Berry Runner: Система готова!");
+    } catch (e) {
+        console.error("Ошибка инициализации интерфейса:", e);
+    }
+});
