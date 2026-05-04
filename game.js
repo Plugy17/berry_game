@@ -1,25 +1,33 @@
-// Глобальное состояние игры — всегда в начале файла
+// 1. Глобальное состояние
 let gameState = {
     currentSkin: "default",
     inventory: {
         skins: ["default"],
-        items: { 
-            magnet: 0, 
-            shield: 0, 
-            diamonds: 0 
-        }
+        items: { magnet: 0, shield: 0, diamonds: 0 }
     }
 };
 
+// 2. Данные о скинах (используем массив skins как единый источник правды)
+const skins = [
+    { id: "default", name: "Берри", img: "assets/berry.png" },
+    { id: "star", name: "Звездный", img: "assets/berry2.png" },
+    { id: "pirate", name: "Пират", img: "assets/berry3.png" },
+    { id: "silver", name: "Силвер", img: "assets/berry4.png" }
+];
+
 const loadedSkins = {};
 
-// Предзагрузка запускается СРАЗУ
-Object.keys(skinFiles).forEach(skinId => {
+// 3. Блок предзагрузки (исправлен под массив skins)
+skins.forEach(skin => {
     const img = new Image();
-    img.src = skinFiles[skinId]; 
-    img.onload = () => console.log(`Спрайт ${skinId} успешно загружен из assets`);
-    img.onerror = () => console.error(`Ошибка: файл не найден по пути ${skinFiles[skinId]}`);
-    loadedSkins[skinId] = img;
+    img.src = skin.img; // Берем путь прямо из объекта скина
+    img.onload = () => {
+        console.log(`Скин ${skin.id} успешно загружен из assets`);
+        loadedSkins[skin.id] = img;
+    };
+    img.onerror = () => {
+        console.error(`Ошибка: файл не найден по пути ${skin.img}`);
+    };
 });
 
 // Используем addEventListener, чтобы не конфликтовать с другими скриптами
@@ -66,13 +74,6 @@ window.addEventListener('load', function() {
         };
     }
 });
-
-const skins = [
-    { id: "default", name: "Берри", img: "assets/berry.png" },
-    { id: "star", name: "Звездный", img: "assets/berry2.png" },
-    { id: "pirate", name: "Пират", img: "assets/berry3.png" },
-    { id: "silver", name: "Силвер", img: "assets/berry4.png" }
-];
 
 // 1. Устанавливаем активный скин из памяти или по умолчанию
 let activeSkin = localStorage.getItem("activeSkin") || "default"; 
