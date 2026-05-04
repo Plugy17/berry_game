@@ -610,51 +610,48 @@ function handleCollision(obs, p) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    setTimeout(() => {
+    // --- НАЧАЛО ЛОГИКИ СТОЛКНОВЕНИЙ ---
 
-        else if (type === "gift_black") {
-    // Если игрок Пират — штраф не списывается
-    if (currentSkin === "pirate") {
-        console.log("Пират игнорирует штраф!");
-        obs.remove();
-        return; 
-    }
+    if (type === "gift_purple") {
+        // Логика фиолетового подарка (Алмазы)
+        let addDia = Math.floor(Math.random() * 2) + 1;[cite: 1]
+        totalDiamonds += addDia;[cite: 1]
 
+        if (currentSkin === "silver") {
+            activateSilverInvincibility(); // Запуск защиты на 30 сек
+        }
+        
+        updateMenuInfo();[cite: 1]
+        obs.remove();[cite: 1]
+    } 
+    else if (type === "gift_black") {
+        // Логика черного подарка (Препятствие/Штраф)
+        
+        if (currentSkin === "pirate") {
+            // 1. Пират просто игнорирует штраф, если это подарок-штраф
+            console.log("Пират игнорирует штраф!");
+            obs.remove();
+            return; 
+        } 
+        else if (shieldActive) {
+            // 2. Если активен обычный щит (бонус)
+            shieldActive = false;
+            createCubeBoom(centerX, centerY);
+            obs.remove();
+        } 
         else if (currentSkin === "pirate" && !pirateShieldUsed) {
-    pirateShieldUsed = true;
-    createCubeBoom(centerX, centerY);[cite: 1]
-    
-    // Убираем пиратскую ауру, так как защита потрачена
-    if (p) p.classList.remove("skin-pirate-aura");
-    
-    obs.remove();[cite: 1]
-}
-
-            else {
-    if (shieldActive) {
-        // ... код щита
-    } else if (currentSkin === "pirate" && !pirateShieldUsed) {
-        // Пират ломает препятствие один раз за забег
-        pirateShieldUsed = true;
-        createCubeBoom(centerX, centerY); // Эффект взрыва[cite: 1]
-        obs.remove();
-        // Можно добавить визуальный эффект, что броня спала
-        p.style.filter = "grayscale(0.5)"; 
-    } else {
-        gameOver();[cite: 1]
+            // 3. Если пират врезался в ОПАСНОЕ препятствие (как щит)
+            pirateShieldUsed = true;
+            createCubeBoom(centerX, centerY);[cite: 1]
+            
+            if (p) p.classList.remove("skin-pirate-aura"); // Убираем ауру
+            obs.remove();[cite: 1]
+        } 
+        else {
+            // 4. В остальных случаях — конец игры
+            gameOver();[cite: 1]
+        }
     }
-}
-
-            else if (type === "gift_purple") {
-    let addDia = Math.floor(Math.random() * 2) + 1;[cite: 1]
-    totalDiamonds += addDia;[cite: 1]
-
-    if (currentSkin === "silver") {
-        activateSilverInvincibility(); // Запуск 30 сек защиты[cite: 1]
-    }
-    
-    updateMenuInfo();[cite: 1]
-    obs.remove();[cite: 1]
 }
 
         let silverTimer = null;
