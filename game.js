@@ -248,7 +248,8 @@ function loadUserData(id) {
             
             // Загружаем новую валюту и активный скин
             totalDiamonds = data.totalDiamonds || 0; 
-            currentSkin = data.currentSkin || "default"; 
+            currentSkin = data.currentSkin || "default";
+            activeSkin = data.currentSkin || "default";
 
             inventory.shield = data.inventory?.shield || 0;
             inventory.magnet = data.inventory?.magnet || 0;
@@ -262,14 +263,13 @@ function loadUserData(id) {
 function saveUserData() {
     if (!userId || !window.db) return;
     
-    // Сохраняем все данные, включая новые ресурсы и состояние скина
     db.ref('players/' + userId).set({ 
         nick: nick, 
         best: best, 
         totalCoins: totalCoins, 
-        totalDiamonds: totalDiamonds, // Новая валюта[cite: 2]
-        inventory: inventory,
-        currentSkin: currentSkin // Сохраняем, какой скин надет[cite: 2]
+        totalDiamonds: totalDiamonds,
+        inventory: inventory, // Теперь сюда входят и скины, и бонусы
+        currentSkin: activeSkin // Сохраняем именно надетый скин
     });
 }
 
@@ -318,13 +318,30 @@ function updateBonusUI() {
 }
 
 function buyStarSkin() {
-    if (totalDiamonds >= 100) {
-        totalDiamonds -= 100;
+    const price = 100; // Твоя цена
+
+    // 1. Проверяем, не куплен ли он уже (смотрим в inventory)
+    if (inventory.skins && inventory.skins.includes("star")) {
+        alert("Этот скин уже куплен! Выбери его в меню выбора персонажа.");
+        return;
+    }
+
+    if (totalDiamonds >= price) {
+        totalDiamonds -= price;
+        
+        // 2. ДОБАВЛЯЕМ В ИНВЕНТАРЬ (чтобы updateSkinUI увидел его)
+        if (!inventory.skins) inventory.skins = ["default"];
+        inventory.skins.push("star");
+
+        // 3. Сразу делаем его активным
+        activeSkin = "star";
         currentSkin = "star";
-        localStorage.setItem("activeSkin", "star");
-        saveUserData();
+        
+        saveUserData(); // Сохраняем в Firebase
         updateMenuInfo();
-        alert("Скин 'Звездный Берри' надет!");
+        updateSkinUI(); // Обновляем кнопки в меню выбора
+        
+        alert("Звездный Берри теперь твой навсегда!");
     } else {
         alert("Недостаточно алмазов!");
     }
