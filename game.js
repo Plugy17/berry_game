@@ -17,8 +17,8 @@ let gameState = {
 // 2. МОСТИКИ ДЛЯ СОВМЕСТИМОСТИ (Чтобы старый код не ломался)
 // ========================================================
 // Убираем 'let' у этих переменных ниже по коду, если они там есть!
-let currentSkin = gameState.currentSkin; 
-let inventory = {
+ currentSkin = gameState.currentSkin; 
+ inventory = {
     get magnet() { return gameState.inventory.items.magnet; },
     set magnet(val) { gameState.inventory.items.magnet = val; },
     get shield() { return gameState.inventory.items.shield; },
@@ -316,9 +316,15 @@ function loadUserData(id) {
             saveUserData();
         }
         updateMenuInfo();
+        const loader = document.getElementById("loadingScreen") || document.getElementById("loading-screen");
+        if (loader) loader.classList.add("hidden"); 
+    }).catch((err) => {
+        console.error("Ошибка загрузки:", err);
     }).catch((err) => {
         console.error("Ошибка загрузки:", err);
         updateMenuInfo();
+    const loader = document.getElementById("loadingScreen");
+        if (loader) loader.classList.add("hidden");
     });
 }
 
