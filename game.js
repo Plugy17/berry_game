@@ -407,13 +407,13 @@ function startGame() {
         if (!val || val.length < 2) return alert("Введи имя!");
         nick = val; 
         userId = val;
-        localStorage.setItem("nick", nick);[cite: 1]
+        localStorage.setItem("nick", nick);
     }
 
     // 3. Установка скина из активного выбора
     if (p) {
-        const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
-        p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
+        const skinData = skins.find(s => s.id === activeSkin) || skins[0];
+        p.style.backgroundImage = `url('${skinData.img}')`;
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
@@ -421,11 +421,11 @@ function startGame() {
         p.classList.remove(
             "skin-star", "skin-pirate", "skin-silver",
             "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
-        );[cite: 3]
+        );
         
         if (activeSkin !== "default") {
             p.classList.add(`skin-${activeSkin}`);
-            p.classList.add(`skin-${activeSkin}-aura`);[cite: 3]
+            p.classList.add(`skin-${activeSkin}-aura`);
         }
     }
 
@@ -459,7 +459,7 @@ function startGame() {
     const loadingScreen = document.getElementById("loadingScreen");
     if (loadingScreen) loadingScreen.classList.add("hidden");
 
-    resetGame();[cite: 1]
+    resetGame();
     console.log("Игра успешно запущена на сложности:", level);
 }
 
