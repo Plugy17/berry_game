@@ -469,8 +469,21 @@ function startGame() {
     resetGame();
 }
 
+// 1. ФУНКЦИЯ ОТРИСОВКИ
+// Вызывается в игровом цикле update()
+function drawPlayer() {
+    const p = document.getElementById("player");
+    if (!p) return;
+
+    // Используем только проценты для позиции, чтобы избежать конфликтов
+    p.style.left = lanes[targetLane] + "%";
+    
+    // Картинку здесь НЕ ТРОГАЕМ, чтобы игра не лагала
+}
+
+// 2. ИСПРАВЛЕННЫЙ БЛОК СБРОСА ИГРЫ
 function resetGame() {
-    // 1. Сброс игровых механик
+    // --- 1. Сброс игровых механик ---
     coins = 0; 
     comboCount = 0; 
     comboMultiplier = 1;
@@ -480,38 +493,43 @@ function resetGame() {
     speed = baseSpeed;
     gameRunning = true;
     
-    // Сброс способностей
+    // Сброс уникальных способностей скинов
     pirateShieldUsed = false; 
     if (typeof silverTimer !== 'undefined' && silverTimer) clearTimeout(silverTimer);
 
-    // 2. РАБОТА С ПЕРСОНАЖЕМ (Тут мы фиксим отображение Звездного)
+    // --- 2. ЖЕСТКАЯ ПРИВЯЗКА ВИЗУАЛА К ВЫБРАННОМУ СКИНУ ---
     const p = document.getElementById("player");
     if (p) {
-        // Очищаем старые ауры, но не трогаем сам элемент
+        // Полностью очищаем классы, чтобы убрать старые ауры
         p.className = ""; 
         p.style.filter = "none";
         
-        // Берем скин, который сейчас выбран в currentSkin
+        // Достаем путь к картинке из твоего словаря skinFiles по текущему ID[cite: 3]
+        // Если currentSkin = "star", выберется путь к звездной ягоде
         const skinPath = skinFiles[currentSkin] || skinFiles['default'];
+        
+        // Принудительно ставим картинку в стили[cite: 3]
         p.style.backgroundImage = `url('${skinPath}')`;
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Добавляем ауру, если скин не обычный
+        // Добавляем класс ауры только если выбран спец-скин[cite: 3]
         if (currentSkin === "star") p.classList.add("skin-star-aura");
         if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");
         if (currentSkin === "silver") p.classList.add("skin-silver-aura");
         
+        // Начальная позиция
         p.style.left = lanes[targetLane] + "%";
     }
 
-    // 3. Запуск
+    // --- 3. Обновление интерфейса и старт ---
     updateScore(); 
     updateBonusUI();
+    
     if (loopId) cancelAnimationFrame(loopId);
     
-    // Очистка старых объектов, чтобы не мешались
-    document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
+    // Очищаем старые объекты с поля[cite: 3]
+    document.querySelectorAll(".obstacle").forEach(obs => obs.remove());
     
     spawnObstacle();
     update();
@@ -570,16 +588,6 @@ function spawnObstacle() {
     obs.style.top = "-100px"; 
 
     gameLayer.appendChild(obs);
-}
-
-// 1. Функция отрисовки (вызывается в игровом цикле update)
-function drawPlayer() {
-    const p = document.getElementById("player");
-    if (!p) return;
-
-    // Обновляем только позицию по горизонтали в процентах
-    // Это исправляет баг, когда игрок улетал за экран из-за player.x
-    p.style.left = lanes[targetLane] + "%";
 }
 
 function update() {
