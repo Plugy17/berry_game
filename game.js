@@ -1080,22 +1080,22 @@ function selectSkin(skinId) {
         // 1. Обновляем картинку в меню превью
         const preview = document.getElementById("skinPreview");
         if (preview) {
-            preview.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
+            preview.style.backgroundImage = `url('${skinData.img}')`;
         }
 
         // 2. СРАЗУ обновляем игрока (картинку + ауру)
         const p = document.getElementById("player");
         if (p) {
             // Берем путь к файлу напрямую из данных скина (skinData.img)
-            p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
+            p.style.backgroundImage = `url('${skinData.img}')`;
             
             // ОБЯЗАТЕЛЬНО: Обновляем классы аур
             // Сначала удаляем все возможные старые ауры
-            p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");[cite: 3]
+            p.classList.remove("skin-star-aura", "skin-pirate-aura", "skin-silver-aura");
             
             // Добавляем новую ауру, если она нужна (не дефолтный скин)
             if (skinId !== 'default') {
-                p.classList.add(`skin-${skinId}-aura`);[cite: 3]
+                p.classList.add(`skin-${skinId}-aura`);
             }
         }
 
@@ -1104,6 +1104,6 @@ function selectSkin(skinId) {
         localStorage.setItem("activeSkin", skinId); // Дублируем в локальную память для надежности[cite: 1]
         
         updateSkinUI(); // Обновляем кнопки в меню (Выбрано/Выбрать)
-        console.log("Скин успешно применен: " + skinId);[cite: 1]
+        console.log("Скин успешно применен: " + skinId);
     }
 }
