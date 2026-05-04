@@ -480,37 +480,39 @@ function resetGame() {
     speed = baseSpeed;
     gameRunning = true;
     
-    // Сброс уникальных способностей скинов
+    // Сброс способностей
     pirateShieldUsed = false; 
     if (typeof silverTimer !== 'undefined' && silverTimer) clearTimeout(silverTimer);
 
-    // 2. РАБОТА С ПЕРСОНАЖЕМ
+    // 2. РАБОТА С ПЕРСОНАЖЕМ (Тут мы фиксим отображение Звездного)
     const p = document.getElementById("player");
-    
     if (p) {
-        // Очищаем старые ауры и эффекты
+        // Очищаем старые ауры, но не трогаем сам элемент
         p.className = ""; 
         p.style.filter = "none";
         
-        // --- ФИКС КАРТИНКИ И ЭФФЕКТОВ ---
-        // Берем актуальный путь из assets через наш словарь
+        // Берем скин, который сейчас выбран в currentSkin
         const skinPath = skinFiles[currentSkin] || skinFiles['default'];
         p.style.backgroundImage = `url('${skinPath}')`;
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Добавляем спецэффекты (ауры), если они нужны
+        // Добавляем ауру, если скин не обычный
         if (currentSkin === "star") p.classList.add("skin-star-aura");
         if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");
-        // -------------------------------
+        if (currentSkin === "silver") p.classList.add("skin-silver-aura");
         
         p.style.left = lanes[targetLane] + "%";
     }
 
-    // 3. Обновление интерфейса и запуск
+    // 3. Запуск
     updateScore(); 
     updateBonusUI();
     if (loopId) cancelAnimationFrame(loopId);
+    
+    // Очистка старых объектов, чтобы не мешались
+    document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
+    
     spawnObstacle();
     update();
 }
@@ -570,17 +572,14 @@ function spawnObstacle() {
     gameLayer.appendChild(obs);
 }
 
-// 1. Функция отрисовки (вызывается в игровом цикле)
+// 1. Функция отрисовки (вызывается в игровом цикле update)
 function drawPlayer() {
     const p = document.getElementById("player");
     if (!p) return;
 
-    // Обновляем только координаты, чтобы персонаж двигался
-    p.style.left = player.x + 'px';
-    p.style.top = player.y + 'px';
-    
-    // Картинку здесь менять НЕ нужно (это тормозит игру), 
-    // она меняется один раз в функции selectSkin или при старте.
+    // Обновляем только позицию по горизонтали в процентах
+    // Это исправляет баг, когда игрок улетал за экран из-за player.x
+    p.style.left = lanes[targetLane] + "%";
 }
 
 function update() {
@@ -1077,28 +1076,24 @@ function onPurchaseSuccess(skinId) {
 function selectSkin(skinId) {
     if (inventory.skins && inventory.skins.includes(skinId)) {
         activeSkin = skinId;
-        currentSkin = skinId; // для синхронизации с базой
+        currentSkin = skinId; // Синхронизируем обе переменные
 
-        // --- ДОБАВЛЕННЫЙ БЛОК ДЛЯ ИСПРАВЛЕНИЯ ГРАФИКИ В ИГРЕ ---
-        const skinFiles = {
-            'default': 'assets/berry.png',
-            'pirate': 'assets/berry3.png',
-            'silver': 'assets/berry4.png',
-            'star': 'assets/berry2.png'
-        };
-
-        // Обновляем путь к файлу для основного изображения игрока
-        if (berryImg) { 
-            berryImg.src = skinFiles[skinId] || skinFiles['default'];
+        // 1. Обновляем картинку в меню превью
+        const skin = skins.find(s => s.id === skinId);
+        const preview = document.getElementById("skinPreview");
+        if (preview && skin) {
+            preview.style.backgroundImage = `url('${skin.img}')`;
         }
-        // -------------------------------------------------------
 
-        saveUserData(); // сохраняем выбор надетый скин в Firebase
-        
-        // Применяем уникальные эффекты (скорость, множитель и т.д.)
-        applySkinEffects(skinId); 
-        
+        // 2. СРАЗУ обновляем картинку игрока, если он уже на экране
+        const p = document.getElementById("player");
+        if (p) {
+            const imgUrl = skinFiles[skinId] || skinFiles['default'];
+            p.style.backgroundImage = `url('${imgUrl}')`;
+        }
+
+        saveUserData(); // Сохраняем в Firebase
         updateSkinUI(); 
-        console.log("Скин изменен на: " + skinId + ", файл: " + (skinFiles[skinId] || "default"));
+        console.log("Скин успешно применен: " + skinId);
     }
 }
