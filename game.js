@@ -570,17 +570,17 @@ function spawnObstacle() {
     gameLayer.appendChild(obs);
 }
 
-// 1. Сама функция (определяем её отдельно)
+// 1. Функция отрисовки (вызывается в игровом цикле)
 function drawPlayer() {
     const p = document.getElementById("player");
     if (!p) return;
 
-    // В ТВОЕМ СЛУЧАЕ: 
-    // Поскольку ты используешь DOM-элементы (div с id="player"), а не Canvas (ctx),
-    // нам нужно менять фоновую картинку этого div-а, а не вызывать ctx.drawImage.
+    // Обновляем только координаты, чтобы персонаж двигался
+    p.style.left = player.x + 'px';
+    p.style.top = player.y + 'px';
     
-    const currentImgUrl = skinFiles[activeSkin] || skinFiles['default'];
-    p.style.backgroundImage = `url('${currentImgUrl}')`;
+    // Картинку здесь менять НЕ нужно (это тормозит игру), 
+    // она меняется один раз в функции selectSkin или при старте.
 }
 
 function update() {
@@ -1078,14 +1078,27 @@ function selectSkin(skinId) {
     if (inventory.skins && inventory.skins.includes(skinId)) {
         activeSkin = skinId;
         currentSkin = skinId; // для синхронизации с базой
-        
+
+        // --- ДОБАВЛЕННЫЙ БЛОК ДЛЯ ИСПРАВЛЕНИЯ ГРАФИКИ В ИГРЕ ---
+        const skinFiles = {
+            'default': 'assets/berry.png',
+            'pirate': 'assets/berry3.png',
+            'silver': 'assets/berry4.png',
+            'star': 'assets/berry2.png'
+        };
+
+        // Обновляем путь к файлу для основного изображения игрока
+        if (berryImg) { 
+            berryImg.src = skinFiles[skinId] || skinFiles['default'];
+        }
+        // -------------------------------------------------------
+
         saveUserData(); // сохраняем выбор надетый скин в Firebase
         
-        // Если у скинов есть уникальные эффекты (скорость, множитель), 
-        // применяй их здесь
+        // Применяем уникальные эффекты (скорость, множитель и т.д.)
         applySkinEffects(skinId); 
         
         updateSkinUI(); 
-        console.log("Скин изменен на: " + skinId);
+        console.log("Скин изменен на: " + skinId + ", файл: " + (skinFiles[skinId] || "default"));
     }
 }
