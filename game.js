@@ -246,31 +246,44 @@ function createCubeBoom(x, y) {
 }
 
 function loadUserData(id) {
-    if (!window.db || !id) return updateMenuInfo();
+    const loader = document.getElementById("loading-screen");
+    
+    // ГАРАНТИЯ: Скрываем загрузчик через 3.5 секунды в любом случае
+    const forceCloseLoader = setTimeout(() => {
+        if (loader && !loader.classList.contains("hidden")) {
+            loader.classList.add("hidden");
+            console.warn("Загрузка форсирована по таймауту (Firebase не ответил вовремя)");
+        }
+    }, 3500);
+
+    if (!window.db || !id) {
+        clearTimeout(forceCloseLoader);
+        if (loader) loader.classList.add("hidden");
+        return updateMenuInfo();
+    }
     
     const userRef = db.ref('players/' + id);
     userRef.once('value').then((snapshot) => {
+        // Если данные пришли, отменяем экстренный таймаут
+        clearTimeout(forceCloseLoader);
+
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // 1. Обновляем глобальные переменные
             best = Number(data.best) || 0;
             totalCoins = Number(data.totalCoins) || 0;
             totalDiamonds = Number(data.totalDiamonds) || 0; 
             
-            // 2. Синхронизируем gameState
             gameState.currentSkin = data.currentSkin || "default";
             activeSkin = gameState.currentSkin;
             currentSkin = gameState.currentSkin;
 
-            // 3. Загружаем инвентарь
             if (data.inventory) {
                 gameState.inventory.items.shield = Number(data.inventory.shield) || 0;
                 gameState.inventory.items.magnet = Number(data.inventory.magnet) || 0;
                 gameState.inventory.items.diamonds = totalDiamonds;
                 gameState.inventory.skins = data.inventory.skins || ["default"];
                 
-                // Синхронизация мостика
                 inventory.shield = gameState.inventory.items.shield;
                 inventory.magnet = gameState.inventory.items.magnet;
                 inventory.skins = gameState.inventory.skins;
@@ -280,13 +293,14 @@ function loadUserData(id) {
         } else {
             saveUserData();
         }
+
         updateMenuInfo();
-        const loader = document.getElementById("loadingScreen") || document.getElementById("loading-screen");
         if (loader) loader.classList.add("hidden"); 
+
     }).catch((err) => {
+        clearTimeout(forceCloseLoader);
         console.error("Ошибка Firebase:", err);
         updateMenuInfo();
-        const loader = document.getElementById("loadingScreen");
         if (loader) loader.classList.add("hidden");
     });
 }
