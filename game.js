@@ -996,7 +996,7 @@ function selectSkin(skinId) {
 // --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ---
 window.addEventListener('DOMContentLoaded', () => {
     // 1. Прячем загрузочный экран (если он есть), так как скрипт дочитан до конца
-    const loader = document.getElementById("loader") || document.querySelector(".loading-screen");
+    const loader = document.getElementById("loader") || document.querySelector(".loading");
     if (loader) loader.style.display = "none";
 
     // 2. Настраиваем кнопки на экране проигрыша
@@ -1027,13 +1027,27 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Добавь это в конец game.js
-setTimeout(() => {
-    const btn = document.getElementById("continue-btn");
-    if (btn) {
-        btn.classList.remove("hidden");
-        btn.onclick = () => {
-            document.getElementById("loading-screen").classList.add("hidden");
-        };
+function openShop() {
+    const mainMenu = document.getElementById('menu'); // Проверь, какой ID у главного меню: 'menu' или 'main-menu'
+    const shopScreen = document.getElementById('shop');
+    
+    if (shopScreen) {
+        if (mainMenu) mainMenu.classList.add('hidden');
+        shopScreen.classList.remove('hidden');
+        console.log("Магазин открыт");
+        if (typeof updateSkinUI === "function") updateSkinUI(); 
+    } else {
+        console.error("Элемент с id='shop' не найден!");
     }
-}, 2000); // Показать кнопку через 2 секунды, если экран еще висит
+}
+
+function closeShop() {
+    const mainMenu = document.getElementById('menu');
+    const shopScreen = document.getElementById('shop');
+    
+    if (shopScreen) {
+        shopScreen.classList.add('hidden');
+        if (mainMenu) mainMenu.classList.remove('hidden');
+        console.log("Магазин закрыт");
+    }
+}
