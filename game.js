@@ -424,50 +424,32 @@ function resetGame() {
     targetLane = 1; 
     speed = baseSpeed; // Возвращаем к начальной скорости сложности
     gameRunning = true;
+    
+    // Сброс способностей новых скинов
+    pirateShieldUsed = false; 
+    if (typeof silverTimer !== 'undefined' && silverTimer) clearTimeout(silverTimer);
 
     // 2. Работа с персонажем
-    const p = document.getElementById("player");
+    const p = document.getElementById("player"); // ОБЪЯВЛЯЕМ ТОЛЬКО ОДИН РАЗ
     if (p) {
-        p.className = ""; // Очищаем всё (ауры, анимации)
-        
-        // ВОЗВРАЩАЕМ СКИН: Если активен звездный скин, добавляем его класс обратно
-        if (currentSkin === "star") {
-            p.classList.add("skin-star");
-        }
-        
-        p.style.left = lanes[targetLane] + "%";
-    }
-
-    pirateShieldUsed = false;
-    if (silverTimer) clearTimeout(silverTimer);
-    
-    const p = document.getElementById("player");
-    if (p) {
+        p.className = ""; // Полная очистка всех старых аур и классов
         p.style.filter = "none";
-        p.className = "";
-        // Установка новых классов скинов[cite: 1]
-        if (currentSkin === "pirate") p.classList.add("skin-pirate");
-        if (currentSkin === "silver") p.classList.add("skin-silver");
-        if (currentSkin === "star") p.classList.add("skin-star");[cite: 1]
-        if (currentSkin === "pirate") {
-            p.classList.add("skin-pirate-aura"); // Пират всегда с аурой значков
-        }
         
+        // ПРИМЕНЯЕМ СКИНЫ
+        if (currentSkin === "star") p.classList.add("skin-star");[cite: 1]
+        if (currentSkin === "pirate") p.classList.add("skin-pirate-aura");[cite: 1]
         if (currentSkin === "silver") {
-            // Силвер начинает без свечения (оно появится от алмаза)
+            // Силвер начинает без свечения, оно появится от алмаза
         }
         
         p.style.left = lanes[targetLane] + "%";[cite: 1]
     }
 
-    // 3. Обновление интерфейса и запуск
+    // 3. Обновление интерфейса и запуск[cite: 1]
     updateScore(); 
     updateBonusUI();
     
-    // Очищаем старый цикл, чтобы игра не ускорялась в два раза при рестарте
     if (loopId) cancelAnimationFrame(loopId);
-    
-    // Запускаем первый объект и цикл отрисовки
     spawnObstacle();
     update();
 }
