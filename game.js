@@ -718,38 +718,45 @@ function activateSilverInvincibility() {
             obs.remove();
         }
 
-        // --- 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ) ---
-        else if (type === "gift_black") {
-            let loss = 15 + Math.floor(Math.random() * 15);
-            coins = Math.max(0, coins - loss);
-            
-            // Сбрасываем комбо при плохом подарке
-            comboCount = 0;
-            comboMultiplier = 1;
-            
-            if (typeof createCubeBoom === 'function') {
-                createCubeBoom(centerX, centerY); // Эффект взрыва
-            }
-            
-            updateScore();
+        // 3. ЛОГИКА ЧЕРНОГО ПОДАРКА (ШТРАФ)
+    else if (type === "gift_black") {
+        if (currentSkin === "pirate") {
+            console.log("Пират игнорирует штраф!");
             obs.remove();
+            return; 
+        }
+        
+        let loss = 15 + Math.floor(Math.random() * 15);
+        coins = Math.max(0, coins - loss);
+        comboCount = 0;
+        comboMultiplier = 1;
+
+        if (typeof createCubeBoom === 'function') {
+            createCubeBoom(centerX, centerY);
         }
 
-        // --- 4. ПРЕПЯТСТВИЯ (BAD) ---
-        else {
-            if (shieldActive) {
-                obs.remove(); 
-                shieldActive = false; 
-                p.classList.remove("shield-aura");
-                if (window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
-                }
-            } else {
-                gameOver();
+        updateScore();
+        obs.remove();
+    }
+    // 4. ПРЕПЯТСТВИЯ (BAD) — здесь исправляем 'else' на 'else if'
+    else if (type === "bad") { 
+        if (shieldActive) {
+            obs.remove();
+            shieldActive = false;
+            p.classList.remove("shield-aura");
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
             }
+        } else if (currentSkin === "pirate" && !pirateShieldUsed) {
+            pirateShieldUsed = true;
+            createCubeBoom(centerX, centerY);
+            if (p) p.classList.remove("skin-pirate-aura");
+            obs.remove();
+        } else {
+            gameOver();
         }
-    }, 0);
-}
+    }
+} // Закрывающая скобка функции handleCollision
 
 function updateScore() {
     // Используем textContent — это в десятки раз быстрее, чем innerHTML
