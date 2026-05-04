@@ -400,7 +400,7 @@ function startGame() {
     const level = diffSelect ? diffSelect.value : 'medium';
     const p = document.getElementById("player");
 
-    // 1. Логика ника
+    // 1. Проверка ника
     if (!nick) {
         const val = document.getElementById("nick")?.value.trim();
         if (!val || val.length < 2) return alert("Введи имя!");
@@ -409,26 +409,26 @@ function startGame() {
         localStorage.setItem("nick", nick);[cite: 1]
     }
 
-    // 2. ФИКС СКИНОВ И АУР (Единая логика)
+    // 2. Установка скина и ауры (Исправленный блок)
     if (p) {
-        // Находим данные скина в массиве по ID
+        // Находим данные скина в массиве
         const skinData = skins.find(s => s.id === activeSkin) || skins[0];[cite: 1]
         
-        // Устанавливаем картинку напрямую
+        // Устанавливаем картинку
         p.style.backgroundImage = `url('${skinData.img}')`;[cite: 1]
         p.style.backgroundSize = "contain";
         p.style.backgroundRepeat = "no-repeat";
 
-        // Очищаем ВСЕ старые классы (и ауры, и скины)
+        // Очищаем старые эффекты
         p.classList.remove(
             "skin-star", "skin-pirate", "skin-silver",
             "skin-star-aura", "skin-pirate-aura", "skin-silver-aura"
         );[cite: 3]
         
-        // Добавляем актуальные эффекты, если скин не дефолтный
+        // Добавляем новые, если нужно
         if (activeSkin !== "default") {
-            p.classList.add(`skin-${activeSkin}`); // Для стилей
-            p.classList.add(`skin-${activeSkin}-aura`); // Для ауры
+            p.classList.add(`skin-${activeSkin}`);
+            p.classList.add(`skin-${activeSkin}-aura`);[cite: 3]
         }
     }
 
@@ -451,7 +451,7 @@ function startGame() {
     speed = baseSpeed;      
     lastSpawnTime = 0;      
     
-    // 4. Очистка и запуск цикла
+    // 4. Очистка и запуск интервала
     document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
     if (window.gameInterval) clearInterval(window.gameInterval); 
 
@@ -464,13 +464,13 @@ function startGame() {
     stopIceRain(); 
     if (loopId) cancelAnimationFrame(loopId);
 
-    // 5. Переключение экранов
+    // 5. Переключение интерфейса
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("gameOverScreen").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
     resetGame();
-    console.log("Игра запущена со скином:", activeSkin, "на сложности:", level);[cite: 1]
+    console.log("Игра успешно запущена!");[cite: 1]
 }
 
 // 1. ФУНКЦИЯ ОТРИСОВКИ
