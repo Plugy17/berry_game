@@ -996,7 +996,7 @@ function selectSkin(skinId) {
 // --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ---
 window.addEventListener('DOMContentLoaded', () => {
     // 1. Прячем загрузочный экран (если он есть), так как скрипт дочитан до конца
-    const loader = document.getElementById("loader") || document.querySelector(".loading");
+    const loader = document.getElementById("loader") || document.querySelector(".loading-screen");
     if (loader) loader.style.display = "none";
 
     // 2. Настраиваем кнопки на экране проигрыша
