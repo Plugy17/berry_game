@@ -6,12 +6,14 @@
     <title>BERRY RUNNER ONLINE</title>
     <link rel="stylesheet" href="style.css">
     
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
+<!-- ЭКРАН ЗАГРУЗКИ -->
 <div id="loading-screen">
     <div class="loader-content">
         <div class="spinner"></div>
@@ -23,37 +25,38 @@
     </div>
 </div>
 
+<!-- КОСМИЧЕСКИЙ ФОН -->
 <div class="background-wrapper">
     <div class="nebula-1"></div>
     <div class="nebula-2"></div>
     <div class="stars-overlay"></div>
 </div>
 
+<!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
     <div class="top-bar-container">
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
+            
+            <!-- СЕКЦИЯ ВЫБОРА СКИНА В МЕНЮ -->
             <div class="skin-menu-section">
-    <div class="skin-carousel">
-        <button class="nav-btn prev" id="prevSkin">❮</button>
-        
-        <!-- Теперь Берри просто «парит» в меню без рамок -->
-        <div class="skin-item-preview">
-            <div id="skinPreview" class="skin-main-img"></div>
-        </div>
-        
-        <button class="nav-btn next" id="nextSkin">❯</button>
-    </div>
+                <div class="skin-carousel">
+                    <button class="nav-btn prev" id="prevSkin">❮</button>
+                    <div class="skin-item-preview">
+                        <div id="skinPreview" class="skin-main-img"></div>
+                    </div>
+                    <button class="nav-btn next" id="nextSkin">❯</button>
+                </div>
 
-    <!-- Название и статус выбора -->
-    <div class="skin-info">
-        <div id="skinName" class="skin-title-text">БЕРРИ</div>
-        <button id="selectSkinBtn" class="select-btn">ВЫБРАТЬ</button>
-    </div>
-</div>
-            <!-- Исправленный баланс в меню: Мороженое + Алмазы -->
+                <div class="skin-info">
+                    <div id="skinName" class="skin-title-text">БЕРРИ</div>
+                    <button id="selectSkinBtn" class="select-btn">ВЫБРАТЬ</button>
+                </div>
+            </div>
+
+            <!-- БАЛАНС И РЕКОРД -->
             <div id="total-balance" class="balance-info">
                 <span id="menuCoinCount">0</span> | 
                 <span id="menuDiamondCount">0</span> 
@@ -71,11 +74,12 @@
             <option value="medium" selected>🟨 Средне</option>
             <option value="hard">🟥 Сложно</option>
         </select>
-        <button onclick="startGame()">ИГРАТЬ</button>
-        <button onclick="openShop()">🛒 Магазин</button>
+        <button onclick="if(typeof startGame === 'function') startGame()">ИГРАТЬ</button>
+        <button onclick="if(typeof openShop === 'function') openShop()">🛒 Магазин</button>
     </div>
 </div>
 
+<!-- ИГРОВОЙ ЭКРАН -->
 <div id="game" class="screen hidden">
     <div id="game-top-bar">
         <button id="pauseBtn" class="clean-button" onclick="togglePause()">
@@ -97,6 +101,7 @@
     <div id="combo-display" class="combo-text"></div>
     <div id="player"></div> 
 
+    <!-- КНОПКИ БОНУСОВ -->
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
             <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
@@ -109,6 +114,7 @@
     </div>
 </div>
 
+<!-- ЭКРАН GAME OVER -->
 <div id="gameOverScreen" class="hidden">
     <div class="go-card">
         <div class="go-title">БА-БАХ!</div>
@@ -123,7 +129,7 @@
     </div>
 </div>
 
-<!-- Магазин теперь с четкой структурой -->
+<!-- МАГАЗИН -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">МАГАЗИН</h2>
 
@@ -135,37 +141,37 @@
     </div>
 
     <div class="shop-container">
-       <!-- ТОВАР 1: ЗВЕЗДНЫЙ БЕРРИ (Оригинал) -->
-<div class="shop-item">
-    <img src="assets/berry2.png" alt="Star Berry">
-    <div class="item-title">ЗВЕЗДНЫЙ БЕРРИ</div>
-    <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">Магнит +6с | Комбо x8</div>
-    <button id="buySkinBtn" class="buy-button" onclick="buyStarSkin()">
-        100 <span class="diamond-icon"></span>
-    </button>
-</div>
+        <!-- ТОВАР 1: ЗВЕЗДНЫЙ БЕРРИ -->
+        <div class="shop-item">
+            <img src="assets/berry2.png" alt="Star Berry">
+            <div class="item-title">ЗВЕЗДНЫЙ БЕРРИ</div>
+            <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">Магнит +6с | Комбо x8</div>
+            <button id="buyStarBtn" class="buy-button" onclick="buySkin('star', 100)">
+                100 <span class="diamond-icon"></span>
+            </button>
+        </div>
 
-<!-- ТОВАР 2: ПИРАТ БЕРРИ (Сделан по аналогии с первым) -->
-<div class="shop-item">
-    <img src="assets/berry3.png" alt="Pirate Berry">
-    <div class="item-title">ПИРАТ БЕРРИ</div>
-    <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">Игнор черных подарков + 1 жизнь</div>
-    <button class="buy-button" onclick="buySkin('pirate')">
-        300 <span class="diamond-icon"></span>
-    </button>
-</div>
+        <!-- ТОВАР 2: ПИРАТ БЕРРИ -->
+        <div class="shop-item">
+            <img src="assets/berry3.png" alt="Pirate Berry">
+            <div class="item-title">ПИРАТ БЕРРИ</div>
+            <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">Игнор подарков + 1 жизнь</div>
+            <button class="buy-button" onclick="buySkin('pirate', 300)">
+                300 <span class="diamond-icon"></span>
+            </button>
+        </div>
 
-<!-- ТОВАР 3: СИЛВЕР БЕРРИ (Сделан по аналогии с первым) -->
-<div class="shop-item">
-    <img src="assets/berry4.png" alt="Silver Berry">
-    <div class="item-title">СИЛВЕР БЕРРИ</div>
-    <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">30 сек защиты за каждый алмаз</div>
-    <button class="buy-button" onclick="buySkin('silver')">
-        500 <span class="diamond-icon"></span>
-    </button>
-</div>
+        <!-- ТОВАР 3: СИЛВЕР БЕРРИ -->
+        <div class="shop-item">
+            <img src="assets/berry4.png" alt="Silver Berry">
+            <div class="item-title">СИЛВЕР БЕРРИ</div>
+            <div style="color: #00eaff; font-size: 11px; margin-bottom: 10px;">30с защиты за алмаз</div>
+            <button class="buy-button" onclick="buySkin('silver', 500)">
+                500 <span class="diamond-icon"></span>
+            </button>
+        </div>
 
-        <!-- ТОВАР 2: ЩИТ -->
+        <!-- ТОВАР 4: ЩИТ -->
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
             <div class="item-title">ЩИТ</div>
@@ -174,7 +180,7 @@
             </button>
         </div>
 
-        <!-- ТОВАР 3: МАГНИТ -->
+        <!-- ТОВАР 5: МАГНИТ -->
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
             <div class="item-title">МАГНИТ</div>
@@ -183,10 +189,10 @@
             </button>
         </div>
 
-        <!-- ТОВАР 4: ОБМЕННИК -->
+        <!-- ТОВАР 6: ОБМЕННИК -->
         <div class="shop-item exchange-block">
             <div class="item-title" style="font-size: 16px;">ОБМЕН ВАЛЮТЫ</div>
-            <button class="buy-button" onclick="exchangeIceToDiamond()" style="font-size: 13px; margin-top: 5px;">
+            <button class="buy-button" onclick="exchangeIceToDiamond()">
                 1000 <span class="ice-icon"></span> ➔ 10 <span class="diamond-icon"></span>
             </button>
         </div>
@@ -195,6 +201,7 @@
     <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
 </div>
 
+<!-- ИНИЦИАЛИЗАЦИЯ FIREBASE -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
@@ -206,13 +213,20 @@
     appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
     measurementId: "G-LLJ9L848G0"
   };
+  
   try {
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     window.db = firebase.database();
-  } catch (e) { console.error("Firebase init error:", e); window.db = null; }
+    console.log("Firebase подключен успешно![cite: 4]");
+  } catch (e) { 
+    console.error("Firebase init error:", e); 
+    window.db = null; 
+  }
 </script>
+
+<!-- ГЛАВНЫЙ СКРИПТ ИГРЫ -->
 <script src="game.js?v=77.6"></script>
 </body>
 </html>
