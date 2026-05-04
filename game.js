@@ -1028,3 +1028,19 @@ function onPurchaseSuccess(skinId) {
     }
 }
 
+function selectSkin(skinId) {
+    if (inventory.skins && inventory.skins.includes(skinId)) {
+        activeSkin = skinId;
+        currentSkin = skinId; // для синхронизации с базой
+        
+        saveUserData(); // сохраняем выбор надетый скин в Firebase
+        
+        // Если у скинов есть уникальные эффекты (скорость, множитель), 
+        // применяй их здесь
+        applySkinEffects(skinId); 
+        
+        updateSkinUI(); 
+        console.log("Скин изменен на: " + skinId);
+    }
+}
+
