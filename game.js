@@ -1026,3 +1026,14 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error("Ошибка инициализации интерфейса:", e);
     }
 });
+
+// Добавь это в конец game.js
+setTimeout(() => {
+    const btn = document.getElementById("continue-btn");
+    if (btn) {
+        btn.classList.remove("hidden");
+        btn.onclick = () => {
+            document.getElementById("loading-screen").classList.add("hidden");
+        };
+    }
+}, 2000); // Показать кнопку через 2 секунды, если экран еще висит
