@@ -960,3 +960,23 @@ function buySkin(skinId, price) {
     }
 }
 
+function onPurchaseSuccess(skinId) {
+    // 1. Сохраняем локально, чтобы сработало мгновенно
+    if (!purchasedSkins.includes(skinId)) {
+        purchasedSkins.push(skinId);
+        localStorage.setItem('berry_inventory', JSON.stringify(purchasedSkins));
+    }
+
+    // 2. Отправляем в Firebase для "вечного" хранения
+    if (userId) {
+        const userRef = ref(db, 'users/' + userId);
+        update(userRef, {
+            inventory: purchasedSkins
+        }).then(() => {
+            console.log("Данные синхронизированы с облаком");
+        }).catch((error) => {
+            console.error("Ошибка сохранения в Firebase:", error);
+        });
+    }
+}
+
