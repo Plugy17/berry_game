@@ -1,33 +1,28 @@
+// ЭТО В САМОМ ВЕРХУ
+const skinFiles = {
+    'default': 'assets/berry.png',
+    'pirate': 'assets/berry2.png',
+    'silver': 'assets/berry3.png',
+    'star': 'assets/berry4.png'
+};
+
+const loadedSkins = {};
+
+// Предзагрузка запускается СРАЗУ
+Object.keys(skinFiles).forEach(skinId => {
+    const img = new Image();
+    img.src = skinFiles[skinId]; 
+    img.onload = () => console.log(`Спрайт ${skinId} успешно загружен из assets`);
+    img.onerror = () => console.error(`Ошибка: файл не найден по пути ${skinFiles[skinId]}`);
+    loadedSkins[skinId] = img;
+});
+
 // Используем addEventListener, чтобы не конфликтовать с другими скриптами
 window.addEventListener('load', function() {
     const userIdDisplay = document.getElementById("user-id-display");
     const continueBtn = document.getElementById("continue-btn");
     const loadingScreen = document.getElementById("loading-screen");
     
-    // 1. Создаем карту соответствия ID скина и имени файла из твоего проекта
-const skinFiles = {
-    'default': 'berry.png',
-    'pirate': 'berry2.png',
-    'silver': 'berry3.png',
-    'star': 'berry4.png'
-};
-
-// 2. Объект, где будут храниться уже загруженные картинки
-const loadedSkins = {};
-
-// 3. Запускаем цикл предзагрузки всех доступных скинов
-Object.keys(skinFiles).forEach(skinId => {
-    const img = new Image();
-    img.src = skinFiles[skinId];
-    img.onload = () => {
-        console.log(`Спрайт ${skinId} успешно загружен`);
-    };
-    img.onerror = () => {
-        console.error(`Ошибка загрузки спрайта: ${skinFiles[skinId]}`);
-    };
-    loadedSkins[skinId] = img;
-});
-
     // 1. ОПРЕДЕЛЯЕМ ID (Telegram или Гость)
     let currentId = "Guest_" + Math.floor(Math.random() * 10000);
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -564,11 +559,27 @@ function spawnObstacle() {
     gameLayer.appendChild(obs);
 }
 
+// 1. Сама функция (определяем её отдельно)
+function drawPlayer() {
+    const p = document.getElementById("player");
+    if (!p) return;
+
+    // В ТВОЕМ СЛУЧАЕ: 
+    // Поскольку ты используешь DOM-элементы (div с id="player"), а не Canvas (ctx),
+    // нам нужно менять фоновую картинку этого div-а, а не вызывать ctx.drawImage.
+    
+    const currentImgUrl = skinFiles[activeSkin] || skinFiles['default'];
+    p.style.backgroundImage = `url('${currentImgUrl}')`;
+}
+
 function update() {
     if (!gameRunning || (typeof isPaused !== 'undefined' && isPaused)) return;
 
     const p = document.getElementById("player");
     if (!p) return;
+
+    // Вызываем обновление картинки скина
+    drawPlayer();
 
     const pRect = p.getBoundingClientRect(); 
 
@@ -1067,13 +1078,3 @@ function selectSkin(skinId) {
         console.log("Скин изменен на: " + skinId);
     }
 }
-
-function drawPlayer() {
-    // Выбираем картинку на основе текущего активного скина
-    // Если активный скин не найден, используем default
-    const currentImg = loadedSkins[activeSkin] || loadedSkins['default'];
-
-    // Отрисовка на canvas
-    ctx.drawImage(currentImg, player.x, player.y, player.width, player.height);
-}
-
