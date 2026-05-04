@@ -614,42 +614,42 @@ function handleCollision(obs, p) {
 
     if (type === "gift_purple") {
         // Логика фиолетового подарка (Алмазы)
-        let addDia = Math.floor(Math.random() * 2) + 1;[cite: 1]
-        totalDiamonds += addDia;[cite: 1]
+        let addDia = Math.floor(Math.random() * 2) + 1;
+        totalDiamonds += addDia;
 
         if (currentSkin === "silver") {
             activateSilverInvincibility(); // Запуск защиты на 30 сек
         }
         
-        updateMenuInfo();[cite: 1]
-        obs.remove();[cite: 1]
+        updateMenuInfo();
+        obs.remove();
     } 
     else if (type === "gift_black") {
         // Логика черного подарка (Препятствие/Штраф)
         
         if (currentSkin === "pirate") {
-            // 1. Пират просто игнорирует штраф, если это подарок-штраф
+            // Пират просто игнорирует штраф, если это подарок-штраф
             console.log("Пират игнорирует штраф!");
             obs.remove();
             return; 
         } 
         else if (shieldActive) {
-            // 2. Если активен обычный щит (бонус)
+            // Если активен обычный щит (бонус)
             shieldActive = false;
             createCubeBoom(centerX, centerY);
             obs.remove();
         } 
         else if (currentSkin === "pirate" && !pirateShieldUsed) {
-            // 3. Если пират врезался в ОПАСНОЕ препятствие (как щит)
+            // Если пират врезался в ОПАСНОЕ препятствие (как щит)
             pirateShieldUsed = true;
-            createCubeBoom(centerX, centerY);[cite: 1]
+            createCubeBoom(centerX, centerY);
             
-            if (p) p.classList.remove("skin-pirate-aura"); // Убираем ауру
-            obs.remove();[cite: 1]
+            if (p) p.classList.remove("skin-pirate-aura"); 
+            obs.remove();
         } 
         else {
-            // 4. В остальных случаях — конец игры
-            gameOver();[cite: 1]
+            // В остальных случаях — конец игры
+            gameOver();
         }
     }
 }
