@@ -945,6 +945,15 @@ document.addEventListener('DOMContentLoaded', () => {
 updateSkinUI();
 
 function buySkin(skinId, price) {
+    // ПРОВЕРКА: Если цена не пришла из HTML, берем её из списка здесь
+    if (!price) {
+        const prices = { 'pirate': 300, 'silver': 500, 'star': 100 };
+        price = prices[skinId];
+    }
+
+    // Убеждаемся, что мы сравниваем числа
+    const currentDiamonds = Number(totalDiamonds);
+    
     // 1. Проверяем, не куплен ли он уже
     if (inventory.skins && inventory.skins.includes(skinId)) {
         alert("Этот скин уже куплен!");
