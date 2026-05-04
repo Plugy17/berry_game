@@ -1,9 +1,9 @@
 // ЭТО В САМОМ ВЕРХУ
 const skinFiles = {
     'default': 'assets/berry.png',
-    'pirate': 'assets/berry2.png',
-    'silver': 'assets/berry3.png',
-    'star': 'assets/berry4.png'
+    'pirate': 'assets/berry3.png',
+    'silver': 'assets/berry4.png',
+    'star': 'assets/berry2.png'
 };
 
 const loadedSkins = {};
