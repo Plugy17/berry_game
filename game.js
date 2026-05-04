@@ -438,6 +438,17 @@ function resetGame() {
         p.style.left = lanes[targetLane] + "%";
     }
 
+    pirateShieldUsed = false;
+    if (silverTimer) clearTimeout(silverTimer);
+    
+    const p = document.getElementById("player");
+    if (p) {
+        p.style.filter = "none";
+        // Установка новых классов скинов[cite: 1]
+        if (currentSkin === "pirate") p.classList.add("skin-pirate");
+        if (currentSkin === "silver") p.classList.add("skin-silver");
+    }
+
     // 3. Обновление интерфейса и запуск
     updateScore(); 
     updateBonusUI();
@@ -493,6 +504,7 @@ function spawnObstacle() {
         obs.dataset.type = isGood ? "good" : "bad";
         obs.style.backgroundImage = isGood ? imgIceCream : imgBad;
     }
+    
 
     // 4. ПОЗИЦИОНИРОВАНИЕ[cite: 2]
     const laneIndex = Math.floor(Math.random() * lanes.length);
