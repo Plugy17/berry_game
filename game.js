@@ -991,3 +991,33 @@ document.addEventListener('DOMContentLoaded', () => {
 // Запускаем обновление интерфейса скинов сразу при загрузке скрипта
 updateSkinUI();
 
+function buySkin(skinId, price) {
+    // 1. Проверяем, не куплен ли он уже
+    if (inventory.skins && inventory.skins.includes(skinId)) {
+        alert("Этот скин уже куплен!");
+        return;
+    }
+
+    // 2. Проверяем баланс алмазов
+    if (totalDiamonds >= price) {
+        totalDiamonds -= price; // Списываем валюту
+        
+        // 3. Добавляем в инвентарь
+        if (!inventory.skins) inventory.skins = ["default"];
+        inventory.skins.push(skinId);
+
+        // 4. Устанавливаем как активный
+        activeSkin = skinId;
+        currentSkin = skinId; // Для мгновенной синхронизации
+
+        // 5. Сохраняем в Firebase и обновляем UI
+        saveUserData(); // Отправка данных в облако
+        updateMenuInfo(); // Обновление счетчиков алмазов
+        updateSkinUI(); // Обновление выбора скина в главном меню[cite: 1]
+        
+        alert(`Поздравляем! Вы открыли скин: ${skinId}`);
+    } else {
+        alert("Недостаточно алмазов для этой покупки!");
+    }
+}
+
