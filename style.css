@@ -1103,3 +1103,21 @@ button:active { transform: scale(0.95); }
     background-repeat: no-repeat;
     background-position: center;
 }
+
+/* --- ПРАВКА 6: Исправление путей и аур --- */
+.skin-pirate {
+    background-image: url('assets/berry3.png') !important;
+}
+
+/* Аура теперь добавляется как отдельный эффект, не заменяя основной скин */
+.aura-active::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+    animation: pulse 1.5s infinite;
+}
