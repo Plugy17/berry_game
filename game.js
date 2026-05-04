@@ -818,3 +818,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Список доступных скинов
+const skins = [
+    { id: "default", name: "Обычный", imgClass: "default" },
+    { id: "star", name: "Звездный", imgClass: "star" }
+];
+let currentSkinIndex = 0;
+
+function updateSkinPreview() {
+    const skin = skins[currentSkinIndex];
+    const preview = document.getElementById("skinPreview");
+    const label = document.getElementById("skinName");
+
+    // Сбрасываем классы и ставим нужный
+    preview.className = "skin-preview-img " + skin.imgClass;
+    
+    // Проверка владения (если скин звездный и он еще не куплен)
+    if (skin.id === "star" && !inventory.skins.includes("star")) {
+        label.innerText = "ЗАБЛОКИРОВАНО";
+        label.style.color = "#ff4f4f";
+    } else {
+        label.innerText = skin.name;
+        label.style.color = "#fff";
+        currentSkin = skin.id; // Устанавливаем текущий скин для игры
+    }
+}
+
+// Слушатели кнопок
+document.getElementById("nextSkin").onclick = () => {
+    currentSkinIndex = (currentSkinIndex + 1) % skins.length;
+    updateSkinPreview();
+};
+
+document.getElementById("prevSkin").onclick = () => {
+    currentSkinIndex = (currentSkinIndex - 1 + skins.length) % skins.length;
+    updateSkinPreview();
+};
+
