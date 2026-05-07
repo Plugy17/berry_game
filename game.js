@@ -829,17 +829,32 @@ function activateSilverInvincibility() {
 }
         
 function updateScore() {
-    const coinEl = document.getElementById("coinCount");
-    const gameScoreEl = document.querySelector(".score-val"); // Проверь, есть ли такой класс в index.html
-    
-    if (coinEl) coinEl.textContent = coins;
-    if (gameScoreEl) gameScoreEl.textContent = coins;
-    
-    // Сохраняем лучший результат, если нужно
-    if (coins > best) {
-        best = coins;
-        const bestEl = document.getElementById("bestScore");
-        if (bestEl) bestEl.textContent = best;
+    // 1. Обновляем счетчик монет в игре
+    const scoreEl = document.getElementById("score"); 
+    if (scoreEl) {
+        scoreEl.innerText = window.coins || 0;
+    }
+
+    // 2. Логика комбо
+    const comboEl = document.getElementById("combo-display");
+    if (comboEl) {
+        if (window.comboCount > 1) {
+            comboEl.innerText = `X${window.comboMultiplier} COMBO`;
+            comboEl.style.opacity = "1";
+            
+            // Запускаем анимацию пульсации из твоего CSS
+            comboEl.classList.remove("combo-bump");
+            void comboEl.offsetWidth; // Магия для сброса анимации
+            comboEl.classList.add("combo-bump");
+        } else {
+            comboEl.style.opacity = "0";
+        }
+    }
+
+    // 3. Обновляем алмазы, если они есть в HUD
+    const diamondEl = document.getElementById("diamondCount");
+    if (diamondEl) {
+        diamondEl.innerText = window.totalDiamonds || 0;
     }
 }
 
