@@ -679,81 +679,83 @@ function update() {
     loopId = requestAnimationFrame(update);
 }
 
-// --- ЛОГИКА СТОЛКНОВЕНИЙ ---
 function handleCollision(obs, p) {
+    // 1. Проверка на повторную обработку
     if (obs.dataset.processing === "true") return; 
     obs.dataset.processing = "true";
     
-    obs.style.display = 'none'; 
+    // 2. Мгновенно скрываем и выключаем физику, чтобы объект не "стопорил" игрока
+    obs.style.display = 'none';
+    obs.style.pointerEvents = 'none';
 
     const type = obs.dataset.type;
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    if (type === "good") {
-        if (typeof soundCollect !== 'undefined' && soundCollect) {
-            soundCollect.currentTime = 0;
-            soundCollect.play().catch(() => {});
-        }
+    // Ссылка на активный скин из единого источника
+    const activeSkinId = gameState.currentSkin;
 
-        comboCount++;
-        // Используем gameState для проверки скина
-        let maxComboLimit = (gameState.currentSkin === "star") ? 8 : 5;
-        comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
-
-        const comboEl = document.getElementById("combo-display");
-        if (comboEl && comboCount >= 2) {
-            comboEl.textContent = "x" + comboMultiplier;
-            comboEl.style.opacity = "1";
-            comboEl.classList.add("combo-bump");
-            setTimeout(() => comboEl.classList.remove("combo-bump"), 300);
-        }
-
-        if (typeof createExplosion === 'function') createExplosion(centerX, centerY);
-        coins += comboMultiplier; 
-        updateScore(); 
-    } 
-    else if (type === "gift_purple" || type === "diamond") {
-        let addDia = Math.floor(Math.random() * 2) + 1;
-        totalDiamonds += addDia;
-        // Синхронизируем с gameState перед сохранением
-        gameState.inventory.items.diamonds = totalDiamonds; 
-
-        if (gameState.currentSkin === "silver") activateSilverInvincibility(); 
-        if (typeof createExplosion === 'function') createExplosion(centerX, centerY);
-        
-        saveUserData(); // Сразу пишем в Firebase
-        updateMenuInfo(); 
-    }
-    else if (type === "gift_black") {
-        if (gameState.currentSkin === "pirate") {
-            obs.remove();
-        } else {
-            let loss = 15 + Math.floor(Math.random() * 15);
-            coins = Math.max(0, coins - loss);
-            comboCount = 0;
-            comboMultiplier = 1;
-            if (typeof createCubeBoom === 'function') createCubeBoom(centerX, centerY);
-            updateScore();
-        }
-    }
-    else if (type === "bad") { 
-        if (shieldActive) {
-            if (gameState.currentSkin !== "silver") {
-                shieldActive = false;
-                if (p) p.classList.remove("shield-aura");
+    try {
+        if (type === "good") {
+            // Звук
+            if (typeof soundCollect !== 'undefined' && soundCollect) {
+                soundCollect.currentTime = 0;
+                soundCollect.play().catch(() => {});
             }
+
+            comboCount++;
+            // Логика комбо
+            let maxComboLimit = (activeSkinId === "star") ? 8 : 5;
+            comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
+
+            const comboEl = document.getElementById("combo-display");
+            if (comboEl && comboCount >= 2) {
+                comboEl.textContent = "x" + comboMultiplier;
+                comboEl.style.opacity = "1";
+                comboEl.classList.add("combo-bump");
+                setTimeout(() => comboEl.classList.remove("combo-bump"), 300);
+            }
+
+            if (typeof createExplosion === 'function') createExplosion(centerX, centerY);
+
+            coins += comboMultiplier; 
+            updateScore(); 
         } 
-        else if (gameState.currentSkin === "pirate" && !pirateShieldUsed) {
-            pirateShieldUsed = true;
-            if (typeof createCubeBoom === 'function') createCubeBoom(centerX, centerY);
-            if (p) p.classList.remove("skin-pirate-aura");
-        } 
-        else {
-            gameOver();
+        else if (type === "gift_purple" || type === "diamond" || type === "gift_silver") {
+            let addDia = Math.floor(Math.random() * 2) + 1;
+            totalDiamonds += addDia;
+            gameState.inventory.items.diamonds = totalDiamonds; 
+
+            if (activeSkinId === "silver") activateSilverInvincibility(); 
+            if (typeof createExplosion === 'function') createExplosion(centerX, centerY);
+            
+            saveUserData(); 
+            updateMenuInfo(); 
         }
+        else if (type === "bad") {
+            if (typeof shieldActive !== 'undefined' && shieldActive) {
+                if (activeSkinId !== "silver") {
+                    shieldActive = false;
+                    if (p) p.classList.remove("shield-aura");
+                }
+                if (typeof createExplosion === 'function') createExplosion(centerX, centerY);
+            } 
+            else if (activeSkinId === "pirate" && typeof pirateShieldUsed !== 'undefined' && !pirateShieldUsed) {
+                pirateShieldUsed = true;
+                if (p) p.classList.remove("skin-pirate-aura");
+                if (typeof createCubeBoom === 'function') createCubeBoom(centerX, centerY);
+            } 
+            else {
+                gameOver();
+                return; // Выходим, чтобы не удалять объект дважды
+            }
+        }
+    } catch (err) {
+        console.error("Ошибка в handleCollision:", err);
     }
+
+    // Удаляем объект из DOM только в конце
     obs.remove();
 }
 
