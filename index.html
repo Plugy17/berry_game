@@ -213,36 +213,53 @@
     measurementId: "G-LLJ9L848G0"
   };
   
- async function initApp() {
+  // 2. Главная функция запуска
+  async function initApp() {
+    console.log("Запуск инициализации...");
     try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        // Инициализация Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         window.db = firebase.database();
+        console.log("Firebase готов.");
 
+        // Работа с Telegram
         const tg = window.Telegram?.WebApp;
-        if (tg) { tg.ready(); tg.expand(); }
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
         
         const userId = tg?.initDataUnsafe?.user?.id || "test_user";
         const idDisplay = document.getElementById("user-id-display");
         if (idDisplay) idDisplay.textContent = userId;
 
-        // Ждем загрузки данных
+        // Ждем загрузки данных из облака
+        // ВАЖНО: Мы ждем, пока функция loadUserData выполнится до конца
         if (typeof loadUserData === "function") {
-            await loadUserData(userId);
+            console.log("Загружаем данные игрока...");
+            await loadUserData(userId); 
             
-            // Как только данные получены — активируем кнопку
-            const btn = document.getElementById("continue-btn");
-            if (btn) {
-                btn.classList.remove("hidden");
-                btn.onclick = () => {
-                    document.getElementById("loading-screen").style.display = "none";
+            // Как только данные загружены — показываем кнопку
+            const continueBtn = document.getElementById("continue-btn");
+            if (continueBtn) {
+                continueBtn.classList.remove("hidden");
+                continueBtn.onclick = () => {
+                    const loader = document.getElementById("loading-screen");
+                    loader.style.opacity = "0";
+                    setTimeout(() => loader.style.display = "none", 500);
+                    console.log("Игра запущена пользователем.");
                 };
             }
+        } else {
+            console.error("КРИТИЧЕСКАЯ ОШИБКА: Функция loadUserData не найдена в game.js!");
         }
     } catch (e) {
-        console.error("Ошибка инициализации:", e);
+        console.error("Ошибка при загрузке приложения:", e);
     }
   }
 
-  // Запуск только после полной загрузки всех файлов (включая game.js)
+  // Запускаем всё ТОЛЬКО после того, как все скрипты (включая game.js) загружены браузером
   window.addEventListener('load', initApp);
 </script>
