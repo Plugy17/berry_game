@@ -201,6 +201,8 @@
     <button id="backBtnShop" class="shop-exit-btn" onclick="closeShop()">НАЗАД</button>
 </div>
 
+<script src="game.js?v=120.8"></script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyABKHaAdlSFq1KzURXmCF5Q-9xMUgE4Ot0",
@@ -212,19 +214,21 @@
     appId: "1:736707445306:web:87a61ea4b725bd3071eb03",
     measurementId: "G-LLJ9L848G0"
   };
-  
-  // 2. Главная функция запуска
+
   async function initApp() {
     console.log("Запуск инициализации...");
+    
+    // Принудительно показываем лоадер, если он вдруг скрыт
+    const loader = document.getElementById("loading-screen");
+    if (loader) loader.style.display = "flex";
+
     try {
-        // Инициализация Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         window.db = firebase.database();
         console.log("Firebase готов.");
 
-        // Работа с Telegram
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.ready();
@@ -235,32 +239,38 @@
         const idDisplay = document.getElementById("user-id-display");
         if (idDisplay) idDisplay.textContent = userId;
 
-        // Ждем загрузки данных из облака
-        // ВАЖНО: Мы ждем, пока функция loadUserData выполнится до конца
+        // Проверяем наличие функции загрузки данных
         if (typeof loadUserData === "function") {
-            console.log("Загружаем данные игрока...");
+            console.log("Загружаем данные игрока из Firebase...");
+            
+            // Ждем завершения загрузки данных
             await loadUserData(userId); 
             
-            // Как только данные загружены — показываем кнопку
+            console.log("Данные загружены. Активируем кнопку.");
             const continueBtn = document.getElementById("continue-btn");
             if (continueBtn) {
                 continueBtn.classList.remove("hidden");
                 continueBtn.onclick = () => {
-                    const loader = document.getElementById("loading-screen");
                     loader.style.opacity = "0";
-                    setTimeout(() => loader.style.display = "none", 500);
-                    console.log("Игра запущена пользователем.");
+                    setTimeout(() => {
+                        loader.style.display = "none";
+                        // Если в game.js есть функция старта анимаций меню, вызываем её здесь
+                        if (typeof startMenuAnimation === "function") startMenuAnimation();
+                    }, 500);
                 };
             }
         } else {
-            console.error("КРИТИЧЕСКАЯ ОШИБКА: Функция loadUserData не найдена в game.js!");
+            console.error("ОШИБКА: loadUserData не найдена. Проверьте, что в game.js нет ошибок.");
         }
     } catch (e) {
         console.error("Ошибка при загрузке приложения:", e);
     }
   }
 
-  // Запускаем всё ТОЛЬКО после того, как все скрипты (включая game.js) загружены браузером
-  window.addEventListener('load', initApp);
+  // Запуск
+  if (document.readyState === 'complete') {
+      initApp();
+  } else {
+      window.addEventListener('load', initApp);
+  }
 </script>
-<script src="game.js?v=120.6"></script>
