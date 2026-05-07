@@ -243,33 +243,35 @@ function createCubeBoom(x, y) {
     boom.style.top = y + 'px';
     layer.appendChild(boom);
     setTimeout(() => { if(boom.parentNode) boom.remove(); }, 500);
-}
+} 
 
 function loadUserData(id) {
     const loader = document.getElementById("loading-screen");
     const continueBtn = document.getElementById("continue-btn");
     const loaderTitle = document.querySelector(".loading-title");
+    const idDisplay = document.getElementById("user-id-display");
 
-    // Внутренняя функция для финального шага загрузки
+    // Выводим ID на экран загрузки
+    if (idDisplay) idDisplay.innerText = id;
+
+    // Функция завершения загрузки
     const finishLoading = () => {
         if (loaderTitle) loaderTitle.innerText = "ГОТОВО!";
         if (continueBtn) {
             continueBtn.classList.remove("hidden");
             continueBtn.onclick = () => {
                 if (loader) loader.classList.add("hidden");
-                // Когда зашли в меню, запускаем падающие элементы на фоне
+                // Запускаем анимацию в меню только после входа
                 if (typeof startMenuAnimation === "function") startMenuAnimation();
             };
         } else {
-            // Если кнопки нет в HTML, просто убираем экран через секунду
             setTimeout(() => { if (loader) loader.classList.add("hidden"); }, 1000);
         }
     };
 
-    // ГАРАНТИЯ: Если Firebase молчит 3.5 сек, даем зайти так
     const forceCloseLoader = setTimeout(() => {
         if (loader && !loader.classList.contains("hidden")) {
-            console.warn("Загрузка форсирована по таймауту");
+            console.warn("Загрузка форсирована");
             finishLoading();
         }
     }, 3500);
@@ -287,7 +289,6 @@ function loadUserData(id) {
 
         if (snapshot.exists()) {
             const data = snapshot.val();
-            
             best = Number(data.best) || 0;
             totalCoins = Number(data.totalCoins) || 0;
             totalDiamonds = Number(data.totalDiamonds) || 0; 
@@ -297,8 +298,8 @@ function loadUserData(id) {
             currentSkin = gameState.currentSkin;
 
             if (data.inventory) {
-                gameState.inventory.items.shield = Number(data.inventory.shield) || 0;
-                gameState.inventory.items.magnet = Number(data.inventory.magnet) || 0;
+                gameState.inventory.items.shield = Number(data.inventory.items.shield) || 0;
+                gameState.inventory.items.magnet = Number(data.inventory.items.magnet) || 0;
                 gameState.inventory.items.diamonds = totalDiamonds;
                 gameState.inventory.skins = data.inventory.skins || ["default"];
                 
@@ -306,10 +307,8 @@ function loadUserData(id) {
                 inventory.magnet = gameState.inventory.items.magnet;
                 inventory.skins = gameState.inventory.skins;
             }
-            
             if (typeof updateSkinUI === "function") updateSkinUI(); 
         } else {
-            // Если игрока нет, создаем запись
             saveUserData();
         }
 
@@ -318,8 +317,7 @@ function loadUserData(id) {
 
     }).catch((err) => {
         clearTimeout(forceCloseLoader);
-        console.error("Ошибка Firebase:", err);
-        updateMenuInfo();
+        console.error("Firebase Error:", err);
         finishLoading();
     });
 }
