@@ -1175,3 +1175,26 @@ function startMenuAnimation() {
 setInterval(() => {
     if (!gameRunning) startMenuAnimation();
 }, 1500);
+
+function resetGameLogic() {
+    // 1. Обнуляем переменные раунда
+    window.coins = 0;
+    window.comboCount = 0;
+    window.comboMultiplier = 1;
+    window.score = 0;
+    
+    // 2. Сбрасываем визуальные элементы
+    const scoreHUD = document.getElementById("score");
+    if (scoreHUD) scoreHUD.innerText = "0";
+    
+    const comboEl = document.getElementById("combo-display");
+    if (comboEl) {
+        comboEl.style.opacity = "0";
+        comboEl.innerText = "";
+    }
+
+    // 3. Очищаем поле от старых объектов (на всякий случай)
+    document.querySelectorAll(".obstacle").forEach(obs => obs.remove());
+    
+    console.log("🔄 Логика игры сброшена, переменные обнулены.");
+}
