@@ -213,35 +213,37 @@
     measurementId: "G-LLJ9L848G0"
   };
   
-  try {
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    window.db = firebase.database();
-    console.log("Firebase подключен успешно!");
-
-    // ГИРЯ: Сразу после инициализации БД пробуем загрузить игрока
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-        tg.ready();
-        // Получаем ID. Если запускаем в бразуере для теста — ставим 'test_user'
-        const userId = tg.initDataUnsafe?.user?.id || "test_user";
-        
-        // Проверяем, готова ли функция загрузки (она в game.js)
-        if (typeof loadUserData === "function") {
-            loadUserData(userId);
-        } else {
-            // Если game.js еще не загрузился, подождем немного
-            window.addEventListener('load', () => loadUserData(userId));
+  async function initApp() {
+    try {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-    }
-  } catch (e) { 
-    console.error("Firebase init error:", e); 
-    window.db = null; 
-  }
-</script>
+        window.db = firebase.database();
+        console.log("Firebase подключен.");
 
-<!-- ГЛАВНЫЙ СКРИПТ ИГРЫ -->
-<script src="game.js?v=109.6"></script>
-</body>
-</html>
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
+        
+        const userId = tg?.initDataUnsafe?.user?.id || "test_user";
+        document.getElementById("user-id-display").textContent = userId;
+
+        // Ждем загрузки game.js и данных
+        if (typeof loadUserData === "function") {
+            await loadUserData(userId);
+            // Показываем кнопку только ПОСЛЕ загрузки данных
+            const btn = document.getElementById("continue-btn");
+            if (btn) {
+                btn.classList.remove("hidden");
+                btn.onclick = () => {
+                    document.getElementById("loading-screen").style.display = "none";
+                };
+            }
+        }
+    } catch (e) {
+        console.error("Ошибка инициализации:", e);
+    }
+  }
+
+  // Запускаем после полной загрузки страницы
+  window.addEventListener('load', initApp);
+</script>
