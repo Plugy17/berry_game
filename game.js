@@ -427,61 +427,93 @@ function exchangeIceToDiamond() {
 }
 
 function startGame() {
+    // 1. Сбор параметров сложности
     const diffSelect = document.getElementById("difficulty");
     const level = diffSelect ? diffSelect.value : 'medium';
     const p = document.getElementById("player");
 
+    // 2. Проверка ника (с защитой от пустых значений)
     if (!nick) {
-        const val = document.getElementById("nick")?.value.trim();
-        if (!val || val.length < 2) return alert("Введи имя!");
-        nick = val; userId = val;
+        const nickInput = document.getElementById("nick");
+        const val = nickInput ? nickInput.value.trim() : "";
+        if (!val || val.length < 2) {
+            alert("Введи имя (минимум 2 символа)!");
+            return;
+        }
+        nick = val; 
+        userId = val;
         localStorage.setItem("nick", nick);
     }
 
-    gameState.currentSkin = activeSkin; 
+    // 3. Инициализация состояния (защита от undefined)
+    if (!window.gameState) window.gameState = { currentSkin: "default" };
+    gameState.currentSkin = activeSkin || "default"; 
+
+    // 4. Сброс персонажа и применение скинов
     if (p) {
-        drawPlayer(); 
+        // Очищаем классы, но сохраняем базовый ID
         p.className = ""; 
-        p.id = "player";
-        if (activeSkin !== "default") {
-            p.classList.add(`skin-${activeSkin}`);
-            p.classList.add(`skin-${activeSkin}-aura`);
+        p.classList.add("player-base"); // Хорошая практика иметь базовый класс
+
+        if (gameState.currentSkin !== "default") {
+            p.classList.add(`skin-${gameState.currentSkin}`);
+            p.classList.add(`skin-${gameState.currentSkin}-aura`);
         }
+        
+        // Если есть функция отрисовки — вызываем
+        if (typeof drawPlayer === 'function') drawPlayer(); 
     }
 
+    // 5. Балансировка сложности
     let spawnRate = 1000;
     if (level === 'easy') {
-        baseSpeed = 6; difficulty = 0.001; spawnRate = 1200;
+        baseSpeed = 4; difficulty = 0.0005; spawnRate = 1300;
     } else if (level === 'medium') {
-        baseSpeed = 7; difficulty = 0.002; spawnRate = 1000;
+        baseSpeed = 6; difficulty = 0.001; spawnRate = 1000;
     } else if (level === 'hard') {
-        baseSpeed = 11; difficulty = 0.005; spawnRate = 600;
+        baseSpeed = 9; difficulty = 0.003; spawnRate = 700;
     }
     speed = baseSpeed;
 
-    document.querySelectorAll(".obstacle").forEach(obs => obs.remove()); 
-    
-    // Очистка всех старых интервалов
-    if (window.gameInterval) clearInterval(window.gameInterval); 
+    // 6. ПРИНУДИТЕЛЬНАЯ ОЧИСТКА (чтобы ничего не замирало)
+    document.querySelectorAll(".obstacle").forEach(obs => obs.remove());
+    if (window.gameInterval) clearInterval(window.gameInterval);
+    if (loopId) cancelAnimationFrame(loopId);
 
-    gameRunning = true; 
+    // 7. Запуск циклов
+    gameRunning = true;
     isPaused = false;
 
+    // Интервал спавна
     window.gameInterval = setInterval(() => {
-        if (gameRunning && !isPaused) spawnObstacle(); 
+        if (gameRunning && !isPaused) {
+            // Проверка: не слишком ли много объектов уже на экране?
+            const currentObs = document.querySelectorAll(".obstacle").length;
+            const maxAllowed = (level === 'hard') ? 8 : 5;
+            
+            if (currentObs < maxAllowed) {
+                spawnObstacle();
+            }
+        }
     }, spawnRate);
 
-    if (loopId) cancelAnimationFrame(loopId);
+    // Запуск основного цикла движения
     loopId = requestAnimationFrame(update);
 
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    
+    // 8. Переключение экранов
+    const menu = document.getElementById("menu");
+    const gameScreen = document.getElementById("game");
+    if (menu) menu.classList.add("hidden");
+    if (gameScreen) gameScreen.classList.remove("hidden");
+
+    // Прячем загрузку
     const ls = document.getElementById("loading-screen") || document.getElementById("loadingScreen");
     if (ls) ls.style.display = "none";
 
+    // Сброс очков и комбо (если функция есть)
     if (typeof resetGame === 'function') resetGame();
-    console.log("Старт:", level, "| Скин:", gameState.currentSkin);
+
+    console.log("🚀 Поехали!", { level, skin: gameState.currentSkin, speed });
 }
 
 // 2. ИСПРАВЛЕННЫЙ БЛОК СБРОСА ИГРЫ
@@ -591,7 +623,10 @@ function update() {
     if (!gameRunning || (typeof isPaused !== 'undefined' && isPaused)) return;
 
     const p = document.getElementById("player");
-    if (!p) return;
+    if (!p) {
+        loopId = requestAnimationFrame(update);
+        return;
+    }
 
     const pRect = p.getBoundingClientRect(); 
 
@@ -613,12 +648,12 @@ function update() {
     const obstacles = document.querySelectorAll(".obstacle");
 
     obstacles.forEach(obstacle => {
-        // Защита от двойного сбора
-        if (obstacle.dataset.collected === "true" || obstacle.dataset.processing === "true") return; 
+        // Если объект уже обработан, мы его игнорируем
+        if (obstacle.dataset.collected === "true") return; 
 
         let currentTop = parseFloat(obstacle.style.top) || -150;
 
-        // МАГНИТ (только для "good")
+        // МАГНИТ
         if (typeof magnetActive !== 'undefined' && magnetActive && obstacle.dataset.type === "good") {
             const obsRect = obstacle.getBoundingClientRect();
             const pX = pRect.left + pRect.width / 2;
@@ -630,7 +665,7 @@ function update() {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 400) {
-                const force = 12; // Чуть усилил магнит
+                const force = 12;
                 if (obstacle.style.left.includes('%')) {
                     obstacle.style.left = obsRect.left + "px";
                 }
@@ -640,14 +675,15 @@ function update() {
             }
         }
 
+        // ДВИЖЕНИЕ
         currentTop += speed;
         obstacle.style.top = currentTop + "px";
 
-        // Удаление за экраном + сброс комбо
+        // УДАЛЕНИЕ ЗА ЭКРАНОМ
         if (currentTop > window.innerHeight) {
             if (obstacle.dataset.type === "good") {
-                comboCount = 0;
-                comboMultiplier = 1;
+                if (typeof comboCount !== 'undefined') comboCount = 0;
+                if (typeof comboMultiplier !== 'undefined') comboMultiplier = 1;
                 const comboEl = document.getElementById("combo-display");
                 if (comboEl) comboEl.style.opacity = "0";
                 
@@ -661,7 +697,7 @@ function update() {
 
         // ПРОВЕРКА СТОЛКНОВЕНИЙ
         const obsRect = obstacle.getBoundingClientRect();
-        const inset = 18; // Увеличил отступ для более честных столкновений
+        const inset = 18; 
 
         if (
             pRect.left + inset < obsRect.right &&
@@ -669,33 +705,41 @@ function update() {
             pRect.top + inset < obsRect.bottom &&
             pRect.bottom - inset > obsRect.top
         ) {
-            // Мгновенная блокировка до вызова логики
+            // Мгновенно помечаем, чтобы не было повтора
             obstacle.dataset.collected = "true"; 
-            obstacle.dataset.processing = "true"; 
-            if (typeof handleCollision === 'function') handleCollision(obstacle, p);
+            
+            // Оборачиваем в try-catch, чтобы ПРИ ОШИБКЕ ОБЪЕКТ УДАЛИЛСЯ, А ИГРА ШЛА ДАЛЬШЕ
+            try {
+                if (typeof handleCollision === 'function') {
+                    handleCollision(obstacle, p);
+                }
+            } catch (e) {
+                console.error("Ошибка в handleCollision:", e);
+                obstacle.remove(); // Если всё сломалось — просто удаляем объект
+            }
         }
     });
 
+    // САМОЕ ВАЖНОЕ: перезапуск цикла ВСЕГДА в конце
     loopId = requestAnimationFrame(update);
 }
 
 function handleCollision(obs, p) {
-    // 1. Защита от двойного срабатывания
     if (!obs || obs.dataset.processing === "true") return;
     obs.dataset.processing = "true";
     
-    // Прячем сразу, чтобы игрок не видел "залипания"
-    obs.style.display = 'none';
-
+    // Сразу фиксируем данные, пока объект еще в DOM
     const type = obs.dataset.type;
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // Гарантируем наличие gameState
-    const currentActiveSkin = (window.gameState && gameState.currentSkin) ? gameState.currentSkin : "default";
+    // УДАЛЯЕМ СРАЗУ. Если код ниже упадет, объект не будет висеть на экране
+    obs.remove();
 
     try {
+        const currentActiveSkin = (window.gameState && window.gameState.currentSkin) ? window.gameState.currentSkin : "default";
+
         if (type === "good") {
             // Звук
             if (window.soundCollect) {
@@ -703,32 +747,26 @@ function handleCollision(obs, p) {
                 soundCollect.play().catch(() => {});
             }
 
-            // Логика комбо (проверяем существование переменных)
-            if (typeof comboCount === 'undefined') window.comboCount = 0;
-            if (typeof comboMultiplier === 'undefined') window.comboMultiplier = 1;
-
-            comboCount++;
+            window.comboCount = (window.comboCount || 0) + 1;
             let maxComboLimit = (currentActiveSkin === "star") ? 8 : 5;
-            comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
+            window.comboMultiplier = Math.min(maxComboLimit, Math.floor(window.comboCount / 3) + 1);
 
-            // Эффект
             if (typeof createCollectExplosion === 'function') {
                 createCollectExplosion(centerX, centerY, "#ffcc00");
             }
 
-            // Счет
-            if (typeof coins === 'undefined') window.coins = 0;
-            coins += comboMultiplier; 
-            
+            window.coins = (window.coins || 0) + window.comboMultiplier; 
             if (typeof updateScore === 'function') updateScore(); 
         } 
+        
         else if (type === "gift_purple" || type === "diamond") {
             let addDia = Math.floor(Math.random() * 2) + 1;
-            
-            // Синхронизация алмазов
-            if (typeof totalDiamonds === 'undefined') window.totalDiamonds = 0;
-            totalDiamonds += addDia;
-            if (window.gameState) gameState.inventory.items.diamonds = totalDiamonds;
+            window.totalDiamonds = (window.totalDiamonds || 0) + addDia;
+
+            // БЕЗОПАСНАЯ ЗАПИСЬ (проверяем всю цепочку)
+            if (window.gameState && window.gameState.inventory && window.gameState.inventory.items) {
+                window.gameState.inventory.items.diamonds = window.totalDiamonds;
+            }
 
             if (currentActiveSkin === "silver" && typeof activateSilverInvincibility === 'function') {
                 activateSilverInvincibility(); 
@@ -741,8 +779,8 @@ function handleCollision(obs, p) {
             if (typeof saveUserData === 'function') saveUserData(); 
             if (typeof updateMenuInfo === 'function') updateMenuInfo(); 
         }
+
         else if (type === "bad") {
-            // Проверка щита (shieldActive берем из глобального окна)
             let isShielded = (window.shieldActive === true);
 
             if (isShielded) {
@@ -760,16 +798,14 @@ function handleCollision(obs, p) {
                     createCollectExplosion(centerX, centerY, "#704214");
                 }
             } else {
+                // Если проиграли — выходим
                 if (typeof gameOver === 'function') gameOver();
                 return;
             }
         }
     } catch (err) {
-        console.error("Ошибка в столкновении:", err);
+        console.error("Критическая ошибка в столкновении:", err);
     }
-
-    // ВАЖНО: Удаляем из DOM и очищаем ссылку
-    obs.remove();
 }
 
 let silverTimer = null;
