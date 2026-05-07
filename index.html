@@ -213,24 +213,23 @@
     measurementId: "G-LLJ9L848G0"
   };
   
-  async function initApp() {
+ async function initApp() {
     try {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         window.db = firebase.database();
-        console.log("Firebase подключен.");
 
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
         
         const userId = tg?.initDataUnsafe?.user?.id || "test_user";
-        document.getElementById("user-id-display").textContent = userId;
+        const idDisplay = document.getElementById("user-id-display");
+        if (idDisplay) idDisplay.textContent = userId;
 
-        // Ждем загрузки game.js и данных
+        // Ждем загрузки данных
         if (typeof loadUserData === "function") {
             await loadUserData(userId);
-            // Показываем кнопку только ПОСЛЕ загрузки данных
+            
+            // Как только данные получены — активируем кнопку
             const btn = document.getElementById("continue-btn");
             if (btn) {
                 btn.classList.remove("hidden");
@@ -244,6 +243,6 @@
     }
   }
 
-  // Запускаем после полной загрузки страницы
+  // Запуск только после полной загрузки всех файлов (включая game.js)
   window.addEventListener('load', initApp);
 </script>
