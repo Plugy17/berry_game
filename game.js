@@ -247,24 +247,42 @@ function createCubeBoom(x, y) {
 
 function loadUserData(id) {
     const loader = document.getElementById("loading-screen");
-    
-    // ГАРАНТИЯ: Скрываем загрузчик через 3.5 секунды в любом случае
+    const continueBtn = document.getElementById("continue-btn");
+    const loaderTitle = document.querySelector(".loading-title");
+
+    // Внутренняя функция для финального шага загрузки
+    const finishLoading = () => {
+        if (loaderTitle) loaderTitle.innerText = "ГОТОВО!";
+        if (continueBtn) {
+            continueBtn.classList.remove("hidden");
+            continueBtn.onclick = () => {
+                if (loader) loader.classList.add("hidden");
+                // Когда зашли в меню, запускаем падающие элементы на фоне
+                if (typeof startMenuAnimation === "function") startMenuAnimation();
+            };
+        } else {
+            // Если кнопки нет в HTML, просто убираем экран через секунду
+            setTimeout(() => { if (loader) loader.classList.add("hidden"); }, 1000);
+        }
+    };
+
+    // ГАРАНТИЯ: Если Firebase молчит 3.5 сек, даем зайти так
     const forceCloseLoader = setTimeout(() => {
         if (loader && !loader.classList.contains("hidden")) {
-            loader.classList.add("hidden");
-            console.warn("Загрузка форсирована по таймауту (Firebase не ответил вовремя)");
+            console.warn("Загрузка форсирована по таймауту");
+            finishLoading();
         }
     }, 3500);
 
     if (!window.db || !id) {
         clearTimeout(forceCloseLoader);
-        if (loader) loader.classList.add("hidden");
-        return updateMenuInfo();
+        updateMenuInfo();
+        finishLoading();
+        return;
     }
     
     const userRef = db.ref('players/' + id);
     userRef.once('value').then((snapshot) => {
-        // Если данные пришли, отменяем экстренный таймаут
         clearTimeout(forceCloseLoader);
 
         if (snapshot.exists()) {
@@ -291,17 +309,18 @@ function loadUserData(id) {
             
             if (typeof updateSkinUI === "function") updateSkinUI(); 
         } else {
+            // Если игрока нет, создаем запись
             saveUserData();
         }
 
         updateMenuInfo();
-        if (loader) loader.classList.add("hidden"); 
+        finishLoading();
 
     }).catch((err) => {
         clearTimeout(forceCloseLoader);
         console.error("Ошибка Firebase:", err);
         updateMenuInfo();
-        if (loader) loader.classList.add("hidden");
+        finishLoading();
     });
 }
 
