@@ -65,6 +65,16 @@ body {
     40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
+.obstacle {
+    position: absolute;
+    z-index: 9999 !important; /* Гарантирует видимость */
+    width: 45px;
+    height: 45px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block !important;
+}
+
 /* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
 .ice-pop {
     position: absolute;
