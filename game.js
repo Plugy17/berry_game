@@ -680,10 +680,11 @@ function update() {
 }
 
 function handleCollision(obs, p) {
-    if (obs.dataset.processing === "true") return;
+    // 1. Защита от двойного срабатывания
+    if (!obs || obs.dataset.processing === "true") return;
     obs.dataset.processing = "true";
     
-    // Мгновенно убираем объект, чтобы он не "тормозил" поток
+    // Прячем сразу, чтобы игрок не видел "залипания"
     obs.style.display = 'none';
 
     const type = obs.dataset.type;
@@ -691,57 +692,83 @@ function handleCollision(obs, p) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
+    // Гарантируем наличие gameState
+    const currentActiveSkin = (window.gameState && gameState.currentSkin) ? gameState.currentSkin : "default";
+
     try {
         if (type === "good") {
+            // Звук
             if (window.soundCollect) {
                 soundCollect.currentTime = 0;
                 soundCollect.play().catch(() => {});
             }
 
+            // Логика комбо (проверяем существование переменных)
+            if (typeof comboCount === 'undefined') window.comboCount = 0;
+            if (typeof comboMultiplier === 'undefined') window.comboMultiplier = 1;
+
             comboCount++;
-            let maxComboLimit = (gameState.currentSkin === "star") ? 8 : 5;
+            let maxComboLimit = (currentActiveSkin === "star") ? 8 : 5;
             comboMultiplier = Math.min(maxComboLimit, Math.floor(comboCount / 3) + 1);
 
-            // ИСПРАВЛЕНО: Теперь название функции совпадает с существующей
+            // Эффект
             if (typeof createCollectExplosion === 'function') {
                 createCollectExplosion(centerX, centerY, "#ffcc00");
             }
 
+            // Счет
+            if (typeof coins === 'undefined') window.coins = 0;
             coins += comboMultiplier; 
-            updateScore(); 
+            
+            if (typeof updateScore === 'function') updateScore(); 
         } 
         else if (type === "gift_purple" || type === "diamond") {
             let addDia = Math.floor(Math.random() * 2) + 1;
+            
+            // Синхронизация алмазов
+            if (typeof totalDiamonds === 'undefined') window.totalDiamonds = 0;
             totalDiamonds += addDia;
-            gameState.inventory.items.diamonds = totalDiamonds; 
+            if (window.gameState) gameState.inventory.items.diamonds = totalDiamonds;
 
-            if (gameState.currentSkin === "silver") activateSilverInvincibility(); 
+            if (currentActiveSkin === "silver" && typeof activateSilverInvincibility === 'function') {
+                activateSilverInvincibility(); 
+            }
             
             if (typeof createCollectExplosion === 'function') {
                 createCollectExplosion(centerX, centerY, "#e040fb");
             }
             
-            saveUserData(); 
-            updateMenuInfo(); 
+            if (typeof saveUserData === 'function') saveUserData(); 
+            if (typeof updateMenuInfo === 'function') updateMenuInfo(); 
         }
         else if (type === "bad") {
-            if (shieldActive) {
-                if (gameState.currentSkin !== "silver") {
-                    shieldActive = false;
+            // Проверка щита (shieldActive берем из глобального окна)
+            let isShielded = (window.shieldActive === true);
+
+            if (isShielded) {
+                if (currentActiveSkin !== "silver") {
+                    window.shieldActive = false;
                     if (p) p.classList.remove("shield-aura");
                 }
-            } else if (gameState.currentSkin === "pirate" && !pirateShieldUsed) {
-                pirateShieldUsed = true;
+                if (typeof createCollectExplosion === 'function') {
+                    createCollectExplosion(centerX, centerY, "#ff0000");
+                }
+            } else if (currentActiveSkin === "pirate" && !window.pirateShieldUsed) {
+                window.pirateShieldUsed = true;
                 if (p) p.classList.remove("skin-pirate-aura");
+                if (typeof createCollectExplosion === 'function') {
+                    createCollectExplosion(centerX, centerY, "#704214");
+                }
             } else {
-                gameOver();
+                if (typeof gameOver === 'function') gameOver();
                 return;
             }
         }
     } catch (err) {
-        console.error("Критическая ошибка в столкновении:", err);
+        console.error("Ошибка в столкновении:", err);
     }
 
+    // ВАЖНО: Удаляем из DOM и очищаем ссылку
     obs.remove();
 }
 
@@ -767,10 +794,17 @@ function activateSilverInvincibility() {
         
 function updateScore() {
     const coinEl = document.getElementById("coinCount");
-    const gameScoreEl = document.querySelector(".score-val"); // Значение внутри игры
-
+    const gameScoreEl = document.querySelector(".score-val"); // Проверь, есть ли такой класс в index.html
+    
     if (coinEl) coinEl.textContent = coins;
     if (gameScoreEl) gameScoreEl.textContent = coins;
+    
+    // Сохраняем лучший результат, если нужно
+    if (coins > best) {
+        best = coins;
+        const bestEl = document.getElementById("bestScore");
+        if (bestEl) bestEl.textContent = best;
+    }
 }
 
 function gameOver() {
