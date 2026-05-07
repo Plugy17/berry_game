@@ -66,13 +66,14 @@ body {
 }
 
 .obstacle {
-    position: absolute;
-    z-index: 9999 !important; /* Гарантирует видимость */
+    position: absolute; /* ОБЯЗАТЕЛЬНО: без этого top/left не работают */
     width: 45px;
     height: 45px;
+    z-index: 999 !important; /* Чтобы были над фоном */
     background-size: contain;
     background-repeat: no-repeat;
     display: block !important;
+    pointer-events: none; /* Чтобы не мешали нажатиям */
 }
 
 /* --- ВЗРЫВЫ И ЧАСТИЦЫ --- */
@@ -1094,4 +1095,11 @@ button:active { transform: scale(0.95); }
     border-radius: 50%;
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
     animation: pulse 1.5s infinite;
+}
+
+#game {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
 }
