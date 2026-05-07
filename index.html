@@ -6,14 +6,12 @@
     <title>BERRY RUNNER ONLINE</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-<!-- ЭКРАН ЗАГРУЗКИ -->
 <div id="loading-screen">
     <div class="loader-content">
         <div class="spinner"></div>
@@ -25,14 +23,12 @@
     </div>
 </div>
 
-<!-- КОСМИЧЕСКИЙ ФОН -->
 <div class="background-wrapper">
     <div class="nebula-1"></div>
     <div class="nebula-2"></div>
     <div class="stars-overlay"></div>
 </div>
 
-<!-- ГЛАВНОЕ МЕНЮ -->
 <div id="menu" class="screen">
     <div id="menu-particles"></div>
 
@@ -40,7 +36,6 @@
         <div id="welcome" class="welcome-text">Герой BERRY</div>
         <div class="menu-stats-container">
             
-            <!-- СЕКЦИЯ ВЫБОРА СКИНА В МЕНЮ -->
             <div class="skin-menu-section">
                 <div class="skin-carousel">
                     <button class="nav-btn prev" id="prevSkin">❮</button>
@@ -56,7 +51,6 @@
                 </div>
             </div>
 
-            <!-- БАЛАНС И РЕКОРД -->
             <div id="total-balance" class="balance-info">
                 <span id="menuCoinCount">0</span> | 
                 <span id="menuDiamondCount">0</span> 
@@ -74,12 +68,11 @@
             <option value="medium" selected>🟨 Средне</option>
             <option value="hard">🟥 Сложно</option>
         </select>
-        <button onclick="if(typeof startGame === 'function') startGame()">ИГРАТЬ</button>
+        <button onclick="if(typeof startGame === 'function') { resetGameLogic(); startGame(); }">ИГРАТЬ</button>
         <button onclick="if(typeof openShop === 'function') openShop()">🛒 Магазин</button>
     </div>
 </div>
 
-<!-- ИГРОВОЙ ЭКРАН -->
 <div id="game" class="screen hidden">
     <div id="game-top-bar">
         <button id="pauseBtn" class="clean-button" onclick="togglePause()">
@@ -87,7 +80,8 @@
         </button>
 
         <div id="hud">
-            <span class="ice-icon"></span> <span id="coinCount">0</span> | 
+            <span class="ice-icon"></span> 
+            <span id="score">0</span> <span id="coinCount" class="hidden">0</span> | 
             <span id="diamondCount">0</span> | 
             🏆 <span id="bestScore">0</span>
         </div>
@@ -101,7 +95,6 @@
     <div id="combo-display" class="combo-text"></div>
     <div id="player"></div> 
 
-    <!-- КНОПКИ БОНУСОВ -->
     <div id="bonus-panel">
         <div class="bonus-btn" onclick="useShield()">
             <img src="assets/shield_icon.png" class="bonus-icon-img" alt="Shield">
@@ -114,7 +107,6 @@
     </div>
 </div>
 
-<!-- ЭКРАН GAME OVER -->
 <div id="gameOverScreen" class="hidden">
     <div class="go-card">
         <div class="go-title">БА-БАХ!</div>
@@ -123,13 +115,12 @@
             <span id="final-score">0</span>
         </div>
         <div class="go-btn-container">
-            <button class="btn-restart" onclick="startGame()">ИГРАТЬ ЕЩЕ</button>
+            <button id="restart-btn" class="btn-restart" onclick="resetGameLogic(); startGame();">ИГРАТЬ ЕЩЕ</button>
             <button class="btn-exit" onclick="backToMenu()">В МЕНЮ</button>
         </div>
     </div>
 </div>
 
-<!-- МАГАЗИН -->
 <div id="shop" class="screen hidden">
     <h2 class="shop-title">МАГАЗИН</h2>
 
@@ -141,7 +132,6 @@
     </div>
 
     <div class="shop-container">
-        <!-- ТОВАР 1: ЗВЕЗДНЫЙ БЕРРИ -->
         <div class="shop-item">
             <img src="assets/berry2.png" alt="Star Berry">
             <div class="item-title">ЗВЕЗДНЫЙ БЕРРИ</div>
@@ -151,7 +141,6 @@
             </button>
         </div>
 
-        <!-- ТОВАР 2: ПИРАТ БЕРРИ -->
         <div class="shop-item">
             <img src="assets/berry3.png" alt="Pirate Berry">
             <div class="item-title">ПИРАТ БЕРРИ</div>
@@ -161,7 +150,6 @@
             </button>
         </div>
 
-        <!-- ТОВАР 3: СИЛВЕР БЕРРИ -->
         <div class="shop-item">
             <img src="assets/berry4.png" alt="Silver Berry">
             <div class="item-title">СИЛВЕР БЕРРИ</div>
@@ -171,7 +159,6 @@
             </button>
         </div>
 
-        <!-- ТОВАР 4: ЩИТ -->
         <div class="shop-item">
             <img src="assets/shield_icon.png" alt="Shield">
             <div class="item-title">ЩИТ</div>
@@ -180,7 +167,6 @@
             </button>
         </div>
 
-        <!-- ТОВАР 5: МАГНИТ -->
         <div class="shop-item">
             <img src="assets/magnet_icon.png" alt="Magnet">
             <div class="item-title">МАГНИТ</div>
@@ -189,7 +175,6 @@
             </button>
         </div>
 
-        <!-- ТОВАР 6: ОБМЕННИК -->
         <div class="shop-item exchange-block">
             <div class="item-title" style="font-size: 16px;">ОБМЕН ВАЛЮТЫ</div>
             <button class="buy-button" onclick="exchangeIceToDiamond()">
@@ -216,9 +201,6 @@
   };
 
   async function initApp() {
-    console.log("Запуск инициализации...");
-    
-    // Принудительно показываем лоадер, если он вдруг скрыт
     const loader = document.getElementById("loading-screen");
     if (loader) loader.style.display = "flex";
 
@@ -227,7 +209,6 @@
             firebase.initializeApp(firebaseConfig);
         }
         window.db = firebase.database();
-        console.log("Firebase готов.");
 
         const tg = window.Telegram?.WebApp;
         if (tg) {
@@ -239,14 +220,8 @@
         const idDisplay = document.getElementById("user-id-display");
         if (idDisplay) idDisplay.textContent = userId;
 
-        // Проверяем наличие функции загрузки данных
         if (typeof loadUserData === "function") {
-            console.log("Загружаем данные игрока из Firebase...");
-            
-            // Ждем завершения загрузки данных
             await loadUserData(userId); 
-            
-            console.log("Данные загружены. Активируем кнопку.");
             const continueBtn = document.getElementById("continue-btn");
             if (continueBtn) {
                 continueBtn.classList.remove("hidden");
@@ -254,23 +229,21 @@
                     loader.style.opacity = "0";
                     setTimeout(() => {
                         loader.style.display = "none";
-                        // Если в game.js есть функция старта анимаций меню, вызываем её здесь
                         if (typeof startMenuAnimation === "function") startMenuAnimation();
                     }, 500);
                 };
             }
-        } else {
-            console.error("ОШИБКА: loadUserData не найдена. Проверьте, что в game.js нет ошибок.");
         }
     } catch (e) {
         console.error("Ошибка при загрузке приложения:", e);
     }
   }
 
-  // Запуск
   if (document.readyState === 'complete') {
       initApp();
   } else {
       window.addEventListener('load', initApp);
   }
 </script>
+</body>
+</html>
