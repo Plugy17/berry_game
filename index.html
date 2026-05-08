@@ -245,5 +245,16 @@
       window.addEventListener('load', initApp);
   }
 </script>
+    <audio id="soundCollect" src="assets/collect.mp3" preload="auto"></audio>
+<audio id="soundGameOver" src="assets/gameover.mp3" preload="auto"></audio>
+
+<script>
+    // Инициализация звуков для доступа из game.js
+    window.soundCollect = document.getElementById("soundCollect");
+    window.soundGameOver = document.getElementById("soundGameOver");
+    
+    // Настройка громкости (опционально)
+    if(window.soundCollect) window.soundCollect.volume = 0.5;
+</script>
 </body>
 </html>
