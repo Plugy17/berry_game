@@ -728,83 +728,74 @@ function handleCollision(obs, p) {
     if (!obs || obs.dataset.processing === "true") return;
     obs.dataset.processing = "true";
     
-    // Сразу фиксируем данные, пока объект еще в DOM
     const type = obs.dataset.type;
     const rect = obs.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // УДАЛЯЕМ СРАЗУ. Если код ниже упадет, объект не будет висеть на экране
     obs.remove();
 
     try {
         const currentActiveSkin = (window.gameState && window.gameState.currentSkin) ? window.gameState.currentSkin : "default";
 
         if (type === "good") {
-            // Звук
+            // ЗВУК И ВИБРАЦИЯ
             if (window.soundCollect) {
-                soundCollect.currentTime = 0;
-                soundCollect.play().catch(() => {});
+                window.soundCollect.currentTime = 0;
+                window.soundCollect.play().catch(() => {});
+            }
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
 
             window.comboCount = (window.comboCount || 0) + 1;
             let maxComboLimit = (currentActiveSkin === "star") ? 8 : 5;
             window.comboMultiplier = Math.min(maxComboLimit, Math.floor(window.comboCount / 3) + 1);
 
-            if (typeof createCollectExplosion === 'function') {
-                createCollectExplosion(centerX, centerY, "#ffcc00");
+            // Обновляем локальные переменные
+            window.coins = (window.coins || 0) + window.comboMultiplier; 
+            
+            // СИНХРОНИЗАЦИЯ: Пишем в gameState, чтобы база знала актуальный счет
+            if (window.gameState) {
+                window.gameState.coins = (window.gameState.coins || 0) + window.comboMultiplier;
             }
 
-            window.coins = (window.coins || 0) + window.comboMultiplier; 
-            if (typeof updateScore === 'function') updateScore(); 
+            if (typeof createCollectExplosion === 'function') createCollectExplosion(centerX, centerY, "#ffcc00");
+            updateScore(); 
         } 
         
         else if (type === "gift_purple" || type === "diamond") {
             let addDia = Math.floor(Math.random() * 2) + 1;
             window.totalDiamonds = (window.totalDiamonds || 0) + addDia;
 
-            // БЕЗОПАСНАЯ ЗАПИСЬ (проверяем всю цепочку)
-            if (window.gameState && window.gameState.inventory && window.gameState.inventory.items) {
-                window.gameState.inventory.items.diamonds = window.totalDiamonds;
+            if (window.gameState) {
+                if (!gameState.inventory) gameState.inventory = { items: {} };
+                if (!gameState.inventory.items) gameState.inventory.items = {};
+                gameState.inventory.items.diamonds = window.totalDiamonds;
+                // КРИТИЧНО: сохраняем текущие монеты в gameState ПЕРЕД вызовом saveUserData
+                gameState.coins = window.coins; 
             }
 
-            if (currentActiveSkin === "silver" && typeof activateSilverInvincibility === 'function') {
-                activateSilverInvincibility(); 
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
             }
-            
-            if (typeof createCollectExplosion === 'function') {
-                createCollectExplosion(centerX, centerY, "#e040fb");
-            }
-            
+
             if (typeof saveUserData === 'function') saveUserData(); 
-            if (typeof updateMenuInfo === 'function') updateMenuInfo(); 
+            updateScore();
         }
 
         else if (type === "bad") {
             let isShielded = (window.shieldActive === true);
-
-            if (isShielded) {
-                if (currentActiveSkin !== "silver") {
-                    window.shieldActive = false;
-                    if (p) p.classList.remove("shield-aura");
-                }
-                if (typeof createCollectExplosion === 'function') {
-                    createCollectExplosion(centerX, centerY, "#ff0000");
-                }
-            } else if (currentActiveSkin === "pirate" && !window.pirateShieldUsed) {
-                window.pirateShieldUsed = true;
-                if (p) p.classList.remove("skin-pirate-aura");
-                if (typeof createCollectExplosion === 'function') {
-                    createCollectExplosion(centerX, centerY, "#704214");
-                }
+            if (isShielded || (currentActiveSkin === "pirate" && !window.pirateShieldUsed)) {
+                if (isShielded && currentActiveSkin !== "silver") window.shieldActive = false;
+                else window.pirateShieldUsed = true;
+                if (p) p.classList.remove("shield-aura", "skin-pirate-aura");
             } else {
-                // Если проиграли — выходим
                 if (typeof gameOver === 'function') gameOver();
-                return;
             }
         }
     } catch (err) {
-        console.error("Критическая ошибка в столкновении:", err);
+        console.error("Collision error:", err);
     }
 }
 
@@ -829,59 +820,57 @@ function activateSilverInvincibility() {
 }
         
 function updateScore() {
-    // 1. Обновляем счетчик монет в игре
-    const scoreEl = document.getElementById("score"); 
-    if (scoreEl) {
-        scoreEl.innerText = window.coins || 0;
-    }
+    const coinElements = ["score", "coinCount", "menuCoinCount", "shop-balance"];
+    coinElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = window.coins || 0;
+    });
 
-    // 2. Логика комбо
+    const diamondElements = ["diamondCount", "menuDiamondCount", "shop-diamonds"];
+    diamondElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = window.totalDiamonds || 0;
+    });
+
     const comboEl = document.getElementById("combo-display");
     if (comboEl) {
         if (window.comboCount > 1) {
             comboEl.innerText = `X${window.comboMultiplier} COMBO`;
             comboEl.style.opacity = "1";
-            
-            // Запускаем анимацию пульсации из твоего CSS
-            comboEl.classList.remove("combo-bump");
-            void comboEl.offsetWidth; // Магия для сброса анимации
-            comboEl.classList.add("combo-bump");
         } else {
             comboEl.style.opacity = "0";
         }
-    }
-
-    // 3. Обновляем алмазы, если они есть в HUD
-    const diamondEl = document.getElementById("diamondCount");
-    if (diamondEl) {
-        diamondEl.innerText = window.totalDiamonds || 0;
     }
 }
 
 function gameOver() {
     gameRunning = false;
-    cancelAnimationFrame(loopId);
-    
-    // 1. ПОЛНАЯ ЗАЧИСТКА ПОЛЯ
-    document.querySelectorAll(".obstacle").forEach(obs => obs.remove());
-    document.querySelectorAll(".speed-particle").forEach(part => part.remove());
+    if (loopId) cancelAnimationFrame(loopId);
+    if (window.gameInterval) clearInterval(window.gameInterval);
 
-    // 2. СОХРАНЕНИЕ ДАННЫХ
-    totalCoins += coins;
-    if (coins > best) best = coins;
-    if (typeof saveUserData === 'function') saveUserData();
-
-    // 3. ПОКАЗ ЭКРАНА СМЕРТИ
-    const loseScreen = document.getElementById("lose-screen") || document.getElementById("gameOverScreen");
-    if (loseScreen) {
-        loseScreen.style.display = "flex";
-        loseScreen.classList.remove("hidden");
-        
-        const finalScoreEl = document.getElementById("final-score");
-        if (finalScoreEl) {
-            finalScoreEl.textContent = coins;
-        }
+    // Звук смерти и вибрация
+    if (window.soundGameOver) window.soundGameOver.play().catch(() => {});
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
     }
+
+    // Сохраняем рекорд
+    if (window.gameState) {
+        if (window.coins > (gameState.bestScore || 0)) {
+            gameState.bestScore = window.coins;
+        }
+        // Передаем текущий баланс монет в объект состояния для записи в Firebase
+        gameState.coins = window.coins;
+    }
+
+    const finalScoreEl = document.getElementById("final-score");
+    if (finalScoreEl) finalScoreEl.innerText = window.coins;
+
+    document.getElementById("gameOverScreen").classList.remove("hidden");
+
+    // Отправка данных и обновление цифр в меню
+    if (typeof saveUserData === 'function') saveUserData();
+    if (typeof updateMenuInfo === 'function') updateMenuInfo();
 }
 
 function backToMenu() {
